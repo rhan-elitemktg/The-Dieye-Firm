@@ -1,0 +1,312 @@
+/* ============================================================
+   The Dieye Firm — Global stylesheet
+   Ported from the bound design system (Navy & Gold), with the
+   homepage's applied overrides: Geist body, 1660px container,
+   130px section rhythm.
+
+   Fonts are loaded via <link> in Layout.astro (not @import here)
+   for render performance.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. Color tokens — Navy & Gold
+   ------------------------------------------------------------ */
+:root {
+  /* ---- Brand primitives — Navy & Gold ---- */
+  --navy-900: #0f2438;   /* deepest navy — footer, dark bleeds */
+  --navy-700: #15334f;   /* core brand navy — headlines, nav, primary surfaces */
+  --navy-500: #22557f;   /* lifted navy — links hover, italic emphasis on light */
+  --navy-300: #5a7b9c;   /* muted navy — meta on light */
+
+  --gold-600: #a9863a;   /* deep gold — text-on-light accent, hover */
+  --gold-500: #c4a24c;   /* core brand gold — primary buttons, rules, accents */
+  --gold-300: #ddc488;   /* soft gold — tints, focus rings */
+  --gold-ink: #3a2e0c;   /* readable ink for text sitting ON gold */
+
+  /* ---- Neutrals — warm "bone" paper family ---- */
+  --bone-50:  #fbf8f2;   /* lightest card surface */
+  --bone-100: #f7f2e8;   /* core page surface (warm cream) */
+  --bone-200: #efe9db;   /* tinted section band */
+  --bone-300: #e3dac8;   /* hairline / divider on bone */
+  --bone-400: #cabfa6;   /* stronger divider, disabled fills */
+
+  --ink-900: #161d26;    /* near-black ink */
+  --ink-700: #1d2733;    /* core body ink */
+  --ink-500: #475260;    /* secondary text */
+  --ink-300: #6f7a86;    /* tertiary / captions */
+
+  --white: #ffffff;
+
+  /* ---- Semantic status (used sparingly in a legal context) ---- */
+  --success: #2f6b4f;
+  --warning: #b07a1f;
+  --danger:  #9a3434;
+  --info:    #22557f;
+}
+
+/* ------------------------------------------------------------
+   2. Typography tokens
+   Families reflect the homepage override: serif headings +
+   Geist for everything else.
+   ------------------------------------------------------------ */
+:root {
+  /* ---- Families ---- */
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-sans:  "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-condensed: "Geist", system-ui, sans-serif;
+
+  /* semantic family aliases */
+  --font-display: var(--font-serif);
+  --font-body:    var(--font-sans);
+  --font-ui:      var(--font-sans);
+  --font-eyebrow: var(--font-sans);
+
+  /* ---- Weights ---- */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold: 600;
+  --fw-bold:    700;
+  --fw-heavy:   800;
+
+  /* ---- Eyebrow / kicker ---- */
+  --eyebrow-tracking: 0.18em;
+
+  /* ---- Letter-spacing primitives ---- */
+  --tracking-tight:  -0.015em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.05em;
+  --tracking-caps:   0.12em;
+  --tracking-eyebrow: 0.18em;
+
+  /* ---- Line-height primitives ---- */
+  --leading-tight: 1.1;
+  --leading-snug:  1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.62;
+}
+
+/* ------------------------------------------------------------
+   3. Spacing, layout & radii tokens (8px base)
+   Container + section values reflect the homepage build.
+   ------------------------------------------------------------ */
+:root {
+  /* ---- Spacing scale (8px base) ---- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ---- Container & section rhythm (homepage-applied values) ---- */
+  --container-max: 1660px;
+  --container-pad: clamp(20px, 4vw, 40px);   /* responsive gutter */
+  --section-pad-y: 130px;                    /* eased on mobile below */
+  --section-gap:   80px;                     /* gap between columns/cards */
+
+  /* ---- Corner radii ---- */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  /* ---- Borders ---- */
+  --border-width: 1px;
+  --border-width-strong: 2px;
+  --rule-width: 2px;         /* the gold eyebrow rule */
+  --rule-length: 36px;
+
+  /* ---- Control sizing ---- */
+  --control-h-sm: 38px;
+  --control-h-md: 46px;
+  --control-h-lg: 54px;
+  --tap-min: 44px;
+}
+
+/* ------------------------------------------------------------
+   4. Effects — shadows, scrims, motion
+   ------------------------------------------------------------ */
+:root {
+  /* ---- Elevation shadows (warm-tinted, soft) ---- */
+  --shadow-xs: 0 1px 2px rgba(21, 33, 46, .06);
+  --shadow-sm: 0 6px 16px -10px rgba(21, 33, 46, .28);
+  --shadow-md: 0 14px 30px -16px rgba(21, 33, 46, .32);
+  --shadow-lg: 0 22px 44px -18px rgba(20, 20, 20, .40);
+  --shadow-xl: 0 34px 70px -26px rgba(20, 20, 20, .50);
+  --shadow-accent: 0 14px 26px -14px var(--gold-500);
+
+  /* ---- Photo treatment ---- */
+  --scrim-navy:
+    linear-gradient(180deg, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, .10) 18%, rgba(0, 0, 0, 0) 30%),
+    linear-gradient(98deg, var(--navy-700) 4%, color-mix(in srgb, var(--navy-700) 82%, transparent) 40%, transparent 72%);
+  --scrim-bottom: linear-gradient(0deg, rgba(0, 0, 0, .62), rgba(0, 0, 0, 0) 55%);
+  --photo-filter: saturate(.97) contrast(1.02);
+
+  /* ---- Motion ---- */
+  /* Project default easing — use for all animations unless specified otherwise. */
+  --ease-out: cubic-bezier(0.17, 0.66, 0.34, 0.98);
+  --ease-in-out: cubic-bezier(.65, .05, .36, 1);
+  --dur-fast: .12s;
+  --dur-base: .18s;
+  --dur-slow: .32s;
+  --hover-lift: -2px;
+
+  /* ---- The gold "eyebrow rule" — a signature device ---- */
+  --eyebrow-rule: var(--rule-width, 2px) solid var(--gold-500);
+}
+
+/* ------------------------------------------------------------
+   5. Reset & base elements
+   ------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font: var(--fw-regular) 17px/29px var(--font-body);
+  color: var(--ink-700);
+  background: var(--bone-100);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings — Source Serif 4 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: var(--fw-semibold);
+  color: var(--navy-700);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+}
+
+h1 { font-size: 56px; line-height: 1.08; }
+h2 { font-size: 48px; line-height: 60px; }   /* section titles */
+h3 { font-size: 32px; line-height: 1.2; }
+h4 { font-size: 24px; line-height: 1.3; }
+
+p { line-height: 29px; }
+
+a {
+  color: var(--navy-500);
+  text-decoration: none;
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+a:hover { color: var(--gold-600); }
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+img { height: auto; }
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button { cursor: pointer; }
+
+ul, ol { list-style-position: inside; }
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* ------------------------------------------------------------
+   6. Layout utilities
+   ------------------------------------------------------------ */
+
+/* Centered content container — all major sections align to this. */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+/* Section vertical rhythm — 130px, eased on smaller viewports. */
+.section {
+  padding-block: var(--section-pad-y);
+}
+
+@media (max-width: 980px) {
+  .section { padding-block: 96px; }
+}
+
+@media (max-width: 560px) {
+  .section { padding-block: 64px; }
+}
+
+/* Eyebrow / kicker — the signature gold-bird kicker device.
+  (Icon added per-section as needed; this sets the type + rule.) */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font: var(--fw-heavy) 18px/1.2 var(--font-ui);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+
+/* Visually-hidden — for skip links & a11y labels. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------
+   7. Reduced motion — calm fallback
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
