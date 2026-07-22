@@ -283,19 +283,9 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
     color: var(--gold-500);
   }
 
-  /* Current page — the top-level item (or its parent) stays gold with a rule. */
+  /* Current page — the top-level item (or its parent) stays gold. */
   .navitem.is-active .navitem__link {
     color: var(--gold-500);
-  }
-
-  .navitem.is-active::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
-    background: var(--gold-500);
   }
 
   .caret {
@@ -753,7 +743,7 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
     }
 
     .mainnav__inner {
-      min-height: 72px;
+      min-height: 85px;
       gap: 10px;
     }
 

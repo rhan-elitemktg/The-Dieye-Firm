@@ -1,0 +1,349 @@
+---
+// Hero — full-bleed homepage hero. The photo runs edge to edge and up behind
+// the overlay header; a navy side-scrim keeps the left-hand copy legible.
+
+const phone = "(832) 299-7990";
+const phoneHref = "tel:+18322997990";
+
+const stats = [
+  { value: "17+", label: "Years of Experience" },
+  { value: "500+", label: "Families Helped" },
+  { value: "Countless", label: "Success Stories" },
+];
+---
+
+<section class="hero">
+  <div class="hero__media">
+    <picture>
+      {/* Mobile gets the tighter portrait crop; wide screens get the landscape frame. */}
+      <source media="(max-width: 650px)" srcset="/images/papa-hero-tan.jpg" />
+      <img
+        class="hero__img"
+        src="/images/papa-hero-b.jpg"
+        alt="Attorney Papa Dieye of The Dieye Firm"
+        width="1280"
+        height="714"
+        fetchpriority="high"
+      />
+    </picture>
+    <div class="hero__scrim" aria-hidden="true"></div>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__content">
+      <p class="hero__eyebrow">
+        <img src="/images/logo-bird-gold.png" alt="" width="30" height="30" />
+        <span>Pearland &amp; Houston Family Law</span>
+      </p>
+
+      <h1 class="hero__title">
+        When family life<br />
+        changes, <em>we're with you.</em>
+      </h1>
+
+      <p class="hero__lead">
+        Compassionate, steady guidance through divorce, custody, and the moments
+        that matter most, from an attorney who treats you like a neighbor, not a
+        case number.
+      </p>
+
+      <div class="hero__actions">
+        <a class="btn btn--gold" href="/contact-us/">Get in Touch</a>
+        <a class="btn btn--ghost" href={phoneHref}>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path
+              d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+            />
+          </svg>
+          {phone}
+        </a>
+      </div>
+
+      <ul class="hero__stats">
+        {stats.map((stat) => (
+          <li>
+            <span class="hero__stat-value">{stat.value}</span>
+            <span class="hero__stat-label">{stat.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Height is driven by the content rather than forced to 100vh. The source
+     photo is 1280px wide, so a shorter hero means less upscaling and a
+     visibly sharper image. */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    overflow: hidden;
+    background: var(--navy-900);
+  }
+
+  /* Desktop: the media layer is absolute so the photo runs full-bleed behind
+     the copy. On mobile it drops into normal flow (see the mobile block). */
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Anchored to the top: on wide viewports the image is width-driven and
+       overflows vertically, so a centred crop would slice the top of his
+       head. Anchoring top means the overflow is only ever trimmed off the
+       bottom (torso and wall), never the face. */
+    object-position: center top;
+    filter: var(--photo-filter);
+  }
+
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--scrim-navy);
+  }
+
+  .hero__inner {
+    padding-top: calc(var(--header-h) + 56px);
+    padding-bottom: 80px;
+  }
+
+  .hero__content {
+    max-width: 800px;
+  }
+
+  /* Eyebrow */
+  .hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 26px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .hero__eyebrow img {
+    width: 35px;
+    height: auto;
+    flex: none;
+  }
+
+  /* Headline */
+  .hero__title {
+    margin-bottom: 26px;
+    font-family: var(--font-serif);
+    font-size: clamp(40px, 4.5vw, 66px);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+
+  .hero__title em {
+    font-style: italic;
+    color: var(--gold-500);
+  }
+
+  /* Lead */
+  .hero__lead {
+    max-width: 560px;
+    margin-bottom: 38px;
+    font-size: 18px;
+    line-height: 31px;
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  /* Actions */
+  /* Two equal columns so both CTAs share the wider button's width. */
+  .hero__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 470px;
+    margin-bottom: 58px;
+  }
+
+  .hero__actions .btn {
+    padding: 18px 30px;
+  }
+
+  .hero__actions svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* Stats */
+  .hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero__stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 30px;
+    border-left: 1px solid rgba(255, 255, 255, 0.22);
+  }
+
+  .hero__stats li:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .hero__stat-value {
+    font-family: var(--font-serif);
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .hero__stat-label {
+    max-width: 118px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .hero__content {
+      max-width: 600px;
+    }
+  }
+
+  /* Tablet — the photo has less room, so deepen the scrim for legibility. */
+  @media (max-width: 1000px) {
+    .hero__scrim {
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.1) 20%, rgba(0, 0, 0, 0) 38%),
+        linear-gradient(100deg, var(--navy-900) 6%, color-mix(in srgb, var(--navy-900) 66%, transparent) 46%, rgba(15, 36, 56, 0.22) 78%, rgba(15, 36, 56, 0) 100%);
+    }
+
+    .hero__img {
+      object-position: 68% center;
+    }
+
+    .hero__inner {
+      padding-bottom: 64px;
+    }
+
+    .hero__content {
+      max-width: 560px;
+    }
+  }
+
+  /* Mobile — the photo becomes a band pinned to the bottom with the copy on
+     solid navy above it, so his face is never behind the text. (A full-bleed
+     cover can't solve this: on a tall narrow viewport the image scales by
+     height, leaving no vertical overflow for object-position to shift.) */
+  @media (max-width: 650px) {
+    /* The photo drops into normal flow as a band at the top, so the copy
+       simply follows it — no absolute offsets and no duplicated height. The
+       header is sticky (in flow) at this breakpoint, so it reserves its own
+       space and the hero needs no offset for it. */
+    .hero__media {
+      position: relative;
+      inset: auto;
+      z-index: auto;
+      height: clamp(300px, 42svh, 420px);
+    }
+
+    .hero__img {
+      object-position: center top;
+    }
+
+    .hero__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(15, 36, 56, 0) 0%,
+        rgba(15, 36, 56, 0.2) 44%,
+        rgba(15, 36, 56, 0.68) 74%,
+        var(--navy-900) 95%
+      );
+    }
+
+    .hero__inner {
+      padding-top: 28px;
+      padding-bottom: 64px;
+    }
+
+    .hero__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      margin-bottom: 20px;
+    }
+
+    .hero__eyebrow img {
+      width: 24px;
+    }
+
+    .hero__lead {
+      font-size: 17px;
+      line-height: 29px;
+      margin-bottom: 30px;
+    }
+
+    .hero__actions {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      max-width: none;
+      margin-bottom: 44px;
+    }
+
+    .hero__actions .btn {
+      padding: 16px 24px;
+    }
+
+    /* Stack the stats: one per row, divided by hairlines instead of the
+       vertical rules used on wider screens. */
+    .hero__stats {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .hero__stats li {
+      padding: 18px 0;
+      border-left: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .hero__stats li:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .hero__stat-value {
+      font-size: 32px;
+    }
+
+    .hero__stat-label {
+      max-width: none;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+  }
+</style>

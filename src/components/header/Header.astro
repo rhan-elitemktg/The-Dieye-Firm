@@ -1,10 +1,18 @@
 ---
-// Header — sticky site header: InfoBar (top strip) + MainNav (primary bar).
+// Header — site header: InfoBar (top strip) + MainNav (primary bar).
+// Default: sticky, solid navy, occupies flow.
+// overlay: sits on top of a full-bleed hero, transparent until scrolled.
 import InfoBar from "./InfoBar.astro";
 import MainNav from "./MainNav.astro";
+
+interface Props {
+  overlay?: boolean;
+}
+
+const { overlay = false } = Astro.props;
 ---
 
-<header class="site-header">
+<header class:list={["site-header", { "site-header--overlay": overlay }]}>
   <InfoBar />
   <MainNav />
 </header>
@@ -15,4 +23,67 @@ import MainNav from "./MainNav.astro";
     top: 0;
     z-index: 200;
   }
+
+  /* Overlay mode — lifted out of flow so the hero runs full-bleed beneath it,
+     including up behind the info bar. */
+  .site-header--overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  /* Over the hero: the nav bar is fully transparent, while the info bar keeps
+     a tinted navy wash so the utility links stay legible. Both go fully
+     opaque once the page scrolls. */
+  .site-header--overlay :global(.infobar),
+  .site-header--overlay :global(.mainnav) {
+    transition: background var(--dur-slow) var(--ease-out);
+  }
+
+  .site-header--overlay :global(.infobar) {
+    background: color-mix(in srgb, var(--navy-700) 55%, transparent);
+  }
+
+  .site-header--overlay :global(.mainnav) {
+    background: transparent;
+  }
+
+  .site-header--overlay.is-scrolled :global(.infobar) {
+    background: var(--navy-700);
+  }
+
+  .site-header--overlay.is-scrolled :global(.mainnav) {
+    background: var(--navy-900);
+  }
+
+  /* Mobile: the hero photo starts below the header rather than running behind
+     it, so there's nothing to overlay. The header goes back to a plain sticky
+     bar in normal flow — no fixed positioning, and no height offset for the
+     hero to compensate for. */
+  @media (max-width: 650px) {
+    .site-header--overlay {
+      position: sticky;
+    }
+
+    .site-header--overlay :global(.infobar) {
+      background: var(--navy-700);
+    }
+
+    .site-header--overlay :global(.mainnav) {
+      background: var(--navy-900);
+    }
+  }
 </style>
+
+<script>
+  const header = document.querySelector(".site-header--overlay");
+
+  if (header) {
+    const onScroll = () => {
+      header.classList.toggle("is-scrolled", window.scrollY > 24);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+</script>
