@@ -1,0 +1,346 @@
+---
+// Practice Areas — "How We Can Help". A navy band carrying six white
+// practice cards, each linking through to its family law page.
+
+import { Image } from "astro:assets";
+import birdGold from "../../assets/images/logo-bird-gold.png";
+
+/* The icons are inlined rather than loaded as six separate files: they're
+   small (≈2-3kB each after optimisation), they carry no extra requests, and
+   inlining lets them inherit `currentColor` so the card hover can tint them. */
+import divorceIcon from "../../assets/icons/divorce.svg?raw";
+import childCustodyIcon from "../../assets/icons/child-custody.svg?raw";
+import familyLawIcon from "../../assets/icons/family-law.svg?raw";
+import childSupportIcon from "../../assets/icons/child-support.svg?raw";
+import propertyDivisionIcon from "../../assets/icons/property-division.svg?raw";
+import modificationsIcon from "../../assets/icons/modifications.svg?raw";
+
+const areas = [
+  {
+    title: "Divorce",
+    href: "/family-law/divorce/",
+    icon: divorceIcon,
+    text: "Divorce, whether contested or amicable, calls for steady guidance that protects your future and the people you love most.",
+  },
+  {
+    title: "Child Custody",
+    href: "/family-law/child-custody/",
+    icon: childCustodyIcon,
+    text: "Child Custody arrangements put your children first while protecting your role, your rights, and your peace of mind as a parent.",
+  },
+  {
+    title: "Family Law",
+    href: "/family-law/",
+    icon: familyLawIcon,
+    text: "Family Law covers every family matter, from mediation to litigation, you'll have calm, capable counsel beside you every step.",
+  },
+  {
+    title: "Child Support",
+    href: "/family-law/child-support/",
+    icon: childSupportIcon,
+    text: "Child Support orders should be fair and accurate. We help you set them correctly, and adjust them as your life changes over time.",
+  },
+  {
+    title: "Property Division",
+    href: "/family-law/property-division/",
+    icon: propertyDivisionIcon,
+    text: "Property Division under Texas law calls for a clear-eyed, even-handed approach to dividing your assets and debts as fairly as possible.",
+  },
+  {
+    title: "Modifications",
+    href: "/family-law/modifications-enforcement/",
+    icon: modificationsIcon,
+    text: "Modifications keep your orders current, because when life changes your custody, support, and parenting plans can change too.",
+  },
+];
+---
+
+<section class="pa section" aria-labelledby="pa-title">
+  <div class="container">
+    <header class="pa__head">
+      <p class="pa__eyebrow">
+        <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+        <span>What We Do</span>
+      </p>
+      <h2 class="pa__title" id="pa-title">How We Can <em>Help</em></h2>
+      <p class="pa__intro">
+        From divorce and custody to support and modifications, we guide Pearland and
+        Houston families through every family law matter with steady, compassionate
+        counsel, and the honest answers you deserve. Family law covers issues about
+        family relationships, including how to approach changes and resolve conflict.
+        The legal landscape can be far more intricate than many expect.
+      </p>
+    </header>
+
+    <ul class="pa__grid">
+      {areas.map((area) => (
+        <li>
+          {/* The whole card is the link, so the "Read more" strip is decorative
+              rather than a second tab stop for the same destination. */}
+          <a class="pa-card" href={area.href}>
+            <span class="pa-card__icon" aria-hidden="true" set:html={area.icon} />
+            <h3 class="pa-card__title">{area.title}</h3>
+            <p class="pa-card__text">{area.text}</p>
+            <span class="pa-card__more" aria-hidden="true">
+              Read More
+              <svg viewBox="0 0 10 10" fill="currentColor"><path d="M2 0l6 5-6 5z" /></svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="pa__cta">
+      <a class="btn btn--gold" href="/family-law/">View All Services</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Navy band with a soft lift in the top-right corner, so the flat fill
+     doesn't read as a solid block behind the white cards. */
+  .pa {
+    background:
+      radial-gradient(120% 90% at 88% 0%, rgba(34, 85, 127, 0.42) 0%, rgba(15, 36, 56, 0) 62%),
+      var(--navy-900);
+  }
+
+  /* ---- Head ---- */
+  .pa__head {
+    max-width: 830px;
+    margin: 0 auto 54px;
+    text-align: center;
+  }
+
+  .pa__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .pa__eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  .pa__title {
+    margin-bottom: 22px;
+    font-size: clamp(34px, 3.6vw, 52px);
+    line-height: 1.12;
+    color: #fff;
+  }
+
+  .pa__title em {
+    font-style: italic;
+    color: var(--gold-500);
+  }
+
+  .pa__intro {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* ---- Grid ---- */
+  .pa__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .pa__grid li {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+  
+  .pa__grid li:hover {
+    transform: translateY(-4px);
+  }
+
+  /* ---- Card ---- */
+  /* A column so the "Read more" strip can be pushed to the bottom edge with
+     margin-top:auto, keeping the strips aligned across a row of cards whose
+     copy runs to different lengths. */
+  .pa-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 42px 42px 0;
+    background: var(--white);
+    color: inherit;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .pa-card__icon {
+    display: grid;
+    place-items: center;
+    width: 82px;
+    height: 82px;
+    margin-bottom: 30px;
+    border-radius: var(--radius-md);
+    background: var(--bone-100);
+    color: var(--navy-700);
+    transition:
+      background var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
+  }
+
+  .pa-card:hover .pa-card__icon {
+    background: color-mix(in srgb, var(--gold-500) 16%, var(--white));
+    color: var(--gold-600);
+  }
+
+  /* :global — the SVG arrives via set:html, so it never receives Astro's
+     scoping attribute. */
+  .pa-card__icon :global(svg) {
+    width: 42px;
+    height: 42px;
+  }
+
+  .pa-card__title {
+    margin-bottom: 14px;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .pa-card__text {
+    margin-bottom: 34px;
+    color: var(--ink-500);
+  }
+
+  /* Full-bleed footer strip: the card's side padding is cancelled with
+     negative margins so the strip meets the card's edges. */
+  .pa-card__more {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: auto -42px 0;
+    padding: 20px 42px;
+    background: var(--bone-100);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+    border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+    transition:
+      background var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
+  }
+
+  .pa-card:hover .pa-card__more {
+    background: var(--gold-500);
+    color: var(--white);
+  }
+
+  .pa-card__more svg {
+    width: 8px;
+    height: 8px;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .pa-card:hover .pa-card__more svg {
+    transform: translateX(3px);
+  }
+
+  /* ---- CTA ---- */
+  .pa__cta {
+    margin-top: 46px;
+    text-align: center;
+  }
+
+  .pa__cta .btn {
+    min-width: 260px;
+    padding: 18px 34px;
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .pa-card {
+      padding: 34px 34px 0;
+    }
+
+    .pa-card__more {
+      margin-inline: -34px;
+      padding-inline: 34px;
+    }
+  }
+
+  /* Tablet — two across. */
+  @media (max-width: 1000px) {
+    .pa__head {
+      margin-bottom: 40px;
+    }
+
+    .pa__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .pa-card__icon {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 24px;
+    }
+
+    .pa-card__icon :global(svg) {
+      width: 36px;
+      height: 36px;
+    }
+
+    .pa-card__title {
+      font-size: 23px;
+    }
+  }
+
+  /* Mobile — single column. */
+  @media (max-width: 650px) {
+    .pa__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    .pa__intro {
+      font-size: 16px;
+      line-height: 27px;
+    }
+
+    .pa__grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .pa-card {
+      padding: 28px 26px 0;
+    }
+
+    .pa-card__text {
+      margin-bottom: 26px;
+    }
+
+    .pa-card__more {
+      margin-inline: -26px;
+      padding: 16px 26px;
+    }
+
+    .pa__cta {
+      margin-top: 32px;
+    }
+
+    .pa__cta .btn {
+      width: 100%;
+    }
+  }
+</style>
