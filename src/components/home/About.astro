@@ -1,0 +1,697 @@
+---
+// About — sidebar + content section. Built on the project's 3-column grid:
+// the media/testimonial aside takes 1 column, the copy spans 2.
+
+import { Image } from "astro:assets";
+import birdGold from "../../assets/images/logo-bird-gold.png";
+import videoPoster from "../../assets/images/video-poster-pearland.jpg";
+import headshot from "../../assets/images/papa-headshot.jpg";
+
+const WISTIA_ID = "z79lx3x00o";
+
+/* Wistia metadata is pulled at build time. It's wrapped so a Wistia outage
+   can never fail the build — the aria-label just falls back to a plain
+   label if the request doesn't come back. */
+const mediaUrl = "https://home.wistia.com/medias/" + WISTIA_ID;
+const oembedUrl = "https://fast.wistia.com/oembed?url=" + encodeURIComponent(mediaUrl);
+
+let duration: number | null = null;
+try {
+  const response = await fetch(oembedUrl);
+  if (response.ok) {
+    const data = await response.json();
+    duration = typeof data.duration === "number" ? data.duration : null;
+  }
+} catch (error) {
+  duration = null;
+}
+
+const runtime = duration
+  ? `${Math.floor(duration / 60)}:${String(Math.round(duration % 60)).padStart(2, "0")}`
+  : null;
+
+const playLabel = runtime
+  ? `Play video: Meet Papa Dieye (${runtime})`
+  : "Play video: Meet Papa Dieye";
+
+/* The poster is the designed still from the mockup. Wistia's auto-generated
+   thumbnail is a mid-sentence frame, so it isn't used — swap this for the
+   oEmbed `thumbnail_url` if a proper thumbnail is set in Wistia. */
+
+const checklist = [
+  {
+    lead: "Direct access to your attorney.",
+    text: "You work with Papa himself, not a rotating cast of associates. The person you meet at your consultation is the person who stands beside you in court.",
+  },
+  {
+    lead: "Seventeen-plus years of experience",
+    text: "across divorce, child custody, child support, property division, and post-decree modifications throughout the greater Houston area.",
+  },
+  {
+    lead: "Honest counsel and realistic expectations,",
+    text: "so you can make informed decisions about your family's future without false promises or pressure.",
+  },
+  {
+    lead: "Flexible, transparent fees and payment plans",
+    text: "built for real families navigating real financial stress during an already overwhelming time.",
+  },
+];
+---
+
+<section class="about section" aria-labelledby="about-title">
+  <div class="container">
+    <header class="about__head">
+      <p class="about__eyebrow">
+        <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+        <span>Houston Family Law Firm</span>
+      </p>
+      <h2 class="about__title" id="about-title">
+        Family Law Isn't Just About Outcomes - <em>It's About People.</em>
+      </h2>
+    </header>
+
+    <div class="about__grid">
+      <aside class="about__aside">
+        <button class="video-card" type="button" aria-label={playLabel} data-video-open>
+          <Image
+            class="video-card__poster"
+            src={videoPoster}
+            alt=""
+            widths={[480, 720, 960]}
+            sizes="(max-width: 1000px) 100vw, 360px"
+            format="webp"
+            quality={80}
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="video-card__play" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+          </span>
+          <span class="video-card__meta">
+            <span class="video-card__label">Watch Our Video</span>
+            <span class="video-card__caption">
+              Meet Papa Dieye, and hear how he stands beside Pearland families.
+            </span>
+          </span>
+        </button>
+
+        <figure class="testimonial">
+          <div class="testimonial__stars" role="img" aria-label="Five out of five stars">
+            {[...Array(5)].map(() => (
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            ))}
+          </div>
+          <blockquote class="testimonial__quote">
+            "From our very first conversation, Papa made me feel like a person, not a
+            case number. He took the time to understand what mattered most to me and my
+            children, and explained every option in plain language."
+          </blockquote>
+          <figcaption class="testimonial__cite">
+            <span class="testimonial__name">Danielle R.</span>
+            <span class="testimonial__case">Divorce &amp; Custody</span>
+          </figcaption>
+        </figure>
+      </aside>
+
+      <div class="about__body">
+        <p class="about__lead">
+          When your family is going through a divorce, a custody dispute, or a sudden
+          change in circumstances, it can feel like the ground has shifted beneath you.
+          At The Dieye Firm, we understand that behind every case file is a parent
+          worried about their children, a spouse facing an uncertain future, or a family
+          simply trying to find a way forward. We're here to help you carry that weight,
+          with compassion, honesty, and seventeen years of Texas family law experience
+          behind every decision.
+        </p>
+
+        <p>
+          For more than seventeen years, attorney Papa Dieye has guided Pearland and
+          Houston families through some of the hardest seasons of their lives. Our
+          approach is people-first: we listen before we advise, we explain the law in
+          plain language, and we never lose sight of the human beings at the center of
+          every matter. You are not a number here. You are a neighbor, and your family's
+          well-being is the measure of our work.
+        </p>
+
+        <h3>How The Dieye Firm Can Help</h3>
+        <p>
+          Family law in Texas covers a wide range of deeply personal matters, and we walk
+          with you through all of them, from the first difficult conversation to the
+          final signed order:
+        </p>
+
+        <ul class="checklist">
+          {checklist.map((item) => (
+            <li>
+              <span class="checklist__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12.5l4.5 4.5L19 7.5"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <span><strong>{item.lead}</strong> {item.text}</span>
+            </li>
+          ))}
+        </ul>
+
+        <figure class="pullquote">
+          <blockquote>
+            "I tell every client the same thing on day one: my job is to protect your
+            family, and to make sure you never feel alone in this process."
+          </blockquote>
+          <figcaption>
+            <Image
+              src={headshot}
+              alt=""
+              width={104}
+              format="webp"
+              quality={82}
+              loading="lazy"
+              decoding="async"
+            />
+            <span>
+              <span class="pullquote__name">Papa Dieye</span>
+              <span class="pullquote__role">Founding Attorney</span>
+            </span>
+          </figcaption>
+        </figure>
+
+        <h3>Why You Need a Compassionate Family Lawyer</h3>
+        <p>
+          Family law touches the things you hold most dear: your children, your home,
+          your financial security, and your peace of mind. A knowledgeable family lawyer
+          takes over the confusing paperwork, the court deadlines, and the difficult
+          negotiations, so you can focus on healing and on the people who depend on you
+          most.
+        </p>
+        <p>
+          Whether your situation is amicable or deeply contested, we work to resolve it
+          efficiently, protect your rights, and keep your children's well-being at the
+          heart of every strategy. We handle the legal complexity; you get room to
+          breathe.
+        </p>
+
+        <h3>Serving Families Across the Houston Area</h3>
+        <p>
+          The Dieye Firm proudly represents families in Pearland, Houston, Sugar Land,
+          Friendswood, Manvel, Alvin, and the surrounding communities. From contested
+          divorces and high-conflict custody disputes to straightforward, uncontested
+          separations, no family is too complicated and no concern is too small. We
+          believe everyone deserves clear answers, dignified treatment, and an advocate
+          who genuinely cares about what happens next.
+        </p>
+
+        <a class="btn btn--gold about__cta" href="/contact-us/">Get in Touch</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* Video modal. The Wistia iframe is injected on open and torn down on close,
+    so nothing loads from Wistia until the visitor asks for it — and closing
+    reliably stops playback. */}
+<div class="video-modal" id="videoModal" data-video-modal hidden>
+  <div class="video-modal__backdrop" data-video-close></div>
+  <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-label="Meet Papa Dieye">
+    <button class="video-modal__close" type="button" aria-label="Close video" data-video-close>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+    <div class="video-modal__frame" data-video-frame data-wistia-id={WISTIA_ID}></div>
+  </div>
+</div>
+
+<style>
+  .about {
+    background: var(--white);
+  }
+
+  /* Head spans the full width above the two columns. */
+  .about__head {
+    margin-bottom: 54px;
+  }
+
+  .about__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+  }
+
+  .about__eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  .about__title {
+    max-width: 1080px; /* the project's long-form text ceiling */
+    font-size: clamp(34px, 3.6vw, 52px);
+    line-height: 1.12;
+  }
+
+  /* Block so the italic phrase always starts its own line, rather than
+     wrapping wherever the column width happens to land. */
+  .about__title em {
+    display: block;
+    font-style: italic;
+    color: var(--navy-500);
+  }
+
+  /* Sidebar + content on the 3-column grid: aside 1 col, copy spans 2. */
+  .about__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--section-gap);
+    align-items: start;
+  }
+
+  .about__body {
+    grid-column: span 2;
+  }
+
+  /* ---- Video card ---- */
+  .video-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--navy-900);
+    text-align: left;
+  }
+
+  .video-card__poster {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Scrim so the caption stays readable over the photo. */
+  .video-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 36, 56, 0) 45%,
+      rgba(15, 36, 56, 0.82) 100%
+    );
+  }
+
+  .video-card__play {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--navy-900);
+    transition: background var(--dur-base) var(--ease-out);
+  }
+
+  .video-card:hover .video-card__play {
+    background: var(--gold-500);
+  }
+
+  .video-card__play svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 2px;
+  }
+
+  .video-card__meta {
+    position: absolute;
+    right: 18px;
+    bottom: 16px;
+    left: 18px;
+    z-index: 1;
+    display: block;
+    color: #fff;
+  }
+
+  .video-card__label {
+    display: block;
+    margin-bottom: 4px;
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .video-card__caption {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  /* ---- Testimonial ---- */
+  .testimonial {
+    margin: 40px 0 0;
+  }
+
+  .testimonial__stars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    color: var(--gold-500);
+  }
+
+  .testimonial__stars svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  .testimonial__quote {
+    margin: 0 0 20px;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink-700);
+  }
+
+  .testimonial__name {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy-700);
+    line-height: 1;
+  }
+
+  .testimonial__case {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  /* ---- Body copy ---- */
+  /* Scoped under .about__body so it outranks the `.about__body p` rule
+     below, which would otherwise flatten it back to the body colour. */
+  .about__body .about__lead {
+    margin-bottom: 22px;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 31px;
+    color: var(--ink-900);
+  }
+
+  .about__body p {
+    margin-bottom: 22px;
+    color: var(--ink-500);
+  }
+
+  .about__body h3 {
+    margin: 40px 0 14px;
+    font-size: 26px;
+    line-height: 1.25;
+  }
+
+  /* ---- Checklist ---- */
+  .checklist {
+    list-style: none;
+    margin: 0 0 34px;
+    padding: 0;
+  }
+
+  .checklist li {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+    color: var(--ink-500);
+  }
+
+  .checklist strong {
+    font-weight: 700;
+    color: var(--ink-900);
+  }
+
+  .checklist__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--gold-300);
+    color: var(--white);
+  }
+
+  .checklist__icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* ---- Pull quote ---- */
+  .pullquote {
+    margin: 0 0 40px;
+    padding: 34px 38px;
+    background: var(--bone-100);
+    border-left: 3px solid var(--gold-500);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .pullquote blockquote {
+    margin: 0 0 22px;
+    font-family: var(--font-serif);
+    font-size: 23px;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--navy-700);
+  }
+
+  .pullquote figcaption {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .pullquote img {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+  }
+
+  .pullquote__name {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy-700);
+    line-height: 1;
+  }
+
+  .pullquote__role {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .about__cta {
+    margin-top: 12px;
+    padding: 18px 34px;
+  }
+
+  /* ---- Video modal ---- */
+  .video-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    display: grid;
+    place-items: center;
+    padding: var(--container-pad);
+  }
+
+  .video-modal[hidden] {
+    display: none;
+  }
+
+  .video-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 36, 56, 0.82);
+  }
+
+  .video-modal__dialog {
+    position: relative;
+    width: min(1040px, 100%);
+  }
+
+  .video-modal__frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .video-modal__frame :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .video-modal__close {
+    position: absolute;
+    top: -48px;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .video-modal__close:hover {
+    color: var(--gold-500);
+  }
+
+  .video-modal__close svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  /* Tablet — collapse to a single column, media first. */
+  @media (max-width: 1000px) {
+    .about__grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    .about__body {
+      grid-column: auto;
+    }
+
+    .about__aside {
+      max-width: 520px;
+    }
+
+    .about__head {
+      margin-bottom: 40px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .about__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    .about__lead {
+      font-size: 17px;
+      line-height: 29px;
+    }
+
+    .about__body h3 {
+      font-size: 23px;
+      margin-top: 34px;
+    }
+
+    .pullquote {
+      padding: 26px 24px;
+    }
+
+    .pullquote blockquote {
+      font-size: 20px;
+    }
+
+    .testimonial__quote {
+      font-size: 19px;
+    }
+
+    .about__cta {
+      width: 100%;
+    }
+
+    .video-modal__close {
+      top: -44px;
+    }
+  }
+</style>
+
+<script>
+  const modal = document.querySelector<HTMLElement>("[data-video-modal]");
+  const frame = modal?.querySelector<HTMLElement>("[data-video-frame]");
+  const openers = document.querySelectorAll<HTMLButtonElement>("[data-video-open]");
+
+  if (modal && frame && openers.length) {
+    const wistiaId = frame.dataset.wistiaId;
+    let lastFocused: HTMLElement | null = null;
+
+    const open = () => {
+      lastFocused = document.activeElement as HTMLElement;
+      // Build the embed on demand so Wistia loads nothing until it's wanted.
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://fast.wistia.net/embed/iframe/${wistiaId}?autoPlay=true`;
+      iframe.allow = "autoplay; fullscreen";
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.title = "Meet Papa Dieye";
+      frame.replaceChildren(iframe);
+
+      modal.hidden = false;
+      document.documentElement.style.overflow = "hidden";
+      // Target the button explicitly — the backdrop also carries
+      // [data-video-close] and comes first in the DOM, but isn't focusable.
+      modal.querySelector<HTMLButtonElement>(".video-modal__close")?.focus();
+    };
+
+    const close = () => {
+      modal.hidden = true;
+      // Removing the iframe is what actually stops playback.
+      frame.replaceChildren();
+      document.documentElement.style.overflow = "";
+      lastFocused?.focus();
+    };
+
+    openers.forEach((btn) => btn.addEventListener("click", open));
+    modal
+      .querySelectorAll<HTMLElement>("[data-video-close]")
+      .forEach((el) => el.addEventListener("click", close));
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !modal.hidden) close();
+    });
+  }
+</script>

@@ -2,6 +2,19 @@
 // Hero — full-bleed homepage hero. The photo runs edge to edge and up behind
 // the overlay header; a navy side-scrim keeps the left-hand copy legible.
 
+import { Image, getImage } from "astro:assets";
+import heroWideSrc from "../../assets/images/papa-hero-b.jpg";
+import heroTallSrc from "../../assets/images/papa-hero-tan.jpg";
+import birdGold from "../../assets/images/logo-bird-gold.png";
+
+/* Art direction (a different crop below 650px) rules out <Picture>, so the
+   variants are generated with getImage() and assembled by hand. Widths stop
+   at each source's native size — going wider would only upscale. */
+const heroWideWebp = await getImage({ src: heroWideSrc, format: "webp", widths: [768, 1024, 1280] });
+const heroWideJpg = await getImage({ src: heroWideSrc, format: "jpeg", widths: [768, 1024, 1280] });
+const heroTallWebp = await getImage({ src: heroTallSrc, format: "webp", widths: [430, 660, 824] });
+const heroTallJpg = await getImage({ src: heroTallSrc, format: "jpeg", widths: [430, 660, 824] });
+
 const phone = "(832) 299-7990";
 const phoneHref = "tel:+18322997990";
 
@@ -14,16 +27,34 @@ const stats = [
 
 <section class="hero">
   <div class="hero__media">
+    {/* Mobile gets the tighter portrait crop; wide screens get the landscape
+        frame. This is the LCP element, so it loads eagerly at high priority
+        and is never lazy. */}
     <picture>
-      {/* Mobile gets the tighter portrait crop; wide screens get the landscape frame. */}
-      <source media="(max-width: 650px)" srcset="/images/papa-hero-tan.jpg" />
+      <source
+        media="(max-width: 650px)"
+        type="image/webp"
+        srcset={heroTallWebp.srcSet.attribute}
+        sizes="100vw"
+      />
+      <source
+        media="(max-width: 650px)"
+        type="image/jpeg"
+        srcset={heroTallJpg.srcSet.attribute}
+        sizes="100vw"
+      />
+      <source type="image/webp" srcset={heroWideWebp.srcSet.attribute} sizes="100vw" />
       <img
         class="hero__img"
-        src="/images/papa-hero-b.jpg"
+        src={heroWideJpg.src}
+        srcset={heroWideJpg.srcSet.attribute}
+        sizes="100vw"
+        width={heroWideSrc.width}
+        height={heroWideSrc.height}
         alt="Attorney Papa Dieye of The Dieye Firm"
-        width="1280"
-        height="714"
+        loading="eager"
         fetchpriority="high"
+        decoding="async"
       />
     </picture>
     <div class="hero__scrim" aria-hidden="true"></div>
@@ -32,7 +63,7 @@ const stats = [
   <div class="container hero__inner">
     <div class="hero__content">
       <p class="hero__eyebrow">
-        <img src="/images/logo-bird-gold.png" alt="" width="30" height="30" />
+        <Image src={birdGold} alt="" width={70} format="webp" loading="eager" />
         <span>Pearland &amp; Houston Family Law</span>
       </p>
 
