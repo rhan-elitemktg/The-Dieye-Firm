@@ -1,4 +1,4 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 import { loadEnv } from "vite";
 import sanity from "@sanity/astro";
 import react from "@astrojs/react";
@@ -11,6 +11,35 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 
 // https://astro.build/config
 export default defineConfig({
+  /* Fonts are self-hosted and preloaded by Astro rather than pulled from
+     Google's CDN at runtime. `optimizedFallbacks` generates a metric-matched
+     local fallback for each family, so the swap to the real face causes no
+     reflow — which is what removes the flash of unstyled text. */
+  fonts: [
+    {
+      name: "Source Serif 4",
+      cssVariable: "--font-serif",
+      provider: fontProviders.google(),
+      weights: [400, 500, 600, 700],
+      styles: ["normal", "italic"],
+      subsets: ["latin"],
+      display: "swap",
+      optimizedFallbacks: true,
+      fallbacks: ["Georgia", "Times New Roman", "serif"],
+    },
+    {
+      name: "Geist",
+      cssVariable: "--font-sans",
+      provider: fontProviders.google(),
+      weights: [300, 400, 500, 600, 700, 800],
+      styles: ["normal"],
+      subsets: ["latin"],
+      display: "swap",
+      optimizedFallbacks: true,
+      fallbacks: ["system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+    },
+  ],
+
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,
