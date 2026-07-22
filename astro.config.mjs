@@ -38,6 +38,19 @@ export default defineConfig({
       optimizedFallbacks: true,
       fallbacks: ["system-ui", "-apple-system", "Segoe UI", "sans-serif"],
     },
+    /* Decorative only — the signature lockup in the Featured Attorney card.
+       One weight, one style, and deliberately not preloaded in Layout.astro
+       so it never competes with the two families that carry real copy. */
+    {
+      name: "Yellowtail",
+      cssVariable: "--font-script",
+      provider: fontProviders.google(),
+      weights: [400],
+      styles: ["normal"],
+      subsets: ["latin"],
+      display: "swap",
+      fallbacks: ["Brush Script MT", "cursive"],
+    },
   ],
 
   integrations: [

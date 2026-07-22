@@ -32,6 +32,9 @@ const {
         trade — there are no unused weights to hold back. */}
     <Font cssVariable="--font-serif" preload />
     <Font cssVariable="--font-sans" preload />
+    {/* Script face — one decorative word, below the fold. No preload: it
+        should never contend with the two families above. */}
+    <Font cssVariable="--font-script" />
   </head>
   <body>
     <slot />

@@ -1,0 +1,419 @@
+---
+// Featured Attorney — a full-bleed photo stage with the introduction card
+// riding on the bright right-hand side of the frame.
+
+import { Image } from "astro:assets";
+import birdGold from "../../assets/images/logo-bird-gold.png";
+import portrait from "../../assets/images/papa-storefront.jpg";
+
+/* The "+" is set separately so it can be sized down against the numeral. */
+const years = 17;
+---
+
+<section class="fa section" aria-labelledby="fa-title">
+  <div class="container">
+    <div class="fa__stage">
+      <div class="fa__media">
+        <Image
+          src={portrait}
+          alt="Attorney Papa Dieye outside his Pearland office"
+          widths={[900, 1200, 1500]}
+          sizes="(max-width: 1000px) 100vw, 1500px"
+          format="webp"
+          quality={78}
+          loading="lazy"
+          decoding="async"
+        />
+        <div class="fa__wash" aria-hidden="true"></div>
+
+        {/* Anchored to the photo rather than the stage so it stays on the
+            image once the two unstack at tablet. */}
+        <p class="fa__badge">
+          <span class="fa__badge-num">
+            {years}<span class="fa__badge-plus">+</span>
+          </span>
+          <span class="fa__badge-label">Years of Texas<br />Family Law</span>
+        </p>
+      </div>
+
+      <article class="fa__card">
+        <header class="fa__head">
+          <p class="fa__eyebrow">
+            <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+            <span>Meet the Attorney</span>
+          </p>
+        </header>
+
+        <h2 class="fa__title" id="fa-title">Papa Dieye</h2>
+        <p class="fa__role">Founding Attorney</p>
+
+        <blockquote class="fa__quote">
+          "I became a family lawyer to be the steady voice families need on their
+          hardest day."
+        </blockquote>
+
+        <p class="fa__text">
+          For more than seventeen years, Papa Dieye has guided families across
+          Pearland and the greater Houston area through divorce, custody, and
+          support. He built this firm on a simple belief: that people in crisis
+          deserve a lawyer who treats them with dignity, answers honestly, and
+          fights thoughtfully for what matters most.
+        </p>
+        <p class="fa__text">
+          As a solo practitioner, Papa works with you directly. No handoffs, no
+          shuffle. Just one experienced attorney who knows your story.
+        </p>
+
+        <footer class="fa__foot">
+          <a class="btn btn--gold" href="/about-us/papa-dieye/">Get to Know Papa</a>
+          <span class="fa__sign" aria-hidden="true">Papa Dieye</span>
+        </footer>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fa {
+    background: var(--white);
+  }
+
+  /* The stage is the rounded photo frame; the card is laid over its bright
+     right-hand third, where the storefront falls out of focus. */
+  .fa__stage {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 620px;
+    padding: 48px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--navy-900);
+  }
+
+  .fa__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .fa__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Panned right of centre so the crop keeps Papa in the strip of photo
+       left of the card rather than tucked behind it. */
+    object-position: 62% center;
+    filter: var(--photo-filter);
+  }
+
+  /* A warm wash from the right so the white card lands on a settled tone
+     rather than fighting the blown-out sky behind it. */
+  .fa__wash {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      270deg,
+      rgba(58, 46, 12, 0.42) 0%,
+      rgba(58, 46, 12, 0.14) 42%,
+      rgba(58, 46, 12, 0) 66%
+    );
+  }
+
+  /* ---- Card ---- */
+  /* Fluid rather than fixed: at 790px flat the card eats most of a 1440
+     stage and leaves too little photo beside it, so it holds a constant
+     share of the frame instead and only caps at the design width. */
+  .fa__card {
+    position: relative;
+    width: clamp(560px, 52%, 790px);
+    max-width: 100%;
+    padding: 56px;
+    background: var(--white);
+    border: 1.5px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Second, fainter rule set in from the edge — the inset frame from the
+     mockup. Radius is the outer radius less the inset so the two curves stay
+     concentric. */
+  .fa__card::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border: 1px solid color-mix(in srgb, var(--gold-500) 28%, transparent);
+    border-radius: calc(var(--radius-lg) - 8px);
+    pointer-events: none;
+  }
+
+  .fa__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+  }
+
+  .fa__eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  /* ---- Years badge ---- */
+  /* Sits in the photo's lower-left corner. Kept to a single compact row so
+     it clips as little of the frame as possible. */
+  .fa__badge {
+    position: absolute;
+    left: 48px;
+    bottom: 48px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    border-top: var(--eyebrow-rule);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Flex so the smaller "+" centres against the numeral's box rather than
+     sitting on its baseline. */
+  .fa__badge-num {
+    display: flex;
+    align-items: center;
+    font-family: var(--font-serif);
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    color: var(--gold-600);
+  }
+
+  .fa__badge-plus {
+    font-size: 0.58em;
+    line-height: 1;
+  }
+
+  .fa__badge-label {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  /* ---- Card copy ---- */
+  .fa__title {
+    font-size: clamp(38px, 3.4vw, 50px);
+    line-height: 1.05;
+  }
+
+  .fa__role {
+    display: inline-block;
+    margin: 14px 0 24px;
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--gold-500) 15%, var(--white));
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .fa__quote {
+    margin: 0 0 26px;
+    padding-left: 24px;
+    border-left: 3px solid var(--gold-500);
+    font-family: var(--font-serif);
+    font-size: 25px;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--navy-700);
+  }
+
+  .fa__text {
+    margin-bottom: 18px;
+    color: var(--ink-500);
+  }
+
+  /* ---- Footer ---- */
+  /* Both items stay on one line: the button label and the signature only
+     just clear the card's inner width, so without nowrap either one breaks
+     in two as soon as the card narrows a little. */
+  .fa__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .fa__foot .btn {
+    padding: 18px 34px;
+    white-space: nowrap;
+  }
+
+  .fa__sign {
+    white-space: nowrap;
+    font-family: var(--font-script);
+    font-size: 58px;
+    line-height: 1;
+    color: var(--navy-700);
+    /* Yellowtail's descenders and slant overhang the box; this keeps the
+       signature optically level with the button. */
+    transform: translateY(-6px);
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .fa__stage {
+      min-height: 560px;
+      padding: 36px;
+    }
+
+    .fa__card {
+      padding: 44px;
+    }
+
+    .fa__quote {
+      font-size: 23px;
+    }
+
+    .fa__sign {
+      font-size: 50px;
+    }
+
+    .fa__badge {
+      left: 36px;
+      bottom: 36px;
+    }
+  }
+
+  /* Tablet — the card can't sit on the photo any more, so the stage unstacks
+     into a media band with the card beneath it. */
+  @media (max-width: 1000px) {
+    .fa__stage {
+      display: block;
+      min-height: 0;
+      padding: 0;
+      border-radius: 0;
+      overflow: visible;
+      background: none;
+    }
+
+    .fa__media {
+      position: relative;
+      inset: auto;
+      z-index: auto;
+      height: clamp(300px, 44vw, 420px);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      overflow: hidden;
+    }
+
+    .fa__media img {
+      object-position: 34% 22%;
+    }
+
+    /* The wash exists to seat the card on the photo; with them stacked it
+       only muddies the picture. */
+    .fa__wash {
+      display: none;
+    }
+
+    /* Stacked under the photo, so the top edge is dropped and the inset
+       frame goes with it — it can't close a box that has no top. */
+    .fa__card {
+      width: 100%;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      box-shadow: none;
+      border-top: 0;
+    }
+
+    .fa__card::before {
+      display: none;
+    }
+
+    .fa__badge {
+      left: 24px;
+      bottom: 24px;
+      padding: 14px 20px;
+    }
+
+    .fa__badge-num {
+      font-size: 44px;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 650px) {
+    .fa__card {
+      padding: 30px 24px;
+    }
+
+    .fa__head {
+      margin-bottom: 20px;
+    }
+
+    .fa__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    /* A phone-width band is too narrow for the badge to sit lower-left
+       without landing on Papa, so it swaps to the right of the frame, where
+       the street falls away. Keeps the gold rule; drops the shadow. */
+    .fa__badge {
+      left: auto;
+      right: 16px;
+      bottom: 16px;
+      gap: 11px;
+      padding: 12px 16px;
+      box-shadow: none;
+    }
+
+    .fa__badge-num {
+      font-size: 38px;
+    }
+
+    .fa__badge-label {
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+    }
+
+    .fa__quote {
+      padding-left: 18px;
+      font-size: 21px;
+    }
+
+    .fa__foot {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 18px;
+      margin-top: 26px;
+    }
+
+    .fa__foot .btn {
+      width: 100%;
+    }
+
+    .fa__sign {
+      align-self: center;
+      font-size: 46px;
+      transform: none;
+    }
+  }
+</style>
