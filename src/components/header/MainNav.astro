@@ -3,6 +3,8 @@
 // Zones: logo (left) · nav + actions (right).
 // Nav labels/hrefs come from the live dieyelaw.com source; Family Law is a
 // curated shortlist with a "View All" link to the full family-law index.
+import { Image } from "astro:assets";
+import logoLight from "../../assets/images/logo-light.png";
 
 const nav = [
   { label: "Home", href: "/" },
@@ -62,7 +64,7 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
 <div class="mainnav">
   <div class="container mainnav__inner">
     <a class="mainnav__logo" href="/" aria-label="The Dieye Firm — home">
-      <img src="/images/logo-light.png" alt="The Dieye Firm" width="220" height="62" />
+      <Image src={logoLight} alt="The Dieye Firm" format="webp" loading="eager" />
     </a>
 
     <nav class="mainnav__nav" aria-label="Primary">

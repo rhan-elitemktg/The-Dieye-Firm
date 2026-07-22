@@ -6,49 +6,43 @@
 // are more than the seven that currently fit), so it stays a static centred
 // row until it needs to be anything else.
 
+import { Image } from "astro:assets";
+import avPreeminent from "../../assets/images/awards/av-preeminent.png";
+import avvoSuperb from "../../assets/images/awards/avvo-superb.png";
+import nationalTop100 from "../../assets/images/awards/national-top-100-black-lawyers.png";
+import avvoTopAttorney from "../../assets/images/awards/avvo-top-attorney.png";
+import avvoReviews from "../../assets/images/awards/avvo-reviews.png";
+import avvoClientsChoice from "../../assets/images/awards/avvo-clients-choice.png";
+import texasBarCollege from "../../assets/images/awards/texas-bar-college.png";
+
+/* `width` caps the generated file at roughly 2x the largest rendered size
+   (190px), which mainly matters for the Texas Bar lockup — its source is
+   1024px wide for a badge that never renders above 190. The rest are already
+   at or under the cap, so they're only re-encoded, never upscaled. */
 const awards = [
   {
-    src: "/images/awards/av-preeminent.png",
-    alt: "Martindale-Hubbell AV Preeminent, peer rated for the highest level of professional excellence",
+    src: avPreeminent,
     width: 256,
-    height: 75,
+    alt: "Martindale-Hubbell AV Preeminent, peer rated for the highest level of professional excellence",
   },
+  { src: avvoSuperb, width: 155, alt: "Avvo Rating 10.0 Superb, Top Lawyer" },
+  { src: nationalTop100, width: 175, alt: "The National Top 100 Black Lawyers" },
   {
-    src: "/images/awards/avvo-superb.png",
-    alt: "Avvo Rating 10.0 Superb, Top Lawyer",
-    width: 155,
-    height: 135,
-  },
-  {
-    src: "/images/awards/national-top-100-black-lawyers.png",
-    alt: "The National Top 100 Black Lawyers",
-    width: 175,
-    height: 174,
-  },
-  {
-    src: "/images/awards/avvo-top-attorney.png",
-    alt: "Avvo Rating 10.0, Papa Magaye Dieye, Top Attorney",
+    src: avvoTopAttorney,
     width: 263,
-    height: 205,
+    alt: "Avvo Rating 10.0, Papa Magaye Dieye, Top Attorney",
   },
   {
-    src: "/images/awards/avvo-reviews.png",
-    alt: "Avvo Reviews, 4.5 stars out of 17 reviews for Papa Magaye Dieye",
+    src: avvoReviews,
     width: 242,
-    height: 172,
+    alt: "Avvo Reviews, 4.5 stars out of 17 reviews for Papa Magaye Dieye",
   },
   {
-    src: "/images/awards/avvo-clients-choice.png",
-    alt: "Avvo Clients' Choice Award 2016, Papa Magaye Dieye",
+    src: avvoClientsChoice,
     width: 313,
-    height: 219,
+    alt: "Avvo Clients' Choice Award 2016, Papa Magaye Dieye",
   },
-  {
-    src: "/images/awards/texas-bar-college.png",
-    alt: "Proud member of the Texas Bar College",
-    width: 1024,
-    height: 405,
-  },
+  { src: texasBarCollege, width: 380, alt: "Proud member of the Texas Bar College" },
 ];
 ---
 
@@ -66,11 +60,12 @@ const awards = [
       >
         {awards.map((award) => (
           <li class="awards__item">
-            <img
+            <Image
               src={award.src}
               alt={award.alt}
               width={award.width}
-              height={award.height}
+              format="webp"
+              quality={82}
               loading="lazy"
               decoding="async"
             />
