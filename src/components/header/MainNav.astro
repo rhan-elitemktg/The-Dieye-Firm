@@ -1,0 +1,808 @@
+---
+// MainNav — the primary navigation bar of the sticky header.
+// Zones: logo (left) · nav + actions (right).
+// Nav labels/hrefs come from the live dieyelaw.com source; Family Law is a
+// curated shortlist with a "View All" link to the full family-law index.
+
+const nav = [
+  { label: "Home", href: "/" },
+  {
+    label: "About Us",
+    href: "/about-us/",
+    items: [
+      { label: "Papa Dieye", href: "/about-us/papa-dieye/" },
+      { label: "Choosing a Family Law Attorney", href: "/about-us/choosing-a-family-law-attorney/" },
+      { label: "The Difference", href: "/about-us/the-difference/" },
+    ],
+  },
+  {
+    label: "Family Law",
+    href: "/family-law/",
+    viewAll: { label: "View All Family Law", href: "/family-law/" },
+    items: [
+      { label: "Divorce", href: "/family-law/divorce/" },
+      { label: "Child Custody", href: "/family-law/child-custody/" },
+      { label: "Child Support", href: "/family-law/child-support/" },
+      { label: "Property Division", href: "/family-law/property-division/" },
+      { label: "Spousal Support", href: "/family-law/spousal-support/" },
+      { label: "Paternity", href: "/family-law/paternity/" },
+      { label: "Modifications & Enforcement", href: "/family-law/modifications-enforcement/" },
+      { label: "Protective Restraining Orders", href: "/family-law/protective-restraining-orders/" },
+    ],
+  },
+  { label: "Testimonials", href: "/testimonials/" },
+  { label: "Blog", href: "/blog/" },
+  { label: "Contact Us", href: "/contact-us/" },
+];
+
+const phone = "(832) 299-7990";
+const phoneHref = "tel:+18322997990";
+
+/* ---- Active-state helpers ----------------------------------------------
+   Normalise to a trailing slash so "/family-law/" never prefix-matches
+   something like "/family-lawyer/". A nav item is active when the current
+   URL *is* its href or lives underneath it, so a child page such as
+   /family-law/divorce/ lights up both "Family Law" and "Divorce". */
+const normalise = (path: string) => (path.endsWith("/") ? path : `${path}/`);
+const currentPath = normalise(Astro.url.pathname);
+
+const isActive = (href: string) => {
+  const target = normalise(href);
+  // "/" would prefix-match everything, so it only ever matches exactly.
+  return target === "/" ? currentPath === "/" : currentPath.startsWith(target);
+};
+
+const isExact = (href: string) => normalise(href) === currentPath;
+
+// True when the item itself or any of its children is active.
+const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
+  isActive(item.href) || (item.items ?? []).some((sub) => isActive(sub.href));
+---
+
+<div class="mainnav">
+  <div class="container mainnav__inner">
+    <a class="mainnav__logo" href="/" aria-label="The Dieye Firm — home">
+      <img src="/images/logo-light.png" alt="The Dieye Firm" width="220" height="62" />
+    </a>
+
+    <nav class="mainnav__nav" aria-label="Primary">
+      {nav.map((item) =>
+        item.items ? (
+          <div class:list={["navitem", "navitem--has-drop", { "is-active": isBranchActive(item) }]}>
+            <a
+              class="navitem__link"
+              href={item.href}
+              aria-current={isExact(item.href) ? "page" : undefined}
+            >
+              {item.label}
+              <span class="caret" aria-hidden="true">&#9662;</span>
+            </a>
+            <div class="nav-drop">
+              <ul>
+                {item.items.map((sub) => (
+                  <li>
+                    <a
+                      href={sub.href}
+                      class:list={[{ "is-active": isActive(sub.href) }]}
+                      aria-current={isExact(sub.href) ? "page" : undefined}
+                    >
+                      {sub.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {item.viewAll && (
+                <a
+                  class:list={["nav-drop__all", { "is-active": isExact(item.viewAll.href) }]}
+                  href={item.viewAll.href}
+                >
+                  {item.viewAll.label}
+                </a>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div class:list={["navitem", { "is-active": isActive(item.href) }]}>
+            <a
+              class="navitem__link"
+              href={item.href}
+              aria-current={isExact(item.href) ? "page" : undefined}
+            >
+              {item.label}
+            </a>
+          </div>
+        )
+      )}
+    </nav>
+
+    <div class="mainnav__actions">
+      <a class="btn btn--gold mainnav__cta" href="/contact-us/">Schedule a Consultation</a>
+      <span class="mainnav__sep" aria-hidden="true"></span>
+      <a class="phonecta" href={phoneHref}>
+        <span class="phonecta__label">Financing Available</span>
+        <span class="phonecta__num">{phone}</span>
+      </a>
+    </div>
+
+    <a class="mainnav__phone-icon" href={phoneHref} aria-label={`Call ${phone}`}>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+      </svg>
+    </a>
+    <button class="mainnav__burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu__backdrop" data-close></div>
+  <div class="mobile-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+    <div class="mobile-menu__head">
+      <span class="mobile-menu__brand">Menu</span>
+      <button class="mobile-menu__close" type="button" aria-label="Close menu" data-close>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Mobile">
+      <ul>
+        {nav.map((item) =>
+          item.items ? (
+            <li class:list={["mobile-nav__item", { "is-expanded": isBranchActive(item) }]}>
+              <div class="mobile-nav__row">
+                <a
+                  class:list={["mobile-nav__link", { "is-active": isBranchActive(item) }]}
+                  href={item.href}
+                  aria-current={isExact(item.href) ? "page" : undefined}
+                >
+                  {item.label}
+                </a>
+                <button
+                  class="mobile-nav__toggle"
+                  type="button"
+                  aria-expanded={isBranchActive(item) ? "true" : "false"}
+                  aria-label={`Toggle ${item.label} submenu`}
+                >
+                  <span class="mobile-nav__chevron" aria-hidden="true">&#9662;</span>
+                </button>
+              </div>
+              <div class="mobile-nav__sub">
+                <ul>
+                  {item.items.map((sub) => (
+                    <li>
+                      <a
+                        href={sub.href}
+                        class:list={[{ "is-active": isActive(sub.href) }]}
+                        aria-current={isExact(sub.href) ? "page" : undefined}
+                      >
+                        {sub.label}
+                      </a>
+                    </li>
+                  ))}
+                  {item.viewAll && (
+                    <li>
+                      <a
+                        class:list={["mobile-nav__all", { "is-active": isExact(item.viewAll.href) }]}
+                        href={item.viewAll.href}
+                      >
+                        {item.viewAll.label}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </li>
+          ) : (
+            <li class="mobile-nav__item">
+              <a
+                class:list={["mobile-nav__link", "mobile-nav__link--solo", { "is-active": isActive(item.href) }]}
+                href={item.href}
+                aria-current={isExact(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          )
+        )}
+      </ul>
+    </nav>
+
+    <div class="mobile-menu__actions">
+      <a class="btn btn--gold mobile-menu__cta" href="/contact-us/">Schedule a Consultation</a>
+      <a class="mobile-menu__phone" href={phoneHref}>
+        <span class="mobile-menu__phone-label">Financing Available</span>
+        <span class="mobile-menu__phone-num">{phone}</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mainnav {
+    background: var(--navy-700);
+  }
+
+  .mainnav__inner {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    min-height: 100px;
+  }
+
+  /* Logo */
+  .mainnav__logo {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .mainnav__logo img {
+    height: 60px;
+    width: auto;
+  }
+
+  /* Nav */
+  .mainnav__nav {
+    display: flex;
+    align-items: stretch;
+    gap: 18px;
+    height: 100px;
+    margin-left: auto; /* logo stays left; nav + actions group on the right */
+  }
+
+  .navitem {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .navitem__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+    white-space: nowrap;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .navitem__link:hover {
+    color: var(--gold-500);
+  }
+
+  /* Keep the parent lit while the pointer is anywhere in its dropdown. */
+  .navitem--has-drop:hover .navitem__link,
+  .navitem--has-drop:focus-within .navitem__link {
+    color: var(--gold-500);
+  }
+
+  /* Current page — the top-level item (or its parent) stays gold with a rule. */
+  .navitem.is-active .navitem__link {
+    color: var(--gold-500);
+  }
+
+  .navitem.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--gold-500);
+  }
+
+  .caret {
+    font-size: 16px;
+    color: var(--gold-500);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .navitem--has-drop:hover .caret {
+    transform: translateY(2px);
+  }
+
+  /* Dropdown */
+  .nav-drop {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    margin-top: 14px;
+    min-width: 232px;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--dur-base) var(--ease-out),
+      transform var(--dur-base) var(--ease-out);
+    z-index: 10;
+  }
+
+  /* Invisible bridge so the hover doesn't drop through the 14px gap. */
+  .nav-drop::before {
+    content: "";
+    position: absolute;
+    top: -14px;
+    left: 0;
+    right: 0;
+    height: 14px;
+  }
+
+  .navitem--has-drop:hover .nav-drop,
+  .navitem--has-drop:focus-within .nav-drop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .nav-drop ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-drop a {
+    display: block;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--ink-700);
+    white-space: nowrap;
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .nav-drop a:hover {
+    background: var(--bone-100);
+    color: var(--navy-700);
+  }
+
+  /* Current page inside a dropdown */
+  .nav-drop a.is-active {
+    background: var(--bone-100);
+    color: var(--gold-600);
+    font-weight: 600;
+  }
+
+  .nav-drop a.nav-drop__all.is-active {
+    background: var(--bone-100);
+  }
+
+  /* "View all" footer link inside a dropdown.
+     Selector matches .nav-drop a specificity so these overrides win. */
+  .nav-drop a.nav-drop__all {
+    margin-top: 6px;
+    padding: 11px 14px;
+    border-radius: 0;
+    border-top: 1px solid var(--bone-300);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .nav-drop a.nav-drop__all:hover {
+    background: transparent;
+    color: var(--navy-700);
+  }
+
+  /* Actions */
+  .mainnav__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: none;
+  }
+
+  .mainnav__sep {
+    width: 1px;
+    height: 42px;
+    background: rgba(196, 162, 76, 0.45);
+    flex: none;
+  }
+
+  .phonecta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    line-height: 1;
+  }
+
+  .phonecta__label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+  }
+
+  .phonecta__num {
+    font-family: var(--font-ui);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #fff;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .phonecta:hover .phonecta__num {
+    color: var(--gold-500);
+  }
+
+  /* Mobile phone icon — hidden until the nav collapses */
+  .mainnav__phone-icon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: var(--gold-500);
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .mainnav__phone-icon:hover {
+    color: #fff;
+  }
+
+  .mainnav__phone-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Hamburger — hidden until the nav collapses */
+  .mainnav__burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+
+  .mainnav__burger span {
+    display: block;
+    width: 26px;
+    height: 2px;
+    margin-inline: auto;
+    background: #fff;
+    border-radius: 2px;
+  }
+
+  /* ===== Mobile menu (slide-out) ===== */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    visibility: hidden;
+    transition: visibility 0s linear var(--dur-slow);
+  }
+
+  .mobile-menu.is-open {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .mobile-menu__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 36, 56, 0.5);
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+
+  .mobile-menu.is-open .mobile-menu__backdrop {
+    opacity: 1;
+  }
+
+  .mobile-menu__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(360px, 86vw);
+    display: flex;
+    flex-direction: column;
+    background: var(--navy-700);
+    box-shadow: var(--shadow-xl);
+    transform: translateX(100%);
+    transition: transform var(--dur-slow) var(--ease-out);
+    overflow-y: auto;
+  }
+
+  .mobile-menu.is-open .mobile-menu__panel {
+    transform: translateX(0);
+  }
+
+  .mobile-menu__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .mobile-menu__brand {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+  }
+
+  .mobile-menu__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-right: -8px;
+    background: transparent;
+    border: 0;
+    color: #fff;
+  }
+
+  .mobile-menu__close svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-nav {
+    flex: 1;
+    padding: 4px 0;
+  }
+
+  .mobile-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mobile-nav__item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .mobile-nav__row {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+  }
+
+  .mobile-nav__link {
+    display: block;
+    flex: 1;
+    padding: 16px 24px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.92);
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .mobile-nav__link:hover,
+  .mobile-nav__link.is-active {
+    color: var(--gold-500);
+  }
+
+  .mobile-nav__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    align-self: stretch;
+    background: transparent;
+    border: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--gold-500);
+  }
+
+  .mobile-nav__chevron {
+    font-size: 25px;
+    line-height: 1;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .mobile-nav__item.is-expanded .mobile-nav__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Accordion sub-menu — animated via grid-template-rows */
+  .mobile-nav__sub {
+    display: grid;
+    grid-template-rows: 0fr;
+    background: rgba(0, 0, 0, 0.16);
+    transition: grid-template-rows var(--dur-slow) var(--ease-out);
+  }
+
+  .mobile-nav__sub > ul {
+    overflow: hidden;
+  }
+
+  .mobile-nav__item.is-expanded > .mobile-nav__sub {
+    grid-template-rows: 1fr;
+  }
+
+  .mobile-nav__sub a {
+    display: block;
+    padding: 12px 24px 12px 36px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.78);
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .mobile-nav__sub a:hover,
+  .mobile-nav__sub a.is-active {
+    color: var(--gold-500);
+  }
+
+  .mobile-nav__sub a.is-active {
+    font-weight: 700;
+  }
+
+  .mobile-nav__sub a.mobile-nav__all {
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+  }
+
+  .mobile-menu__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px 24px 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .mobile-menu__cta {
+    justify-content: center;
+    width: 100%;
+    padding: 15px 22px;
+  }
+
+  .mobile-menu__phone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .mobile-menu__phone-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+    line-height: 1.25;
+  }
+
+  .mobile-menu__phone-num {
+    font-family: var(--font-ui);
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .mobile-menu__phone:hover .mobile-menu__phone-num {
+    color: var(--gold-500);
+  }
+
+  /* Never render the mobile menu on desktop */
+  @media (min-width: 1201px) {
+    .mobile-menu {
+      display: none;
+    }
+  }
+
+  /* Small Desktop — shrink so the full row still fits down to ~1200px. */
+  @media (max-width: 1439px) {
+    .mainnav__inner { gap: 20px; }
+    .mainnav__nav { gap: 15px; }
+    .navitem__link { font-size: 13px; letter-spacing: 0.03em; gap: 4px; }
+    .mainnav__logo img { height: 52px; }
+    .mainnav__actions { gap: 14px; }
+    .mainnav__cta { padding: 12px 16px; font-size: 12.5px; letter-spacing: 0.04em; }
+    .caret { font-size: 14px; }
+    .mainnav__sep { display: none; }
+    .phonecta__label { display: none; }
+    .phonecta__num { font-size: 17px; }
+  }
+
+  /* Header-specific collapse at 1200px (an intentional exception to the global
+     1000px tablet breakpoint): the nav + CTA + phone need ~1189px, so below
+     1200 we collapse to the hamburger. Mobile menu wired next. */
+  @media (max-width: 1200px) {
+    .mainnav__nav,
+    .mainnav__actions {
+      display: none;
+    }
+
+    .mainnav__phone-icon {
+      display: inline-flex;
+      margin-left: auto; /* push the phone + burger group to the right */
+    }
+
+    .mainnav__burger {
+      display: flex;
+    }
+
+    .mainnav__inner {
+      min-height: 72px;
+      gap: 10px;
+    }
+
+    .mainnav__logo img {
+      height: 52px;
+    }
+  }
+</style>
+
+<script>
+  const menu = document.getElementById("mobileMenu");
+  const burger = document.querySelector(".mainnav__burger");
+
+  if (menu && burger) {
+    const openMenu = () => {
+      menu.classList.add("is-open");
+      burger.setAttribute("aria-expanded", "true");
+      document.documentElement.style.overflow = "hidden";
+    };
+    const closeMenu = () => {
+      menu.classList.remove("is-open");
+      burger.setAttribute("aria-expanded", "false");
+      document.documentElement.style.overflow = "";
+    };
+
+    burger.addEventListener("click", () => {
+      menu.classList.contains("is-open") ? closeMenu() : openMenu();
+    });
+
+    menu.querySelectorAll("[data-close]").forEach((el) =>
+      el.addEventListener("click", closeMenu)
+    );
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && menu.classList.contains("is-open")) closeMenu();
+    });
+
+    // Accordion sub-menus
+    menu.querySelectorAll(".mobile-nav__toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const li = btn.closest(".mobile-nav__item");
+        const expanded = li.classList.toggle("is-expanded");
+        btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+      });
+    });
+
+    // Close the menu when any real link is tapped
+    menu.querySelectorAll("a[href]").forEach((a) =>
+      a.addEventListener("click", closeMenu)
+    );
+  }
+</script>

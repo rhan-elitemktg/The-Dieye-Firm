@@ -9,6 +9,17 @@
    ============================================================ */
 
 /* ------------------------------------------------------------
+   BREAKPOINTS (project convention — desktop-first, max-width)
+   CSS can't use variables inside @media, so these are a fixed
+   reference. Use these exact values in every media query.
+
+     Desktop         @media (min-width: 1440px)   — base / default
+     Small Desktop   @media (max-width: 1439px)
+     Tablet          @media (max-width: 1000px)
+     Mobile          @media (max-width:  650px)
+   ------------------------------------------------------------ */
+
+/* ------------------------------------------------------------
    1. Color tokens — Navy & Gold
    ------------------------------------------------------------ */
 :root {
@@ -262,11 +273,11 @@ ul, ol { list-style-position: inside; }
   padding-block: var(--section-pad-y);
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1000px) {
   .section { padding-block: 96px; }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 650px) {
   .section { padding-block: 64px; }
 }
 
@@ -296,7 +307,52 @@ ul, ol { list-style-position: inside; }
 }
 
 /* ------------------------------------------------------------
-   7. Reduced motion — calm fallback
+   7. Buttons
+   Global button convention. Hover is a very slight lift — no drop
+   shadow — using the house easing. Applies site-wide.
+   ------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 14px 22px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+/* Very slight lift on hover. */
+.btn:hover {
+  transform: translateY(var(--hover-lift));
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Primary — gold */
+.btn--gold {
+  background: var(--gold-500);
+  color: var(--navy-900);
+}
+
+.btn--gold:hover {
+  background: color-mix(in srgb, var(--gold-500) 88%, #fff);
+  color: var(--navy-900);
+}
+
+/* ------------------------------------------------------------
+   8. Reduced motion — calm fallback
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
