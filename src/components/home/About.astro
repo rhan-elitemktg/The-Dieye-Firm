@@ -260,7 +260,7 @@ const checklist = [
 
   .about__title {
     max-width: 1080px; /* the project's long-form text ceiling */
-    font-size: clamp(34px, 3.6vw, 52px);
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
     line-height: 1.12;
   }
 
@@ -391,7 +391,7 @@ const checklist = [
   .testimonial__quote {
     margin: 0 0 20px;
     font-family: var(--font-serif);
-    font-size: 21px;
+    font-size: clamp(19px, 0.2532vw + 1.0847rem, 21px);
     font-style: italic;
     line-height: 1.5;
     color: var(--ink-700);
@@ -434,7 +434,7 @@ const checklist = [
 
   .about__body h3 {
     margin: 40px 0 14px;
-    font-size: 26px;
+    font-size: clamp(23px, 0.3797vw + 1.2832rem, 26px);
     line-height: 1.25;
   }
 
@@ -486,7 +486,7 @@ const checklist = [
   .pullquote blockquote {
     margin: 0 0 22px;
     font-family: var(--font-serif);
-    font-size: 23px;
+    font-size: clamp(20px, 0.3797vw + 1.0957rem, 23px);
     font-style: italic;
     line-height: 1.45;
     color: var(--navy-700);
@@ -625,20 +625,11 @@ const checklist = [
     }
 
     .about__body h3 {
-      font-size: 23px;
       margin-top: 34px;
     }
 
     .pullquote {
       padding: 26px 24px;
-    }
-
-    .pullquote blockquote {
-      font-size: 20px;
-    }
-
-    .testimonial__quote {
-      font-size: 19px;
     }
 
     .about__cta {

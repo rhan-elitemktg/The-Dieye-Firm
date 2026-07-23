@@ -191,7 +191,7 @@ const years = 17;
     display: flex;
     align-items: center;
     font-family: var(--font-serif);
-    font-size: 52px;
+    font-size: clamp(38px, 1.7722vw + 1.6551rem, 52px);
     font-weight: 600;
     line-height: 0.85;
     letter-spacing: -0.03em;
@@ -215,7 +215,7 @@ const years = 17;
 
   /* ---- Card copy ---- */
   .fa__title {
-    font-size: clamp(38px, 3.4vw, 50px);
+    font-size: clamp(38px, 1.519vw + 1.7579rem, 50px);
     line-height: 1.05;
   }
 
@@ -239,7 +239,7 @@ const years = 17;
     padding-left: 24px;
     border-left: 3px solid var(--gold-500);
     font-family: var(--font-serif);
-    font-size: 25px;
+    font-size: clamp(21px, 0.5063vw + 1.1068rem, 25px);
     font-style: italic;
     line-height: 1.4;
     color: var(--navy-700);
@@ -270,7 +270,7 @@ const years = 17;
   .fa__sign {
     white-space: nowrap;
     font-family: var(--font-script);
-    font-size: 58px;
+    font-size: clamp(46px, 1.519vw + 2.2579rem, 58px);
     line-height: 1;
     color: var(--navy-700);
     /* Yellowtail's descenders and slant overhang the box; this keeps the
@@ -287,14 +287,6 @@ const years = 17;
 
     .fa__card {
       padding: 44px;
-    }
-
-    .fa__quote {
-      font-size: 23px;
-    }
-
-    .fa__sign {
-      font-size: 50px;
     }
 
     .fa__badge {
@@ -352,10 +344,6 @@ const years = 17;
       bottom: 24px;
       padding: 14px 20px;
     }
-
-    .fa__badge-num {
-      font-size: 44px;
-    }
   }
 
   /* Mobile */
@@ -385,10 +373,6 @@ const years = 17;
       box-shadow: none;
     }
 
-    .fa__badge-num {
-      font-size: 38px;
-    }
-
     .fa__badge-label {
       font-size: 10.5px;
       letter-spacing: 0.12em;
@@ -396,7 +380,6 @@ const years = 17;
 
     .fa__quote {
       padding-left: 18px;
-      font-size: 21px;
     }
 
     .fa__foot {
@@ -412,7 +395,6 @@ const years = 17;
 
     .fa__sign {
       align-self: center;
-      font-size: 46px;
       transform: none;
     }
   }
