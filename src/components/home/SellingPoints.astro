@@ -1,0 +1,295 @@
+---
+// Selling Points — "Why Hire The Dieye Firm?". A full-bleed navy band with
+// the Old Town Pearland portrait on the right and the copy held to the left
+// half, where a navy scrim keeps it legible over the photo.
+
+import { Image } from "astro:assets";
+import birdGold from "../../assets/images/logo-bird-gold.png";
+import portrait from "../../assets/images/papa-old-town-pearland.png";
+
+/* Inlined for the same reasons as the practice-area icons: no extra
+   requests, no lazy-load pop-in, and `currentColor` so they take the gold
+   from the card. */
+import compassionIcon from "../../assets/icons/compassionate-approach.svg?raw";
+import personalIcon from "../../assets/icons/client-focused.svg?raw";
+import experienceIcon from "../../assets/icons/experienced.svg?raw";
+import paymentsIcon from "../../assets/icons/flexible-payments.svg?raw";
+
+const points = [
+  {
+    icon: compassionIcon,
+    title: "Compassionate Approach",
+    text: "We meet you with empathy first, listening before we advise, because this is your life, not just a case.",
+  },
+  {
+    icon: personalIcon,
+    title: "Direct, Personal Attention",
+    text: "You work with Papa himself, the attorney who knows your name, your story, and your goals.",
+  },
+  {
+    icon: experienceIcon,
+    title: "17+ Years of Experience",
+    text: "Steady, practical judgment navigating Texas family courts across the Houston area.",
+  },
+  {
+    icon: paymentsIcon,
+    title: "Flexible Payment Plans",
+    text: "Transparent fees and financing options built for real families during a hard season.",
+  },
+];
+---
+
+<section class="sp section" aria-labelledby="sp-title">
+  <div class="sp__media">
+    <Image
+      src={portrait}
+      alt="Attorney Papa Dieye on the brick sidewalk in Old Town Pearland"
+      widths={[900, 1200, 1454]}
+      sizes="100vw"
+      format="webp"
+      quality={78}
+      loading="lazy"
+      decoding="async"
+    />
+    <div class="sp__scrim" aria-hidden="true"></div>
+  </div>
+
+  <div class="container">
+    <div class="sp__inner">
+      <header class="sp__head">
+        <p class="sp__eyebrow">
+          <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+          <span>The Difference</span>
+        </p>
+        <h2 class="sp__title" id="sp-title">Why Hire <em>The Dieye Firm?</em></h2>
+      </header>
+
+      <ul class="sp__grid">
+        {points.map((point) => (
+          <li class="sp-card">
+            <span class="sp-card__icon" aria-hidden="true" set:html={point.icon} />
+            <h3 class="sp-card__title">{point.title}</h3>
+            <p class="sp-card__text">{point.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sp {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--navy-900);
+  }
+
+  .sp__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .sp__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Papa stands in the right third of the frame; anchoring right keeps him
+       in view as the crop tightens. */
+    object-position: 78% center;
+    filter: var(--photo-filter);
+  }
+
+  /* The house photo scrim, shared with the hero. */
+  .sp__scrim {
+    position: absolute;
+    inset: 0;
+    background: var(--scrim-navy);
+  }
+
+  /* The copy is held to the left of the frame so it never runs onto the
+     portrait. Proportional rather than a flat 880px: at 1440 a fixed width
+     pushes the second column of cards into the part of the scrim that has
+     already started releasing to photo. */
+  .sp__inner {
+    max-width: min(880px, 58%);
+  }
+
+  /* ---- Head ---- */
+  .sp__head {
+    margin-bottom: 40px;
+  }
+
+  .sp__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .sp__eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  .sp__title {
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.12;
+    color: #fff;
+  }
+
+  .sp__title em {
+    font-style: italic;
+    color: var(--gold-500);
+  }
+
+  /* ---- Grid ---- */
+  .sp__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ---- Card ---- */
+  /* A translucent navy panel rather than a white wash. Light enough that the
+     photo reads through it on the right, but the navy base still carries the
+     white text on its own where the scrim has released. */
+  .sp-card {
+    padding: 34px 32px;
+    background: color-mix(in srgb, var(--navy-700) 52%, transparent);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    transition:
+      background var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+
+  .sp-card:hover {
+    background: color-mix(in srgb, var(--navy-700) 68%, transparent);
+    border-color: color-mix(in srgb, var(--gold-500) 45%, transparent);
+  }
+
+  .sp-card__icon {
+    display: block;
+    margin-bottom: 26px;
+    color: var(--gold-500);
+  }
+
+  /* :global — the SVG arrives via set:html, so it never picks up Astro's
+     scoping attribute. */
+  .sp-card__icon :global(svg) {
+    width: 52px;
+    height: 52px;
+  }
+
+  /* Two lines are reserved up front. Source Serif 4 sets these titles wider
+     than its metric-matched fallback does, so three of the four flip from one
+     line to two the moment the real face swaps in, shifting everything below
+     them by a line. Holding the box at two lines makes the swap invisible,
+     and it lines the icons and body copy up across each row. */
+  .sp-card__title {
+    min-height: 2.5em;
+    margin-bottom: 12px;
+    font-size: clamp(20px, 0.5063vw + 1.0443rem, 24px);
+    line-height: 1.25;
+    color: #fff;
+  }
+
+  /* Lifted from .72: the card fill is lighter now, so the body copy needs a
+     little more of its own weight to stay clear of the photo behind it. */
+  .sp-card__text {
+    font-size: 16px;
+    line-height: 27px;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .sp-card {
+      padding: 28px 26px;
+    }
+
+    .sp-card__icon {
+      margin-bottom: 20px;
+    }
+
+    .sp-card__icon :global(svg) {
+      width: 46px;
+      height: 46px;
+    }
+  }
+
+  /* Tablet — the portrait can't hold its own column, so it becomes a band
+     above the copy and the scrim flips to vertical. */
+  @media (max-width: 1000px) {
+    .sp {
+      padding-top: 0;
+    }
+
+    .sp__media {
+      position: relative;
+      inset: auto;
+      z-index: auto;
+      height: clamp(280px, 42vw, 380px);
+      margin-bottom: 48px;
+    }
+
+    .sp__media img {
+      object-position: 72% 30%;
+    }
+
+    .sp__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(15, 36, 56, 0) 40%,
+        color-mix(in srgb, var(--navy-900) 55%, transparent) 74%,
+        var(--navy-900) 100%
+      );
+    }
+
+    .sp__inner {
+      max-width: none;
+    }
+
+    .sp__head {
+      margin-bottom: 32px;
+    }
+  }
+
+  /* Mobile — one card per row. */
+  @media (max-width: 650px) {
+    .sp__media {
+      margin-bottom: 32px;
+    }
+
+    .sp__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    .sp__grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .sp-card {
+      padding: 26px 22px;
+    }
+
+    .sp-card__icon :global(svg) {
+      width: 42px;
+      height: 42px;
+    }
+  }
+</style>
