@@ -260,8 +260,13 @@ const stats = [
 
   /* Small Desktop */
   @media (max-width: 1439px) {
+    /* 760, not 600. The headline holds "changes, we're with you." on one line
+       down to a 740px column; at 600 it broke to three lines the moment the
+       viewport crossed below 1440, while the type was still at its full 66px.
+       The lead keeps its own narrower measure, so only the headline uses the
+       extra room. */
     .hero__content {
-      max-width: 600px;
+      max-width: 760px;
     }
   }
 
@@ -281,8 +286,9 @@ const stats = [
       padding-bottom: 64px;
     }
 
+    /* Same reason: 560 left the headline three lines between 950 and 1000. */
     .hero__content {
-      max-width: 560px;
+      max-width: 620px;
     }
   }
 
