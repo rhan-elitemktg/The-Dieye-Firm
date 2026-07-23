@@ -263,7 +263,12 @@ const testimonials = [
   }
 
   /* ---- Copy ---- */
+  /* Four lines reserved, for the same reason as the selling-point titles:
+     one of these leads re-wraps from four lines to three when Source Serif 4
+     swaps in, and since the slides stretch to the tallest card that pulled
+     the whole track's height with it. */
   .tcard__lead {
+    min-height: 5.28em;
     margin: 0 0 18px;
     font-family: var(--font-serif);
     font-size: 20px;
