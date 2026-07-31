@@ -1,0 +1,375 @@
+---
+// Community — "Giving Back to Our Neighbors". Copy on the left behind a faint
+// Pearland seal, three tiles on the right: two photographs and a navy card.
+
+import { Image, getImage } from "astro:assets";
+import birdGold from "../../assets/images/logo-bird-gold.png";
+import commFestival from "../../assets/images/community/comm-n1.jpg";
+import commSidewalk from "../../assets/images/community/comm-n2.jpg";
+import badgeFile from "../../assets/images/community/pearland-badge.png";
+import communityMark from "../../assets/icons/community-mark.svg?raw";
+
+/* 382px is the badge's native size, so never ask for more. It goes through
+   getImage() for the WebP conversion but is consumed as a background-image
+   rather than an <img>: `display: none` on an <img> still downloads in Chrome,
+   whereas on a background it genuinely skips the request. That matters because
+   the badge is hidden on mobile. */
+const badge = await getImage({ src: badgeFile, width: 382, format: "webp", quality: 68 });
+
+/* Both sources are 1100x821 (1.34:1) and every tile aspect below is narrower,
+   so `object-fit: cover` fills the height and crops horizontally only — the Y
+   half of these values is inert today. It's carried anyway so a portrait
+   source could use it later.
+
+   focal   — the crop anchor above 1000px, where the tile is 3/4.
+   focalSm — the anchor at 1000px and below, where it's 4/5. Omitted when the
+             wider crop needs no different anchor. */
+const photos = [
+  {
+    src: commFestival,
+    focal: "56% 50%",
+    focalSm: "60% 50%",
+    alt: "Attorney Papa Dieye talking and laughing with a family at a Pearland community festival",
+  },
+  {
+    src: commSidewalk,
+    focal: "48% 50%",
+    alt: "Attorney Papa Dieye in conversation on a tree-lined Pearland sidewalk",
+  },
+];
+---
+
+<section class="community section" aria-labelledby="community-title" style={`--badge: url('${badge.src}')`}>
+  <div class="container">
+    <div class="community__grid">
+      <div class="community__copy">
+        <p class="community__eyebrow">
+          <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+          <span>Rooted in Community</span>
+        </p>
+        <h2 class="community__title" id="community-title">
+          Giving Back to Our <em>Neighbors</em>
+        </h2>
+        <p class="community__text">
+          The Dieye Firm believes in showing up for the community that raised it. From pro
+          bono family law clinics to local mentorship and neighborhood events, Papa is
+          invested in Pearland and Houston beyond the courtroom.
+        </p>
+        <p class="community__text">
+          Because caring for families shouldn't stop at the office door.
+        </p>
+        <a class="btn btn--gold community__cta" href="#">In the Community</a>
+      </div>
+
+      <ul class="community__tiles">
+        {photos.map((photo) => (
+          <li
+            class="ctile"
+            style={[`--focal:${photo.focal}`, photo.focalSm && `--focal-sm:${photo.focalSm}`]
+              .filter(Boolean)
+              .join(";")}
+          >
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              widths={[320, 500, 660, 880, 1100]}
+              sizes="(max-width: 650px) 76vw, (max-width: 1000px) 50vw, (max-width: 1439px) 33vw, 480px"
+              format="webp"
+              quality={78}
+              loading="lazy"
+              decoding="async"
+            />
+          </li>
+        ))}
+
+        <li class="ctile ctile--navy">
+          {/* :global styling — the SVG arrives via set:html and never picks up
+              Astro's scoping attribute. */}
+          <span class="ctile__mark" aria-hidden="true" set:html={communityMark} />
+          <div class="ctile__body">
+            <h3 class="ctile__title">Beyond the Courtroom</h3>
+            <p class="ctile__desc">
+              Pro bono clinics, mentorship, and neighborhood events across Pearland.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The cool light blue-grey reads correctly against the white that the reels
+     section above fades into. `clip` rather than `hidden` so the section never
+     becomes a scroll container. */
+  /* Half again the standard section rhythm (98 / 72 / 48), so the band gets
+     more air than its neighbours. Written out rather than derived, because
+     global.css sets the smaller steps as literals rather than through
+     --section-pad-y. */
+  .community {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-block: 147px;
+    background: #f2f6f8;
+  }
+
+  /* stretch, not center: the tiles take their height from the copy column
+     rather than from their own aspect ratio. */
+  .community__grid {
+    display: grid;
+    grid-template-columns: 1.75fr 3.25fr;
+    gap: var(--section-gap);
+    align-items: stretch;
+  }
+
+  /* Positioning context for the seal. Must not take its own z-index, or the
+     ::before can't sit behind the copy. */
+  .community__copy {
+    position: relative;
+  }
+
+  /* The Pearland seal, bled off the left edge of the copy column into the page
+     gutter. It reads as a seal precisely because it's partial — a whole circle
+     floating behind the text would read as a logo left in by mistake. */
+  .community__copy::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -42px;
+    left: -100px;
+    width: 250px;
+    height: 250px;
+    background: var(--badge) center / contain no-repeat;
+    opacity: 0.1;
+    pointer-events: none;
+  }
+
+  /* ---- Copy ---- */
+  .community__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+  }
+
+  .community__eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  /* No reserved height here: the heading is one line once the grid stacks and
+     two in the narrow desktop column, so reserving two would leave a blank
+     line under it at every width in between. The section is below the fold
+     with the serif preloaded, so the fallback is rarely painted anyway. */
+  .community__title {
+    margin-bottom: 22px;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.25;
+  }
+
+  /* Inline, not block: "Neighbors" is the trailing word, so blocking it would
+     force an extra line for nothing. */
+  .community__title em {
+    font-style: italic;
+    color: var(--gold-600);
+  }
+
+  .community__text {
+    margin-bottom: 18px;
+    color: var(--ink-500);
+  }
+
+  .community__cta {
+    margin-top: 14px;
+    min-width: 260px;
+    padding: 12px 34px;
+  }
+
+  /* ---- Tiles ---- */
+  /* A single 1fr row, so the row fills the height the grid hands down from the
+     copy column instead of being sized by the tiles' own content. */
+  .community__tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: 1fr;
+    gap: 18px;
+    height: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ctile {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  /* No aspect-ratio: the tile's height comes from the row, and the photo fills
+     it. The crop is therefore driven by the copy column's height. */
+  .ctile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--focal, 50% 50%);
+    filter: var(--photo-filter);
+  }
+
+  /* ---- Navy card ---- */
+  .ctile--navy {
+    display: flex;
+    align-items: flex-end;
+    padding: 30px;
+    background: var(--navy-900);
+  }
+
+  /* Filled to the card edges rather than inset. `slice` on the SVG root is the
+     preserveAspectRatio equivalent of background-size: cover — the mark scales
+     to cover the box and the overflow is clipped. */
+  .ctile__mark {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    color: #fff;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+
+  .ctile__mark :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ctile__body {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ctile__title {
+    min-height: 2.4em;
+    margin-bottom: 12px;
+    font-size: clamp(23px, 0.3797vw + 1.2832rem, 26px);
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  .ctile__desc {
+    font-size: 15px;
+    line-height: 24px;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  /* Small Desktop — the two-column split needs the 1440 container to work. One
+     step down it leaves the copy at ~355px and the tiles at ~165px, which is
+     too narrow for the navy card's heading and two sentences. So the grid
+     stacks here rather than at the tablet breakpoint, and the tiles go squarer
+     now they have the full width to share. */
+  @media (max-width: 1439px) {
+    .community__grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+
+    .community__copy::before {
+      top: -38px;
+      left: -92px;
+      width: 230px;
+      height: 230px;
+    }
+
+    /* Once stacked there's no copy column to take a height from, so the photos
+       set their own again and the card stretches to match them. */
+    .community__tiles {
+      grid-template-rows: auto;
+      height: auto;
+    }
+
+    .ctile img {
+      height: auto;
+      aspect-ratio: 4 / 5;
+      object-position: var(--focal-sm, var(--focal, 50% 50%));
+    }
+
+    .ctile--navy {
+      padding: 28px;
+    }
+
+    /* One line from here down — the card is wide once the grid stacks, so
+       holding two would leave a gap above the description. */
+    .ctile__title {
+      min-height: 1.2em;
+    }
+  }
+
+  /* Tablet — two photos across with the card full width beneath. Three across
+     would put the tiles under 200px again by the bottom of this range. */
+  @media (max-width: 1000px) {
+    .community {
+      padding-block: 108px;
+    }
+
+    .community__copy::before {
+      top: -32px;
+      left: -78px;
+      width: 200px;
+      height: 200px;
+      opacity: 0.08;
+    }
+
+    .community__tiles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .ctile--navy {
+      grid-column: 1 / -1;
+    }
+
+    /* The card is a wide, short block from here down, so `slice` crops the
+       mark to a horizontal band through the middle of the figures. Lifted a
+       little since less of it is showing. */
+    .ctile__mark {
+      opacity: 0.08;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 650px) {
+    .community {
+      padding-block: 72px;
+    }
+
+    .community__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    .community__cta {
+      width: 100%;
+    }
+
+    /* No gutter left for the seal to bleed into, so it would sit on top of the
+       copy rather than beside it. Hiding it also skips the request. */
+    .community__copy::before {
+      display: none;
+    }
+
+    .community__tiles {
+      gap: 14px;
+    }
+
+    .ctile--navy {
+      padding: 24px;
+    }
+  }
+</style>
