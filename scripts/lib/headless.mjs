@@ -115,6 +115,17 @@ export async function launch({ width = 1440, height = 900 } = {}) {
   await send("Page.enable");
   await send("Runtime.enable");
 
+  /* Chrome clamps its window to ~500px wide on macOS, so --window-size alone
+     silently reports 500 when you ask for 375 or 430 — every "phone width"
+     check would really be running at 500. Overriding the device metrics gives
+     a true viewport independent of the OS window. */
+  await send("Emulation.setDeviceMetricsOverride", {
+    width,
+    height,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+
   return {
     send,
     evaluate,

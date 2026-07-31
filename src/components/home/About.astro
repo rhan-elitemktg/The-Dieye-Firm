@@ -72,7 +72,14 @@ const checklist = [
 
     <div class="about__grid">
       <aside class="about__aside">
-        <button class="video-card" type="button" aria-label={playLabel} data-video-open>
+        <button
+          class="video-card"
+          type="button"
+          aria-label={playLabel}
+          data-video-open
+          data-wistia-id={WISTIA_ID}
+          data-video-title="Meet Papa Dieye"
+        >
           <Image
             class="video-card__poster"
             src={videoPoster}
@@ -214,20 +221,8 @@ const checklist = [
   </div>
 </section>
 
-{/* Video modal. The Wistia iframe is injected on open and torn down on close,
-    so nothing loads from Wistia until the visitor asks for it — and closing
-    reliably stops playback. */}
-<div class="video-modal" id="videoModal" data-video-modal hidden>
-  <div class="video-modal__backdrop" data-video-close></div>
-  <div class="video-modal__dialog" role="dialog" aria-modal="true" aria-label="Meet Papa Dieye">
-    <button class="video-modal__close" type="button" aria-label="Close video" data-video-close>
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      </svg>
-    </button>
-    <div class="video-modal__frame" data-video-frame data-wistia-id={WISTIA_ID}></div>
-  </div>
-</div>
+{/* The video modal itself lives in VideoModal.astro, rendered once from
+    Layout.astro. The .video-card button above opens it via its data-* attrs. */}
 
 <style>
   .about {
@@ -529,70 +524,6 @@ const checklist = [
     padding: 18px 34px;
   }
 
-  /* ---- Video modal ---- */
-  .video-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 400;
-    display: grid;
-    place-items: center;
-    padding: var(--container-pad);
-  }
-
-  .video-modal[hidden] {
-    display: none;
-  }
-
-  .video-modal__backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(15, 36, 56, 0.82);
-  }
-
-  .video-modal__dialog {
-    position: relative;
-    width: min(1040px, 100%);
-  }
-
-  .video-modal__frame {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    background: #000;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  .video-modal__frame :global(iframe) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-
-  .video-modal__close {
-    position: absolute;
-    top: -48px;
-    right: 0;
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    background: transparent;
-    border: 0;
-    color: #fff;
-    transition: color var(--dur-base) var(--ease-out);
-  }
-
-  .video-modal__close:hover {
-    color: var(--gold-500);
-  }
-
-  .video-modal__close svg {
-    width: 26px;
-    height: 26px;
-  }
-
   /* Tablet — collapse to a single column, media first. */
   @media (max-width: 1000px) {
     .about__grid {
@@ -635,54 +566,5 @@ const checklist = [
     .about__cta {
       width: 100%;
     }
-
-    .video-modal__close {
-      top: -44px;
-    }
   }
 </style>
-
-<script>
-  const modal = document.querySelector<HTMLElement>("[data-video-modal]");
-  const frame = modal?.querySelector<HTMLElement>("[data-video-frame]");
-  const openers = document.querySelectorAll<HTMLButtonElement>("[data-video-open]");
-
-  if (modal && frame && openers.length) {
-    const wistiaId = frame.dataset.wistiaId;
-    let lastFocused: HTMLElement | null = null;
-
-    const open = () => {
-      lastFocused = document.activeElement as HTMLElement;
-      // Build the embed on demand so Wistia loads nothing until it's wanted.
-      const iframe = document.createElement("iframe");
-      iframe.src = `https://fast.wistia.net/embed/iframe/${wistiaId}?autoPlay=true`;
-      iframe.allow = "autoplay; fullscreen";
-      iframe.setAttribute("allowfullscreen", "");
-      iframe.title = "Meet Papa Dieye";
-      frame.replaceChildren(iframe);
-
-      modal.hidden = false;
-      document.documentElement.style.overflow = "hidden";
-      // Target the button explicitly — the backdrop also carries
-      // [data-video-close] and comes first in the DOM, but isn't focusable.
-      modal.querySelector<HTMLButtonElement>(".video-modal__close")?.focus();
-    };
-
-    const close = () => {
-      modal.hidden = true;
-      // Removing the iframe is what actually stops playback.
-      frame.replaceChildren();
-      document.documentElement.style.overflow = "";
-      lastFocused?.focus();
-    };
-
-    openers.forEach((btn) => btn.addEventListener("click", open));
-    modal
-      .querySelectorAll<HTMLElement>("[data-video-close]")
-      .forEach((el) => el.addEventListener("click", close));
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !modal.hidden) close();
-    });
-  }
-</script>

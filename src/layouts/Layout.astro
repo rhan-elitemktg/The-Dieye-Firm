@@ -1,5 +1,6 @@
 ---
 import { Font } from "astro:assets";
+import VideoModal from "../components/VideoModal.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -38,5 +39,9 @@ const {
   </head>
   <body>
     <slot />
+    {/* Rendered at body level so `position: fixed` can never be broken by an
+        ancestor transform/filter/contain, and so any page's video triggers
+        have a modal to open without having to remember to include one. */}
+    <VideoModal />
   </body>
 </html>

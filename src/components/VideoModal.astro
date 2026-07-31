@@ -1,0 +1,185 @@
+---
+// Shared video modal. Rendered exactly once, from Layout.astro.
+//
+// Any element anywhere on the page opts in by carrying:
+//   data-video-open              (required marker)
+//   data-wistia-id="z79lx3x00o"  (required — which video)
+//   data-video-title="…"         (iframe title + the dialog's accessible name)
+//   data-video-aspect="9/16"     (optional — defaults to 16/9)
+//
+// The Wistia iframe is built on open and torn down on close, so nothing loads
+// from Wistia until the visitor asks for it, and closing reliably stops
+// playback.
+---
+
+<div class="video-modal" data-video-modal hidden>
+  <div class="video-modal__backdrop" data-video-close></div>
+  <div
+    class="video-modal__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Video"
+    data-video-dialog
+  >
+    <button class="video-modal__close" type="button" aria-label="Close video" data-video-close>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+    <div class="video-modal__frame" data-video-frame></div>
+  </div>
+</div>
+
+<style>
+  .video-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    display: grid;
+    place-items: center;
+    padding: var(--container-pad);
+  }
+
+  .video-modal[hidden] {
+    display: none;
+  }
+
+  .video-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 36, 56, 0.82);
+  }
+
+  /* --video-ar is width ÷ height, set by the script from the trigger's
+     data-video-aspect. A landscape video is width-bound and stops at 1040px;
+     a portrait one is height-bound, so the dialog is also capped by what the
+     viewport can actually show — 56px of that is reserved above the frame for
+     the close button, which sits outside it. */
+  .video-modal__dialog {
+    position: relative;
+    width: min(1040px, 100%);
+    max-width: calc((100dvh - (var(--container-pad) * 2) - 56px) * var(--video-ar, 1.7778));
+  }
+
+  .video-modal__frame {
+    position: relative;
+    aspect-ratio: var(--video-ar, 1.7778);
+    background: #000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  /* The iframe is created in JS, so it never carries the scope hash. */
+  .video-modal__frame :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .video-modal__close {
+    position: absolute;
+    top: -48px;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .video-modal__close:hover {
+    color: var(--gold-500);
+  }
+
+  .video-modal__close svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  @media (max-width: 650px) {
+    .video-modal__close {
+      top: -44px;
+    }
+  }
+</style>
+
+<script>
+  const modal = document.querySelector<HTMLElement>("[data-video-modal]");
+  const dialog = modal?.querySelector<HTMLElement>("[data-video-dialog]");
+  const frame = modal?.querySelector<HTMLElement>("[data-video-frame]");
+  const closeBtn = modal?.querySelector<HTMLButtonElement>(".video-modal__close");
+
+  if (modal && dialog && frame && closeBtn) {
+    let lastFocused: HTMLElement | null = null;
+
+    // "9/16" -> 0.5625. Anything malformed falls back to 16:9 rather than
+    // producing an invalid aspect-ratio and collapsing the frame.
+    const ratio = (value: string | undefined) => {
+      const [w, h] = (value || "16/9").split("/").map((part) => parseFloat(part));
+      return w > 0 && h > 0 ? w / h : 16 / 9;
+    };
+
+    const open = (trigger: HTMLElement) => {
+      const wistiaId = trigger.dataset.wistiaId;
+      // No id means a malformed trigger — bail rather than requesting
+      // .../undefined. Already-open means a stray second click.
+      if (!wistiaId || !modal.hidden) return;
+
+      const title = trigger.dataset.videoTitle || "Video";
+      // The trigger itself, not document.activeElement: Safari doesn't focus a
+      // button on click, so activeElement would be <body> and the focus
+      // restore below would silently do nothing.
+      lastFocused = trigger;
+
+      modal.style.setProperty("--video-ar", String(ratio(trigger.dataset.videoAspect)));
+      dialog.setAttribute("aria-label", title);
+
+      // Built on demand so Wistia loads nothing until it's wanted.
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://fast.wistia.net/embed/iframe/${encodeURIComponent(wistiaId)}?autoPlay=true`;
+      iframe.allow = "autoplay; fullscreen";
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.title = title;
+      frame.replaceChildren(iframe);
+
+      modal.hidden = false;
+      document.documentElement.style.overflow = "hidden";
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (modal.hidden) return;
+      modal.hidden = true;
+      // Removing the iframe is what actually stops playback.
+      frame.replaceChildren();
+      document.documentElement.style.overflow = "";
+      // preventScroll: a trigger may live inside a horizontal scroller (the
+      // reels carousel). The page never moved, so the card is still where the
+      // visitor left it — refocusing must not yank the track or the page.
+      lastFocused?.focus({ preventScroll: true });
+      lastFocused = null;
+    };
+
+    // One delegated listener, so a trigger in any section works without the
+    // modal knowing anything about who renders it.
+    document.addEventListener("click", (event) => {
+      const trigger = (event.target as Element | null)?.closest<HTMLElement>("[data-video-open]");
+      if (!trigger) return;
+      event.preventDefault();
+      open(trigger);
+    });
+
+    modal
+      .querySelectorAll<HTMLElement>("[data-video-close]")
+      .forEach((el) => el.addEventListener("click", close));
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !modal.hidden) close();
+    });
+  }
+</script>
