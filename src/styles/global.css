@@ -355,7 +355,7 @@ ul, ol { list-style-position: inside; }
   font-weight: var(--fw-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 14px 22px;
+  padding: 9px 22px;
   border: 0;
   border-radius: var(--radius-xs);
   cursor: pointer;
