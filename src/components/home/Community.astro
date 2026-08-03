@@ -347,8 +347,11 @@ const photos = [
 
   /* Mobile */
   @media (max-width: 650px) {
+    /* Back to the standard 48px here. The extra air reads as generous on a
+       wide two-column layout, but once everything is stacked in a single
+       column it just becomes dead scroll. */
     .community {
-      padding-block: 72px;
+      padding-block: 48px;
     }
 
     .community__eyebrow {
