@@ -1,0 +1,325 @@
+---
+// Guide Request — the "not ready yet" offer. A navy card holding the pitch and
+// an email capture on the left, Papa's portrait on the right.
+
+import { Image } from "astro:assets";
+import birdGold from "../../assets/images/logo-bird-gold.png";
+import headshot from "../../assets/images/papa-headshot-square.jpg";
+---
+
+<section class="guide section" aria-labelledby="guide-title">
+  <div class="container">
+    <div class="guide__card">
+      <div class="guide__copy">
+        <p class="guide__eyebrow">
+          <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+          <span>No Pressure</span>
+        </p>
+
+        <h2 class="guide__title" id="guide-title">
+          Hey, Not Ready Yet? <em>That's Okay.</em>
+        </h2>
+
+        <p class="guide__lead">
+          Choosing a lawyer is a big step. Here's something genuinely helpful to guide
+          you through what comes next, on your own time.
+        </p>
+
+        <p class="guide__offer">Get your free Texas Divorce Checklist</p>
+
+        {/* PLACEHOLDER: no endpoint yet. The script cancels submission and shows
+            an inline confirmation, so nothing is silently posted to a URL that
+            doesn't exist. Point `action` at a real form service (Formspree,
+            Basin, ConvertKit) and delete the preventDefault to go live. */}
+        <form class="guide__form" data-guide-form novalidate>
+          <label class="visually-hidden" for="guide-email">Your email address</label>
+          <input
+            class="guide__input"
+            id="guide-email"
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            placeholder="you@email.com"
+            required
+            aria-describedby="guide-note"
+          />
+          <button class="btn btn--gold guide__submit" type="submit">Send Me the Guide</button>
+        </form>
+
+        {/* aria-live so the confirmation is announced, not just shown. */}
+        <p class="guide__status" data-guide-status role="status" aria-live="polite" hidden></p>
+
+        <p class="guide__note" id="guide-note">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path
+              d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z"
+            />
+          </svg>
+          <span>We'll never share your email. Unsubscribe anytime.</span>
+        </p>
+      </div>
+
+      <div class="guide__portrait">
+        <Image
+          src={headshot}
+          alt="Attorney Papa Dieye"
+          widths={[320, 440, 600, 800]}
+          sizes="(max-width: 1000px) 260px, 30vw"
+          format="webp"
+          quality={80}
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The reverse of the reels section above, which runs #f7f9fa to #ffffff —
+     so the two meet white-on-white and the page reads as one continuous
+     surface rather than two stacked panels. */
+  .guide {
+    background: linear-gradient(180deg, #ffffff 0%, #f7f9fa 100%);
+  }
+
+  /* The card is the section here, so it carries the same soft radial lift the
+     selling-points band uses to keep a flat navy fill from reading dead. */
+  .guide__card {
+    display: grid;
+    grid-template-columns: 1.55fr 0.75fr;
+    gap: 64px;
+    align-items: center;
+    padding: 72px 80px;
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(120% 90% at 88% 0%, rgba(34, 85, 127, 0.42) 0%, rgba(15, 36, 56, 0) 62%),
+      var(--navy-900);
+  }
+
+  /* ---- Copy ---- */
+  .guide__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .guide__eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  .guide__title {
+    margin-bottom: 16px;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.15;
+    color: #fff;
+  }
+
+  .guide__title em {
+    font-style: italic;
+    color: var(--gold-500);
+  }
+
+  .guide__lead {
+    max-width: 52ch;
+    margin-bottom: 22px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .guide__offer {
+    margin-bottom: 16px;
+    font-family: var(--font-serif);
+    font-size: clamp(19px, 0.3797vw + 0.9082rem, 22px);
+    font-weight: 600;
+    color: var(--gold-500);
+  }
+
+  /* ---- Form ---- */
+  .guide__form {
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    max-width: 640px;
+  }
+
+  .guide__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-xs);
+    background: #fff;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    color: var(--ink-900);
+    transition: border-color var(--dur-base) var(--ease-out);
+  }
+
+  .guide__input::placeholder {
+    color: var(--ink-300);
+  }
+
+  .guide__input:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* Only after a failed submit, so the field isn't red while it's still being
+     typed into. */
+  .guide__form.is-invalid .guide__input {
+    border-color: #e2857f;
+  }
+
+  .guide__submit {
+    flex: none;
+    min-width: 240px;
+    padding: 18px 30px;
+  }
+
+  .guide__status {
+    margin-top: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold-300);
+  }
+
+  .guide__status[hidden] {
+    display: none;
+  }
+
+  .guide__note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .guide__note svg {
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+
+  /* ---- Portrait ---- */
+  .guide__portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .guide__card {
+      gap: 48px;
+      padding: 60px 56px;
+    }
+
+    .guide__submit {
+      min-width: 210px;
+      padding: 18px 24px;
+    }
+  }
+
+  /* Tablet — the portrait can't hold a column, so it moves above the copy and
+     shrinks to a badge-sized square. */
+  @media (max-width: 1000px) {
+    .guide__card {
+      grid-template-columns: 1fr;
+      gap: 32px;
+      padding: 52px 44px;
+    }
+
+    .guide__portrait {
+      order: -1;
+    }
+
+    .guide__portrait img {
+      width: 140px;
+    }
+  }
+
+  /* Mobile — the field and button stack; a side-by-side pair leaves the input
+     too narrow to read a typed address in. */
+  @media (max-width: 650px) {
+    .guide__card {
+      padding: 36px 24px;
+      border-radius: var(--radius-md);
+    }
+
+    .guide__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    .guide__lead {
+      font-size: 16px;
+      line-height: 27px;
+    }
+
+    .guide__form {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .guide__input {
+      padding: 15px 16px;
+    }
+
+    .guide__submit {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-guide-form]");
+  const status = document.querySelector<HTMLElement>("[data-guide-status]");
+
+  if (form && status) {
+    const input = form.querySelector<HTMLInputElement>("#guide-email");
+
+    form.addEventListener("submit", (event) => {
+      // Always cancelled: there is no endpoint yet, and letting the form post
+      // to nothing would navigate away and lose the address. Remove this,
+      // drop `novalidate`, and set an `action` once a form service is wired.
+      event.preventDefault();
+      if (!input) return;
+
+      // novalidate suppresses the browser bubble so the message can live
+      // inline, but the constraint itself is still what's being checked.
+      if (!input.checkValidity()) {
+        form.classList.add("is-invalid");
+        status.hidden = false;
+        status.textContent = "Please enter a valid email address.";
+        input.focus();
+        return;
+      }
+
+      form.classList.remove("is-invalid");
+      status.hidden = false;
+      status.textContent = "Thank you. Your guide is on the way.";
+      form.reset();
+    });
+
+    input?.addEventListener("input", () => {
+      form.classList.remove("is-invalid");
+      status.hidden = true;
+    });
+  }
+</script>
