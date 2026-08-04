@@ -1,0 +1,278 @@
+---
+// Footer — site-wide. Brand column plus three link columns, with a legal bar
+// beneath. Rendered from Layout, directly after Contact.
+
+import { Image } from "astro:assets";
+import logoDark from "../assets/images/logo-dark.png";
+import { getFirmDetails } from "../sanity/firmDetails";
+
+const {
+  phone,
+  email,
+  address,
+  socials,
+  footerNav,
+  legalLinks,
+  firmName,
+  tagline,
+} = await getFirmDetails();
+
+/* Built at compile time, so the year is right for whenever the site was last
+   deployed rather than frozen in the markup. */
+const year = new Date().getFullYear();
+
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label={`${firmName} — home`}>
+          <Image src={logoDark} alt={firmName} width={268} format="webp" loading="lazy" decoding="async" />
+        </a>
+
+        <p class="footer__tagline">{tagline}</p>
+
+        <a class="footer__phone" href={phone.href}>{phone.display}</a>
+
+        <address class="footer__address">
+          <a href={email.href}>{email.display}</a><br />
+          {address.oneLine}
+        </address>
+
+        <ul class="footer__socials">
+          {socials.map((social) => (
+            <li>
+              <a class="footer__social" href={social.href} aria-label={social.label}>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d={social.path} />
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {footerNav.map((column) => (
+        <nav class="footer__col" aria-labelledby={`ft-${column.heading.replace(/\s+/g, "-").toLowerCase()}`}>
+          <h2 class="footer__heading" id={`ft-${column.heading.replace(/\s+/g, "-").toLowerCase()}`}>
+            {column.heading}
+          </h2>
+          <ul>
+            {column.links.map((link) => (
+              <li><a href={link.href}>{link.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      ))}
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copy">&copy; {year} {firmName}. All rights reserved.</p>
+      <ul class="footer__legal">
+        {legalLinks.map((link) => (
+          <li><a href={link.href}>{link.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: 80px 0 26px;
+    background: var(--navy-900);
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .footer a {
+    color: rgba(255, 255, 255, 0.78);
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .footer a:hover {
+    color: #fff;
+  }
+
+  /* ---- Grid ---- */
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 36px;
+  }
+
+  /* ---- Brand column ---- */
+  .footer__logo {
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  /* The source is 268px wide, so anything over 134 CSS px upscales on a 2x
+     screen — which is what was making it look soft. Capped at half. */
+  .footer__logo img {
+    width: 134px;
+    height: auto;
+    /* The logo file is the dark-on-light lockup; this is the one place the
+       site needs it knocked out to white. */
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+  }
+
+  .footer__tagline {
+    max-width: 32ch;
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.82;
+  }
+
+  /* `.footer a` is (0,1,1) and would otherwise beat a bare class here, which
+     painted the phone white and the social glyphs white-on-white. */
+  .footer a.footer__phone {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-family: var(--font-ui);
+    font-size: clamp(28px, 1.0127vw + 1.0886rem, 36px);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--gold-500);
+  }
+
+  .footer__address {
+    font-size: 13.5px;
+    font-style: normal;
+    line-height: 1.7;
+    opacity: 0.85;
+  }
+
+  /* ---- Socials ---- */
+  .footer__socials {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer a.footer__social {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--navy-900);
+    transition:
+      background var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
+  }
+
+  .footer a.footer__social:hover {
+    background: var(--gold-500);
+    color: var(--navy-900);
+  }
+
+  .footer__social svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ---- Link columns ---- */
+  .footer__heading {
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .footer__col ul {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 16px;
+  }
+
+  /* ---- Legal bar ---- */
+  .footer__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 72px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 13.5px;
+    /* The body sets 29px, which is over 2x at this size. */
+    line-height: 1.5;
+  }
+
+  .footer__legal {
+    display: flex;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Tablet — brand column spans the full width, links go three across. */
+  @media (max-width: 1000px) {
+    .footer {
+      padding-top: 64px;
+    }
+
+    .footer__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 40px 24px;
+    }
+
+    .footer__brand {
+      grid-column: 1 / -1;
+    }
+
+    .footer__bottom {
+      margin-top: 48px;
+    }
+  }
+
+  /* Mobile — one column, everything left-aligned and stacked. */
+  @media (max-width: 650px) {
+    .footer {
+      padding: 48px 0 22px;
+    }
+
+    .footer__grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+      text-align: center;
+    }
+
+    /* The tagline is capped at 32ch, so it needs centring in its own right
+       once the column is full width. */
+    .footer__tagline {
+      margin-inline: auto;
+    }
+
+    .footer__socials {
+      justify-content: center;
+    }
+
+    .footer__bottom {
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 36px;
+      text-align: center;
+    }
+
+    .footer__legal {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+  }
+</style>
