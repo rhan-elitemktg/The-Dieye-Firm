@@ -6,6 +6,9 @@ import { Image, getImage } from "astro:assets";
 import heroWideSrc from "../../assets/images/papa-hero-b.jpg";
 import heroTallSrc from "../../assets/images/papa-hero-tan.jpg";
 import birdGold from "../../assets/images/logo-bird-gold.png";
+import { getFirmDetails } from "../../sanity/firmDetails";
+
+const { phone } = await getFirmDetails();
 
 /* Art direction (a different crop below 650px) rules out <Picture>, so the
    variants are generated with getImage() and assembled by hand. Widths stop
@@ -14,9 +17,6 @@ const heroWideWebp = await getImage({ src: heroWideSrc, format: "webp", widths: 
 const heroWideJpg = await getImage({ src: heroWideSrc, format: "jpeg", widths: [768, 1024, 1280] });
 const heroTallWebp = await getImage({ src: heroTallSrc, format: "webp", widths: [430, 660, 824] });
 const heroTallJpg = await getImage({ src: heroTallSrc, format: "jpeg", widths: [430, 660, 824] });
-
-const phone = "(832) 299-7990";
-const phoneHref = "tel:+18322997990";
 
 const stats = [
   { value: "17+", label: "Years of Experience" },
@@ -80,13 +80,13 @@ const stats = [
 
       <div class="hero__actions">
         <a class="btn btn--gold" href="/contact-us/">Get in Touch</a>
-        <a class="btn btn--ghost" href={phoneHref}>
+        <a class="btn btn--ghost" href={phone.href}>
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path
               d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
             />
           </svg>
-          {phone}
+          {phone.display}
         </a>
       </div>
 

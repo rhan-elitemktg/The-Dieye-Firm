@@ -5,9 +5,11 @@
 // curated shortlist with a "View All" link to the full family-law index.
 import { Image } from "astro:assets";
 import logoLight from "../../assets/images/logo-light.png";
+import { getFirmDetails } from "../../sanity/firmDetails";
+
+const { phone, serviceAreas } = await getFirmDetails();
 
 const nav = [
-  { label: "Home", href: "/" },
   {
     label: "About Us",
     href: "/about-us/",
@@ -32,13 +34,17 @@ const nav = [
       { label: "Protective Restraining Orders", href: "/family-law/protective-restraining-orders/" },
     ],
   },
+  {
+    label: "Service Areas",
+    /* No index page for these, so the parent points at the first area rather
+       than a URL that 404s. */
+    href: serviceAreas[0].href,
+    items: serviceAreas.map((area) => ({ label: area.navLabel, href: area.href })),
+  },
   { label: "Testimonials", href: "/testimonials/" },
   { label: "Blog", href: "/blog/" },
   { label: "Contact Us", href: "/contact-us/" },
 ];
-
-const phone = "(832) 299-7990";
-const phoneHref = "tel:+18322997990";
 
 /* ---- Active-state helpers ----------------------------------------------
    Normalise to a trailing slash so "/family-law/" never prefix-matches
@@ -120,13 +126,13 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
     <div class="mainnav__actions">
       <a class="btn btn--gold mainnav__cta" href="/contact-us/">Schedule a Consultation</a>
       <span class="mainnav__sep" aria-hidden="true"></span>
-      <a class="phonecta" href={phoneHref}>
+      <a class="phonecta" href={phone.href}>
         <span class="phonecta__label">Financing Available</span>
-        <span class="phonecta__num">{phone}</span>
+        <span class="phonecta__num">{phone.display}</span>
       </a>
     </div>
 
-    <a class="mainnav__phone-icon" href={phoneHref} aria-label={`Call ${phone}`}>
+    <a class="mainnav__phone-icon" href={phone.href} aria-label={`Call ${phone.display}`}>
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
       </svg>
@@ -214,9 +220,9 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
 
     <div class="mobile-menu__actions">
       <a class="btn btn--gold mobile-menu__cta" href="/contact-us/">Schedule a Consultation</a>
-      <a class="mobile-menu__phone" href={phoneHref}>
+      <a class="mobile-menu__phone" href={phone.href}>
         <span class="mobile-menu__phone-label">Financing Available</span>
-        <span class="mobile-menu__phone-num">{phone}</span>
+        <span class="mobile-menu__phone-num">{phone.display}</span>
       </a>
     </div>
   </div>
@@ -304,9 +310,15 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
   .nav-drop {
     position: absolute;
     top: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    margin-top: 14px;
+    /* Left-aligned to the parent item rather than centred under it.
+       The negative offset is the important bit: .navitem stretches the full
+       100px bar height, so `top: 100%` lands ~35px below the label's baseline
+       and the menu reads as detached. The header is transparent over the hero,
+       so there's no bar edge to sit under — only the text. This pulls the
+       panel back up to ~15px below the label. */
+    left: 0;
+    transform: translateY(4px);
+    margin-top: -20px;
     min-width: 232px;
     background: var(--white);
     border-radius: var(--radius-md);
@@ -320,21 +332,22 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
     z-index: 10;
   }
 
-  /* Invisible bridge so the hover doesn't drop through the 14px gap. */
+  /* Invisible bridge so hover doesn't drop through the gap. Sized to the
+     margin-top plus the 4px enter offset, or the menu closes mid-travel. */
   .nav-drop::before {
     content: "";
     position: absolute;
-    top: -14px;
+    top: -8px;
     left: 0;
     right: 0;
-    height: 14px;
+    height: 8px;
   }
 
   .navitem--has-drop:hover .nav-drop,
   .navitem--has-drop:focus-within .nav-drop {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
 
   .nav-drop ul {

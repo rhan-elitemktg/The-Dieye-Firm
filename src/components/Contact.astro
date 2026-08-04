@@ -1,0 +1,540 @@
+---
+// Contact — "Take the First Step". Contact details and a map on the left, a
+// consultation request form on the right. Rendered site-wide from Layout.
+
+import { Image } from "astro:assets";
+import birdGold from "../assets/images/logo-bird-gold.png";
+import iconCall from "../assets/icons/contact-call.svg?raw";
+import iconMail from "../assets/icons/contact-mail.svg?raw";
+import iconOffice from "../assets/icons/contact-office.svg?raw";
+import iconHours from "../assets/icons/contact-hours.svg?raw";
+import { getFirmDetails } from "../sanity/firmDetails";
+
+const { phone, email, address, hours } = await getFirmDetails();
+---
+
+<section class="contact section" aria-labelledby="contact-title">
+  <div class="container">
+    <header class="contact__head">
+      <p class="contact__eyebrow">
+        <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+        <span>Let's Talk</span>
+      </p>
+      <h2 class="contact__title" id="contact-title">Take the <em>First Step</em></h2>
+      <p class="contact__lead">
+        One conversation can bring clarity.<br />
+        Reach out for a free, confidential consultation. No pressure, just answers.
+      </p>
+    </header>
+
+    <div class="contact__grid">
+      <div class="contact__info">
+        <h3 class="contact__subhead">Get In Touch</h3>
+
+        <ul class="cinfo">
+          <li class="cinfo__item">
+            <span class="cinfo__icon" aria-hidden="true" set:html={iconCall} />
+            <span class="cinfo__text">
+              <span class="cinfo__label">Call us</span>
+              <a class="cinfo__value cinfo__link" href={phone.href}>{phone.display}</a>
+            </span>
+          </li>
+          <li class="cinfo__item">
+            <span class="cinfo__icon" aria-hidden="true" set:html={iconMail} />
+            <span class="cinfo__text">
+              <span class="cinfo__label">Email us</span>
+              <a class="cinfo__value cinfo__link" href={email.href}>{email.display}</a>
+            </span>
+          </li>
+          <li class="cinfo__item">
+            <span class="cinfo__icon" aria-hidden="true" set:html={iconOffice} />
+            <span class="cinfo__text">
+              <span class="cinfo__label">Address</span>
+              <span class="cinfo__value">
+                {address.street}, {address.locality}, {address.region} {address.postalCode}
+              </span>
+            </span>
+          </li>
+          <li class="cinfo__item">
+            <span class="cinfo__icon" aria-hidden="true" set:html={iconHours} />
+            <span class="cinfo__text">
+              <span class="cinfo__label">Business Hours</span>
+              <span class="cinfo__value">{hours.days}:<br />{hours.time}</span>
+            </span>
+          </li>
+        </ul>
+
+        {/* Lazy so it stays off the critical path, and titled so it isn't an
+            unlabelled frame in the a11y tree. It still costs a third-party
+            request and cookies on every page — worth revisiting if a consent
+            banner ever lands. */}
+        <iframe
+          class="contact__map"
+          src={`https://www.google.com/maps?q=${address.mapQuery}&output=embed`}
+          title={`Map showing The Dieye Firm at ${address.street}, ${address.locality}`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+
+      <div class="contact__card">
+        <h3 class="contact__card-title">Request a Free Consultation</h3>
+        <p class="contact__card-intro">
+          When you choose to work with The Dieye Firm, you are choosing to work with a
+          divorce and family law attorney who will aggressively protect your rights and
+          best interests.
+        </p>
+
+        {/* PLACEHOLDER: no endpoint yet, so submission is cancelled and confirmed
+            inline rather than posting to a dead URL and losing the enquiry.
+            Set an action, drop the preventDefault and drop novalidate to go live. */}
+        <form class="cform" data-contact-form novalidate>
+          <div class="cform__row">
+            <p class="cform__field">
+              <label for="c-first">First name</label>
+              <input id="c-first" name="firstName" type="text" autocomplete="given-name" placeholder="First" />
+            </p>
+            <p class="cform__field">
+              <label for="c-last">Last name</label>
+              <input id="c-last" name="lastName" type="text" autocomplete="family-name" placeholder="Last" />
+            </p>
+          </div>
+
+          <div class="cform__row">
+            <p class="cform__field">
+              <label for="c-email">Email <span class="cform__req" aria-hidden="true">*</span></label>
+              <input
+                id="c-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="you@email.com"
+                required
+                aria-required="true"
+                pattern="[^@\s]+@[^@\s]+\.[A-Za-z]{2,}"
+                title="Enter a full email address, for example you@example.com"
+              />
+            </p>
+            <p class="cform__field">
+              <label for="c-phone">Phone</label>
+              <input
+                id="c-phone"
+                name="phone"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                placeholder="(___) ___-____"
+                pattern="\(\d{3}\) \d{3}-\d{4}"
+                maxlength="14"
+                title="Enter a 10-digit US phone number"
+                data-phone-input
+              />
+            </p>
+          </div>
+
+          <p class="cform__field">
+            <label for="c-message">How can we help?</label>
+            <textarea id="c-message" name="message" rows="4" placeholder="Tell us a little about your situation..."></textarea>
+          </p>
+
+          <button class="btn btn--gold cform__submit" type="submit">Submit Request</button>
+        </form>
+
+        <p class="contact__status" data-contact-status role="status" aria-live="polite" hidden></p>
+
+        <p class="contact__note">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path
+              d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z"
+            />
+          </svg>
+          <span>Everything you share is private and confidential.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    background: #eef3f5;
+  }
+
+  /* ---- Head ---- */
+  .contact__head {
+    max-width: 760px;
+    margin: 0 auto 48px;
+    text-align: center;
+  }
+
+  .contact__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+  }
+
+  .contact__eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  .contact__title {
+    margin-bottom: 16px;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.12;
+  }
+
+  .contact__title em {
+    font-style: italic;
+    color: var(--gold-600);
+  }
+
+  .contact__lead {
+    color: var(--ink-500);
+  }
+
+  /* ---- Grid ---- */
+  .contact__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .contact__subhead {
+    margin-bottom: 22px;
+    font-size: clamp(24px, 0.5063vw + 1.2943rem, 28px);
+    line-height: 1.2;
+  }
+
+  /* ---- Info cards ---- */
+  /* auto-fit against a 250px floor rather than a hard 2-up: between 1001 and
+     ~1200 the two-column grid squeezes this column to ~450px, and a forced
+     pair wrapped the address onto six lines and pushed the email past its
+     card. This responds to the column it's actually in, not the viewport. */
+  .cinfo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin: 0 0 24px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cinfo__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 22px;
+    background: var(--white);
+    border: 1px solid var(--bone-300);
+    border-radius: var(--radius-md);
+  }
+
+  .cinfo__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 29px;
+    height: 29px;
+    /* Nudged down to sit on the label's cap height rather than its line box,
+       which reads as aligned even though the box tops differ. */
+    margin-top: 2px;
+    color: var(--gold-600);
+  }
+
+  /* :global — the SVG arrives via set:html and never picks up the scope hash. */
+  .cinfo__icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .cinfo__text {
+    min-width: 0;
+  }
+
+  .cinfo__label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 14px;
+    color: var(--ink-500);
+  }
+
+  .cinfo__value {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--navy-700);
+  }
+
+  .cinfo__link {
+    color: var(--gold-600);
+  }
+
+  .cinfo__link:hover {
+    color: var(--navy-700);
+  }
+
+  /* ---- Map ---- */
+  .contact__map {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    border: 0;
+    border-radius: var(--radius-md);
+  }
+
+  /* ---- Form card ---- */
+  .contact__card {
+    padding: 52px 56px;
+    border-radius: var(--radius-lg);
+    background: var(--navy-900);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .contact__card-title {
+    margin-bottom: 12px;
+    font-size: clamp(26px, 0.5063vw + 1.4193rem, 30px);
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  .contact__card-intro {
+    margin-bottom: 26px;
+    font-size: 16px;
+    line-height: 27px;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  /* ---- Form ---- */
+  .cform__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .cform__field {
+    margin-bottom: 16px;
+  }
+
+  .cform__field label {
+    display: block;
+    margin-bottom: 6px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .cform__req {
+    color: var(--gold-500);
+  }
+
+  .cform__field input,
+  .cform__field textarea {
+    display: block;
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-xs);
+    background: #fff;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    color: var(--ink-900);
+    transition: border-color var(--dur-base) var(--ease-out);
+  }
+
+  .cform__field textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+  }
+
+  .cform__field input::placeholder,
+  .cform__field textarea::placeholder {
+    color: var(--ink-300);
+  }
+
+  .cform__field input:focus-visible,
+  .cform__field textarea:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* Only after a failed submit, so a field isn't red while it's being typed in. */
+  .cform.is-invalid :global(input:invalid),
+  .cform.is-invalid :global(textarea:invalid) {
+    border-color: #e2857f;
+  }
+
+  .cform__submit {
+    width: 100%;
+    margin-top: 6px;
+    padding: 16px 30px;
+  }
+
+  .contact__status {
+    margin-top: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold-300);
+  }
+
+  .contact__status[hidden] {
+    display: none;
+  }
+
+  .contact__note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .contact__note svg {
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .contact__grid {
+      gap: 40px;
+    }
+
+    .contact__card {
+      padding: 44px 40px;
+    }
+  }
+
+  /* Tablet — one column; the info block and form stack. */
+  @media (max-width: 1000px) {
+    .contact__head {
+      margin-bottom: 40px;
+    }
+
+    .contact__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .contact__map {
+      aspect-ratio: 2 / 1;
+    }
+  }
+
+  /* Mobile — the info cards and the paired form fields both go single-file;
+     two 22px-padded cards side by side leaves no room for the values. */
+  @media (max-width: 650px) {
+    .contact__eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    .cinfo {
+      gap: 12px;
+    }
+
+    .cinfo__item {
+      padding: 18px;
+    }
+
+    .contact__map {
+      aspect-ratio: 4 / 3;
+    }
+
+    .contact__card {
+      padding: 32px 24px;
+    }
+
+    .cform__row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+  const status = document.querySelector<HTMLElement>("[data-contact-status]");
+  const phoneInput = document.querySelector<HTMLInputElement>("[data-phone-input]");
+
+  /* The field carries a pattern for (555) 555-5555, so it has to actually
+     produce that shape — otherwise anyone typing "5551234567" or "555.123.4567"
+     is just told they're wrong. This formats digits as they're entered, which
+     means the constraint is met by typing normally rather than by guessing the
+     punctuation. */
+  if (phoneInput) {
+    phoneInput.addEventListener("input", () => {
+      const digits = phoneInput.value.replace(/\D/g, "").slice(0, 10);
+      if (!digits) {
+        phoneInput.value = "";
+        return;
+      }
+      const area = digits.slice(0, 3);
+      const prefix = digits.slice(3, 6);
+      const line = digits.slice(6);
+      phoneInput.value =
+        digits.length <= 3
+          ? `(${area}`
+          : digits.length <= 6
+            ? `(${area}) ${prefix}`
+            : `(${area}) ${prefix}-${line}`;
+    });
+
+    // Backspacing into the punctuation would otherwise re-add it and trap the
+    // caret, so an all-punctuation value clears instead.
+    phoneInput.addEventListener("keydown", (event) => {
+      if (event.key === "Backspace" && /^\(\d{0,3}\)?\s?$/.test(phoneInput.value)) {
+        phoneInput.value = "";
+      }
+    });
+  }
+
+  if (form && status) {
+    form.addEventListener("submit", (event) => {
+      // Always cancelled: there is no endpoint yet, and a form allowed to post
+      // with no action navigates and loses the enquiry silently.
+      event.preventDefault();
+
+      // novalidate suppresses the browser bubble so the message can live
+      // inline; the constraints themselves still drive this.
+      if (!form.checkValidity()) {
+        form.classList.add("is-invalid");
+        const firstBad = form.querySelector<HTMLInputElement>(":invalid");
+        status.hidden = false;
+        // Name the actual offending field rather than always blaming email —
+        // the phone pattern can fail too.
+        status.textContent =
+          firstBad?.id === "c-phone"
+            ? "Please enter a 10-digit phone number, or leave it blank."
+            : "Please add a valid email address so we can reply.";
+        firstBad?.focus();
+        return;
+      }
+
+      form.classList.remove("is-invalid");
+      status.hidden = false;
+      status.textContent = "Thank you. We'll be in touch within one business day.";
+      form.reset();
+    });
+
+    form.addEventListener("input", () => {
+      form.classList.remove("is-invalid");
+      status.hidden = true;
+    });
+  }
+</script>

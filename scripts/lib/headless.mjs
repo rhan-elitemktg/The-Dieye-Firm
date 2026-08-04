@@ -146,6 +146,29 @@ export async function launch({ width = 1440, height = 900 } = {}) {
           return true;
         })()
       `);
+
+      /* A lazy <iframe> below the fold is never even given a frame by Chrome —
+         flipping its loading attribute after parse doesn't retroactively start
+         one. It has to actually enter the viewport. Screenshots stay at scroll
+         0 (so the fixed header can't paint over a clipped element), so walk the
+         page to the bottom to trigger everything, then return to the top. */
+      const hasFrames = await evaluate(`document.querySelectorAll('iframe').length > 0`);
+      if (hasFrames) {
+        await evaluate(`
+          (async () => {
+            const step = innerHeight * 0.9;
+            for (let y = 0; y < document.body.scrollHeight; y += step) {
+              window.scrollTo(0, y);
+              await new Promise(r => setTimeout(r, 120));
+            }
+            window.scrollTo(0, 0);
+            return true;
+          })()
+        `);
+        // Third-party frames need longer than a decode to paint.
+        await sleep(2200);
+      }
+
       await sleep(600);
     },
 
