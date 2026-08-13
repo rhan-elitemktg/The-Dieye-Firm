@@ -11,9 +11,15 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 
 // https://astro.build/config
 export default defineConfig({
-  /* Drives absolute canonical and og:url values. This is the domain the
-     rebuilt site replaces, so canonicals should point at it from the start
-     rather than at a preview URL — confirm before launch. */
+  /* Drives absolute canonical and og:url values, and the image URL in each
+     post's BlogPosting JSON-LD.
+
+     Confirmed with Rhan 2026-08-13: the rebuilt site launches on this domain.
+     The `www` is load-bearing — the apex 301s to it, and the live site's own
+     canonical is the www form, so dropping it would point every canonical at
+     a URL that redirects. Only revisit if the site is parked on a temporary
+     subdomain before launch, which would aim canonicals at the old site while
+     the new one is live. */
   site: "https://www.dieyelaw.com",
 
   /* Fonts are self-hosted and preloaded by Astro rather than pulled from

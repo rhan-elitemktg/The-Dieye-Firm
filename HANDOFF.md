@@ -91,14 +91,12 @@ scrape. Two things now live in the script instead, keyed by slug:
    is visibly softer and greyer than its neighbours.
 4. **The Key Takeaways need attorney review before launch.** Unchanged. Wording
    lives in one file, `scripts/add-takeaways.mjs`.
-5. **Confirm `site: "https://www.dieyelaw.com"`** in `astro.config.mjs`. It
-   drives every canonical and `og:url`.
-6. **Two near-duplicate posts** — `understanding-child-custody-laws` (2025-01)
+5. **Two near-duplicate posts** — `understanding-child-custody-laws` (2025-01)
    and `understanding-child-custody-laws-in-pearland-texas` (2026-07). Not
    urgent.
-7. **The other undesigned pages** — About Us index, Choosing a Family Law
+6. **The other undesigned pages** — About Us index, Choosing a Family Law
    Attorney, The Difference, the service-area pages.
-8. **Branch granularity** — one branch per page, or one per template group?
+7. **Branch granularity** — one branch per page, or one per template group?
    Still unanswered.
 
 ---
