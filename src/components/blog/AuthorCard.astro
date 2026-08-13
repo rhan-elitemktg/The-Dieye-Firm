@@ -1,0 +1,165 @@
+---
+// AuthorCard — the attribution card that opens the post sidebar.
+//
+// Posts are bylined to the firm, not to an individual (13 of the 16 already
+// were on the live site, and one had no byline at all), so this card credits
+// Papa as the attorney behind the content rather than claiming he typed it.
+//
+// The name links straight to his profile. Only the name is a link: making the
+// headshot one too would add a second tab stop to the same destination, which
+// is the same reason home/Blog.astro marks its card images aria-hidden.
+
+import { Image } from "astro:assets";
+import papa from "../../assets/images/papa-headshot-square.jpg";
+import { formatDate, isoDate } from "./blog";
+
+interface Props {
+  date: Date;
+  minutes: number;
+}
+
+const { date, minutes } = Astro.props;
+---
+
+<section class="ac" aria-labelledby="ac-kicker">
+  <p class="ac__kicker" id="ac-kicker"><span class="ac__rule" aria-hidden="true"></span>Reviewed by</p>
+
+  <div class="ac__row">
+    <Image
+      class="ac__photo"
+      src={papa}
+      alt="Papa Dieye, founding attorney of The Dieye Firm"
+      width={160}
+      height={160}
+      format="webp"
+      loading="lazy"
+      decoding="async"
+    />
+    <span class="ac__id">
+      <a class="ac__name" href="/about-us/papa-dieye/">Papa Dieye</a>
+      <span class="ac__role">Principal &amp; Founder</span>
+    </span>
+  </div>
+
+  {/* "Posted on", not "Updated on" — the ingested archive only carries a
+      publish date, and claiming a revision date we don't have would be wrong.
+      This flips to "Updated on" once editors can actually revise a post, which
+      is the Sanity pass: the source JSON-LD has a `dateModified` the scraper
+      doesn't capture today. See HANDOFF.md. */}
+  <p class="ac__foot">
+    Posted on
+    <span class="ac__dot" aria-hidden="true"></span>
+    <time datetime={isoDate(date)}>{formatDate(date)}</time>
+    <span class="ac__dot" aria-hidden="true"></span>
+    {minutes} min read
+  </p>
+</section>
+
+<style>
+  .ac {
+    padding: 22px 24px 18px;
+    background: var(--bone-50);
+    border: 1px solid var(--bone-300);
+    border-top: 3px solid var(--gold-500);
+    border-radius: var(--radius-lg);
+  }
+
+  /* ---- Kicker ---- */
+  .ac__kicker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .ac__rule {
+    width: 22px;
+    height: 2px;
+    flex: none;
+    background: var(--gold-500);
+  }
+
+  /* ---- Identity ---- */
+  .ac__row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  /* The headshot's own backdrop is pale and merges into the cream card, so it
+     needs a hairline to read as a circle at all. */
+  .ac__photo {
+    width: 60px;
+    height: 60px;
+    flex: none;
+    border-radius: 50%;
+    border: 1px solid var(--bone-300);
+    object-fit: cover;
+    object-position: center 12%;
+  }
+
+  .ac__name {
+    display: inline-block;
+    padding-bottom: 4px;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.1;
+    color: var(--navy-900);
+    text-decoration: none;
+    border-bottom: 2px solid var(--bone-400);
+    transition:
+      color var(--dur-base) var(--ease-out),
+      border-bottom-color var(--dur-base) var(--ease-out);
+  }
+
+  .ac__name:hover {
+    color: var(--gold-600);
+    border-bottom-color: var(--gold-500);
+  }
+
+  .ac__role {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 13.5px;
+    color: var(--ink-500);
+  }
+
+  /* ---- Footer ---- */
+  .ac__foot {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 18px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--bone-300);
+    font-family: var(--font-ui);
+    font-size: 13.5px;
+    color: var(--ink-500);
+  }
+
+  .ac__dot {
+    width: 4px;
+    height: 4px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--bone-400);
+  }
+
+  @media (max-width: 650px) {
+    .ac {
+      padding: 20px 20px 16px;
+    }
+
+    .ac__photo {
+      width: 54px;
+      height: 54px;
+    }
+  }
+</style>

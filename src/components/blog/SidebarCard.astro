@@ -1,0 +1,50 @@
+---
+// SidebarCard — the white card shell with a gold top rule and a titled head.
+// Used by both the Categories and Related Articles cards; the practice-area
+// and service-area templates will want it too, which is part of why the Blog
+// Post template is built first.
+
+interface Props {
+  title: string;
+  id: string;
+}
+
+const { title, id } = Astro.props;
+---
+
+<section class="sc" aria-labelledby={id}>
+  <div class="sc__head">
+    <h2 class="sc__title" id={id}>{title}</h2>
+  </div>
+  <div class="sc__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  /* Cream, not white: the page behind these is now white, so a white card
+     would have only its hairline to stand on. */
+  .sc {
+    background: var(--bone-50);
+    border: 1px solid var(--bone-300);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .sc__head {
+    padding: 20px 28px;
+    border-top: 3px solid var(--gold-500);
+    border-bottom: 1px solid var(--bone-300);
+  }
+
+  .sc__title {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .sc__body {
+    padding: 8px 28px 18px;
+  }
+</style>

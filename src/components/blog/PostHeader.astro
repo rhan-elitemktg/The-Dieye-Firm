@@ -1,0 +1,61 @@
+---
+// PostHeader — category kicker, title and byline row that open a blog post.
+// The comp has no hero, no breadcrumb and no featured image here: the article
+// starts directly under the header with the gold category eyebrow.
+
+// Byline, date and read time all live in the sidebar's AuthorCard — repeating
+// them here read as duplication, so the header is just kicker and title.
+
+import { categoryHref, categoryLabel } from "./blog";
+
+interface Props {
+  title: string;
+  categories: string[];
+}
+
+const { title, categories } = Astro.props;
+const primary = categories[0];
+---
+
+<header class="ph">
+  {
+    primary && (
+      <p class="ph__cat">
+        <a href={categoryHref(primary)}>{categoryLabel(primary)}</a>
+      </p>
+    )
+  }
+
+  <h1 class="ph__title">{title}</h1>
+</header>
+
+<style>
+  .ph__cat {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .ph__cat a {
+    color: var(--gold-600);
+    text-decoration: none;
+  }
+
+  .ph__cat a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .ph__title {
+    margin: 14px 0 0;
+    font-size: clamp(34px, 2.7vw + 1rem, 60px);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    color: var(--navy-700);
+    text-wrap: balance;
+  }
+
+</style>

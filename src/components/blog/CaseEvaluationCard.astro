@@ -1,0 +1,186 @@
+---
+// CaseEvaluationCard — the navy enquiry form in the post sidebar.
+//
+// Layout renders the site-wide consultation form on every page, so this is the
+// second form in the document. Two things follow from that and neither is
+// optional: the ids are prefixed so they can't collide with Contact's
+// (`c-first`, `c-email`, …) and break every <label for> on the page, and the
+// behaviour comes from src/scripts/lead-form.ts, which binds per form rather
+// than through a single document.querySelector.
+//
+// That module is loaded once by Layout. This component deliberately emits no
+// script of its own — a hoisted module tag would land as a stray element
+// between the sidebar cards.
+
+interface Props {
+  idPrefix?: string;
+}
+
+const { idPrefix = "ce" } = Astro.props;
+const id = (name: string) => `${idPrefix}-${name}`;
+---
+
+<section class="ce" aria-labelledby={id("title")}>
+  <h2 class="ce__title" id={id("title")}>Get a Case Evaluation</h2>
+  <p class="ce__intro">
+    Tell us a little about your situation and Papa will personally review your request.
+  </p>
+
+  <form class="ce__form" data-lead-form novalidate>
+    <p class="ce__field">
+      <label class="visually-hidden" for={id("first")}>First name</label>
+      <input id={id("first")} name="firstName" type="text" autocomplete="given-name" placeholder="First Name" />
+    </p>
+
+    <p class="ce__field">
+      <label class="visually-hidden" for={id("last")}>Last name</label>
+      <input id={id("last")} name="lastName" type="text" autocomplete="family-name" placeholder="Last Name" />
+    </p>
+
+    <p class="ce__field">
+      <label class="visually-hidden" for={id("phone")}>Phone number</label>
+      <input
+        id={id("phone")}
+        name="phone"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        placeholder="Phone Number"
+        pattern="\(\d{3}\) \d{3}-\d{4}"
+        maxlength="14"
+        title="Enter a 10-digit US phone number"
+        data-phone-input
+      />
+    </p>
+
+    <p class="ce__field">
+      <label class="visually-hidden" for={id("email")}>Email address</label>
+      <input
+        id={id("email")}
+        name="email"
+        type="email"
+        autocomplete="email"
+        placeholder="Email Address"
+        required
+        aria-required="true"
+        pattern="[^@\s]+@[^@\s]+\.[A-Za-z]{2,}"
+        title="Enter a full email address, for example you@example.com"
+      />
+    </p>
+
+    <p class="ce__field">
+      <label class="visually-hidden" for={id("message")}>Briefly describe your situation</label>
+      <textarea
+        id={id("message")}
+        name="message"
+        rows="4"
+        placeholder="Briefly describe your situation"></textarea>
+    </p>
+
+    <button class="btn btn--gold ce__submit" type="submit">Request Consultation</button>
+  </form>
+
+  <p class="ce__status" data-lead-status role="status" aria-live="polite" hidden></p>
+
+  <p class="ce__note">Confidential &amp; Privileged</p>
+</section>
+
+<style>
+  .ce {
+    padding: 36px 32px;
+    background: var(--navy-900);
+    border-top: 3px solid var(--gold-500);
+    border-radius: var(--radius-lg);
+  }
+
+  .ce__title {
+    margin: 0 0 12px;
+    font-size: 26px;
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  .ce__intro {
+    margin: 0 0 22px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .ce__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ce__field {
+    margin: 0;
+  }
+
+  .ce__field input,
+  .ce__field textarea {
+    width: 100%;
+    height: var(--control-h-lg);
+    padding: 0 16px;
+    background: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--ink-700);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .ce__field textarea {
+    height: 100px;
+    padding: 16px;
+    resize: vertical;
+  }
+
+  .ce__field input:focus,
+  .ce__field textarea:focus {
+    border-color: var(--gold-500);
+    outline: 2px solid var(--gold-500);
+    outline-offset: 1px;
+  }
+
+  /* Only after a failed submit — never while the visitor is still typing. */
+  .ce__form.is-invalid input:invalid,
+  .ce__form.is-invalid textarea:invalid {
+    border-color: var(--danger);
+    outline: 2px solid var(--danger);
+    outline-offset: 1px;
+  }
+
+  .ce__submit {
+    width: 100%;
+    height: var(--control-h-lg);
+    margin-top: 4px;
+  }
+
+  .ce__status {
+    margin: 16px 0 0;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--gold-300);
+  }
+
+  .ce__note {
+    margin: 16px 0 0;
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+  }
+
+  @media (max-width: 650px) {
+    .ce {
+      padding: 30px 22px;
+    }
+  }
+</style>
