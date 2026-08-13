@@ -11,6 +11,11 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 
 // https://astro.build/config
 export default defineConfig({
+  /* Drives absolute canonical and og:url values. This is the domain the
+     rebuilt site replaces, so canonicals should point at it from the start
+     rather than at a preview URL — confirm before launch. */
+  site: "https://www.dieyelaw.com",
+
   /* Fonts are self-hosted and preloaded by Astro rather than pulled from
      Google's CDN at runtime. `optimizedFallbacks` generates a metric-matched
      local fallback for each family, so the swap to the real face causes no

@@ -30,9 +30,23 @@ despite the name. It is the Practice Areas *index* comp with an asset-resolver
 wrapper added — the content is otherwise identical. Don't reach for it
 expecting a detail page.
 
-**Do not take copy from the SiteSucker mirror** at `~/Downloads/The Dieye Firm/sitesucker/`.
-It is a full capture of the live dieyelaw.com and is deliberately not being
-used. Fine to look at for structure or URL patterns, never for words.
+**Do not take *page* copy from the live site or the SiteSucker mirror** at
+`~/Downloads/The Dieye Firm/sitesucker/`. Hero headlines, section copy and
+practice-area body text come from the comps, which exist to replace the old
+site's voice. Fine to look at the mirror for structure or URL patterns.
+
+**Blog posts are the one exception, and they are already ingested.** The
+archive is the client's own editorial content — it carries SEO equity and no
+comp will ever supply it — so `npm run scrape:blog` pulls all 16 posts into
+`src/content/blog/`. Two things to know before touching it:
+
+- **Scrape the live site, never the mirror.** The mirror was captured
+  2026-07-20 and was already one post behind when we ingested; it can also
+  carry stale edits. Enumeration comes from `dieyelaw.com/sitemap.xml`.
+- **Leave the client's published prose alone**, em dashes included. The
+  spaced-hyphen rule below governs copy *we* write when translating a comp,
+  not the firm's own published articles. Our authored chrome (Key Takeaways,
+  UI strings) follows the repo rule.
 
 **These have no comp** and need direction before they can be built — don't
 invent copy or fall back to the live site:
@@ -137,6 +151,28 @@ reason; both files carry a comment saying so.
 - **Astro scoped styles don't reach `set:html` content.** Inlined SVGs and
   Portable Text never get the scoping attribute. Use `.parent :global(svg)`.
   Same reason `.prose` lives unscoped in `global.css`.
+- **The Blog Post comp's phone number is wrong.** It has `tel:+18322997990`.
+  The live site uses `(832) 299-1990` in 54 places and the `firmDetails`
+  singleton agrees. Never hardcode a number from a comp — render it from
+  `getFirmDetails()`.
+- **Frontmatter dates format one day early** unless you pass
+  `timeZone: "UTC"`. A bare `"2026-04-01"` parses as UTC midnight, and
+  formatting that in a US local zone renders 31 March. `formatDate` in
+  `src/components/blog/blog.ts` handles it; anything new that formats a
+  collection date must too.
+- **More than one form per page now.** `Layout` renders `Contact` everywhere,
+  so any page adding a second form needs unique element ids (duplicates
+  silently detach every `<label for>` in the document). Behaviour lives in
+  `src/scripts/lead-form.ts` and is bound once by `Layout`; a form component
+  must **not** emit its own `<script>`, because the hoisted module tag renders
+  as a stray element wherever the component sits. A single
+  `document.querySelector` would leave the second form dead — it navigates on
+  submit and loses the enquiry. `scripts/checks/blog-forms.js` guards all of
+  this.
+- **A dev server started before an edit can serve new markup with stale scoped
+  CSS.** Half the rules apply and the rest silently don't. If a component looks
+  unstyled but its HTML is clearly current, `astro dev stop && astro dev
+  --background` before debugging the CSS.
 - **Don't name a component `Promise`** (or any built-in) — the import shadows
   the global inside that module.
 - **Adding `.container` to a `<ul>` and then resetting `margin: 0`** kills its
@@ -199,6 +235,14 @@ content exists forces a deprecate → migrate → remove cycle.
 **So that the eventual sweep is mechanical:** keep each section's content in
 named arrays at the top of the component's frontmatter (as `stats` in `Hero`
 and `nav` in `MainNav` do), not inline in the markup.
+
+**Blog posts are the exception that proves the rule.** They live in an Astro
+content collection (`src/content.config.ts`, `src/content/blog/*.md`) rather
+than in component arrays, because there are 16 of them and they are real
+editorial content. The Zod schema is deliberately the shape a Sanity `post`
+document will return, so the migration is a query and a map — not a rewrite.
+`astro-portabletext` and `@sanity/image-url` are already installed and unused,
+waiting for that pass. Do **not** add a `post` schema type before the sweep.
 
 The one live document today is the `firmDetails` singleton — phone, address,
 socials, service areas, footer nav. Read it through `getFirmDetails()` in

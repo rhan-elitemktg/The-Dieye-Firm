@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "shot": "node scripts/shot.mjs",
-    "probe": "node scripts/probe.mjs"
+    "probe": "node scripts/probe.mjs",
+    "scrape:blog": "node scripts/scrape-blog.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.1",

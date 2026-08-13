@@ -2,6 +2,8 @@
 dist/
 # screenshots from `npm run shot`
 .screenshots/
+# cached page fetches from `npm run scrape:blog`
+.blog-cache/
 # generated types
 .astro/
 

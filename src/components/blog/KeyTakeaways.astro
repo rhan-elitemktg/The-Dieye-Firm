@@ -1,0 +1,80 @@
+---
+// KeyTakeaways — the cream callout that opens an article body.
+// Optional: posts without takeaways simply don't render it, so the archive
+// could ship before every post had them written.
+
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <aside class="kt" aria-labelledby="kt-title">
+      <h2 class="kt__title" id="kt-title">Key Takeaways</h2>
+      <ul class="kt__list">
+        {items.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </aside>
+  )
+}
+
+<style>
+  .kt {
+    margin: 32px 0 40px;
+    padding: 32px 36px;
+    background: var(--bone-50);
+    border: 1px solid var(--bone-300);
+    border-radius: var(--radius-lg);
+  }
+
+  .kt__title {
+    margin: 0 0 18px;
+    font-size: 24px;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .kt__list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .kt__list li {
+    display: flex;
+    gap: 14px;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-500);
+  }
+
+  /* 8px dot, nudged down to sit on the first line's optical centre. */
+  .kt__list li::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    margin-top: 9px;
+    border-radius: 50%;
+    background: var(--gold-500);
+  }
+
+  @media (max-width: 650px) {
+    .kt {
+      padding: 26px 22px;
+    }
+
+    .kt__title {
+      font-size: 21px;
+    }
+  }
+</style>

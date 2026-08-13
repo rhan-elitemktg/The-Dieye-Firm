@@ -1,0 +1,145 @@
+---
+// PostSidebar — the rail beside a blog post: who stands behind it, how to get
+// in touch, where to browse next, and what else to read.
+
+import AuthorCard from "./AuthorCard.astro";
+import SidebarCard from "./SidebarCard.astro";
+import CaseEvaluationCard from "./CaseEvaluationCard.astro";
+import { categoryHref, categoryLabel, postHref, type Post } from "./blog";
+
+interface Props {
+  date: Date;
+  minutes: number;
+  /* Every category in the archive, not just this post's — the card is a
+     browse control, so a visitor should be able to leave for any of them. */
+  categories: string[];
+  /* The ones this post belongs to, highlighted in that list. */
+  activeCategories: string[];
+  related: Post[];
+}
+
+const { date, minutes, categories, activeCategories, related } = Astro.props;
+const active = new Set(activeCategories);
+---
+
+<aside class="ps" aria-label="About this article">
+  <AuthorCard date={date} minutes={minutes} />
+
+  <CaseEvaluationCard />
+
+  {
+    categories.length > 0 && (
+      <SidebarCard title="Categories" id="ps-categories">
+        <ul class="ps__cats">
+          {categories.map((slug) => (
+            <li>
+              <a
+                href={categoryHref(slug)}
+                class:list={{ "is-active": active.has(slug) }}
+                aria-current={active.has(slug) ? "true" : undefined}
+              >
+                {categoryLabel(slug)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </SidebarCard>
+    )
+  }
+
+  {
+    related.length > 0 && (
+      <SidebarCard title="Related Articles" id="ps-related">
+        <div class="ps__articles">
+          {related.map((post) => (
+            <a href={postHref(post)}>{post.data.title}</a>
+          ))}
+        </div>
+      </SidebarCard>
+    )
+  }
+</aside>
+
+<style>
+  .ps {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ---- Categories ---- */
+  .ps__cats {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ps__cats li + li {
+    border-top: 1px solid var(--bone-300);
+  }
+
+  .ps__cats a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 0;
+    font-family: var(--font-ui);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--navy-700);
+    text-decoration: none;
+  }
+
+  .ps__cats a::before {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 2px;
+    background: var(--bone-400);
+    transition: width var(--dur-base) var(--ease-out);
+  }
+
+  .ps__cats a:hover {
+    color: var(--gold-600);
+  }
+
+  .ps__cats a:hover::before {
+    background: var(--gold-500);
+  }
+
+  /* The category this post sits in. Marked by weight, colour and a longer
+     rule, so it doesn't rely on colour alone. */
+  .ps__cats a.is-active {
+    color: var(--gold-600);
+    font-weight: 700;
+  }
+
+  .ps__cats a.is-active::before {
+    width: 26px;
+    background: var(--gold-500);
+  }
+
+  /* ---- Related articles ---- */
+  .ps__articles {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ps__articles a {
+    padding: 16px 0;
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--navy-700);
+    text-decoration: none;
+  }
+
+  .ps__articles a + a {
+    border-top: 1px solid var(--bone-300);
+  }
+
+  .ps__articles a:hover {
+    color: var(--gold-600);
+  }
+</style>

@@ -1,0 +1,197 @@
+---
+// RelatedPosts — the navy band of article cards that closes a blog post.
+
+import { Image } from "astro:assets";
+import fallbackImg from "../../assets/images/blog/blog-img.jpg";
+import { categoryLabel, formatDate, isoDate, postHref, type Post } from "./blog";
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length > 0 && (
+    <section class="rp section" aria-labelledby="rp-title">
+      <div class="container">
+        <h2 class="rp__title" id="rp-title">Related Blog Posts</h2>
+
+        <div class="rp__grid">
+          {posts.map((post) => (
+            <a class="rp__card" href={postHref(post)}>
+              <Image
+                class="rp__photo"
+                src={post.data.image ?? fallbackImg}
+                alt={post.data.imageAlt || ""}
+                width={520}
+                height={293}
+                format="webp"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="rp__body">
+                <p class="rp__meta">
+                  {post.data.categories[0] && (
+                    <>
+                      <span class="rp__cat">{categoryLabel(post.data.categories[0])}</span>
+                      <span class="rp__dot" aria-hidden="true" />
+                    </>
+                  )}
+                  <time class="rp__date" datetime={isoDate(post.data.date)}>
+                    {formatDate(post.data.date)}
+                  </time>
+                </p>
+                <h3 class="rp__name">{post.data.title}</h3>
+                <p class="rp__desc">{post.data.description}</p>
+                <span class="rp__more">Read More &rarr;</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .rp {
+    background: var(--navy-900);
+  }
+
+  .rp__title {
+    margin: 0 0 56px;
+    text-align: center;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.04;
+    color: #fff;
+  }
+
+  .rp__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    align-items: stretch;
+  }
+
+  /* The whole card is one link, so "Read More" is a span — a nested anchor
+     would be invalid and would add a second tab stop per card. */
+  .rp__card {
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+
+  .rp__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.5);
+  }
+
+  .rp__photo {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+  }
+
+  .rp__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 28px;
+  }
+
+  .rp__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+  }
+
+  .rp__cat {
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .rp__dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--ink-500);
+  }
+
+  .rp__date {
+    color: var(--ink-500);
+  }
+
+  .rp__name {
+    margin: 0 0 12px;
+    font-size: 24px;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .rp__desc {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-500);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .rp__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 22px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .rp__card:hover .rp__more {
+    gap: 16px;
+  }
+
+  @media (max-width: 1439px) {
+    .rp__grid {
+      gap: 24px;
+    }
+  }
+
+  /* The comp jumps straight from three columns to one; a two-up tier keeps the
+     cards from ballooning on tablets. */
+  @media (max-width: 1000px) {
+    .rp__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rp__title {
+      margin-bottom: 40px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .rp__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

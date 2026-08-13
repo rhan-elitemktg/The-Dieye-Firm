@@ -3,60 +3,22 @@
 // recent posts stacked on the right.
 
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
 import birdGold from "../../assets/images/logo-bird-gold.png";
-import featImg from "../../assets/images/blog/blog-feat.webp";
-import post1Img from "../../assets/images/blog/blog-post-1.webp";
-import post2Img from "../../assets/images/blog/blog-post-2.webp";
-import post3Img from "../../assets/images/blog/blog-post-3.webp";
+import fallbackImg from "../../assets/images/blog/blog-img.jpg";
+import { byNewest, formatDate, isoDate, postHref } from "../blog/blog";
 
-/* PLACEHOLDER POSTS — replaced by a Sanity query at integration.
-   The shape is deliberately what a `post` document will return, so the swap is
-   a query and a map rather than a rewrite: the ISO date drives both the
-   <time datetime> and the display string, and `href` becomes /blog/{slug}.
+/* Real posts, ingested from the live archive by `npm run scrape:blog`. This
+   used to be a placeholder array shaped like a future Sanity `post`; the
+   collection now supplies the same fields, so the eventual Sanity swap is
+   still a query change rather than a rewrite. */
+const all = (await getCollection("blog")).sort(byNewest);
+const [featured, ...rest] = all;
+const posts = rest.slice(0, 3);
 
-   The images are the reference design's, and they are small (400x224). They
-   upscale on the featured slot until real post artwork lands. */
-const author = "The Dieye Firm";
-
-const featured = {
-  title: "Preparing Emotionally for Mediation",
-  href: "/blog/",
-  date: "2026-04-01",
-  image: featImg,
-  excerpt:
-    "Practical, compassionate ways to steady your mindset and walk into the mediation room with clarity, confidence, and a real sense of calm.",
-};
-
-const posts = [
-  {
-    title: "New Year, New Beginnings: Is Divorce Part of Your Resolution for a Fresh Start?",
-    href: "/blog/",
-    date: "2026-01-04",
-    image: post1Img,
-  },
-  {
-    title: "Does Remarriage Affect Child Support Obligations?",
-    href: "/blog/",
-    date: "2025-10-01",
-    image: post2Img,
-  },
-  {
-    title: "Mediation for High-Conflict Divorces: Is It Still Possible?",
-    href: "/blog/",
-    date: "2025-07-06",
-    image: post3Img,
-  },
-];
-
-/* en-GB gives "01 April 2026" — day first, no comma — which is the format in
-   the design. Built from the ISO string so the markup and the machine-readable
-   attribute can't drift. */
-const formatDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+/* The byline is the firm on every post, so it stays a single value here
+   rather than being read per card. */
+const author = featured.data.author;
 ---
 
 <section class="blog section" aria-labelledby="blog-title">
@@ -73,9 +35,9 @@ const formatDate = (iso: string) =>
       <article class="blog-feat">
         {/* The whole card is one link via the title's ::after, so the image and
             heading are a single tab stop rather than two to the same place. */}
-        <a class="blog-feat__media" href={featured.href} tabindex="-1" aria-hidden="true">
+        <a class="blog-feat__media" href={postHref(featured)} tabindex="-1" aria-hidden="true">
           <Image
-            src={featured.image}
+            src={featured.data.image ?? fallbackImg}
             alt=""
             widths={[400, 600, 800]}
             sizes="(max-width: 1000px) 92vw, 46vw"
@@ -86,23 +48,23 @@ const formatDate = (iso: string) =>
           />
         </a>
         <p class="blog__meta">
-          <time datetime={featured.date}>{formatDate(featured.date)}</time>
+          <time datetime={isoDate(featured.data.date)}>{formatDate(featured.data.date)}</time>
           <span class="blog__sep" aria-hidden="true">|</span>
           <span>by <b>{author}</b></span>
         </p>
         <h3 class="blog-feat__title">
-          <a href={featured.href}>{featured.title}</a>
+          <a href={postHref(featured)}>{featured.data.title}</a>
         </h3>
-        <p class="blog-feat__excerpt">{featured.excerpt}</p>
+        <p class="blog-feat__excerpt">{featured.data.description}</p>
       </article>
 
       <ul class="blog__list">
         {posts.map((post) => (
           <li>
             <article class="blog-item">
-              <a class="blog-item__media" href={post.href} tabindex="-1" aria-hidden="true">
+              <a class="blog-item__media" href={postHref(post)} tabindex="-1" aria-hidden="true">
                 <Image
-                  src={post.image}
+                  src={post.data.image ?? fallbackImg}
                   alt=""
                   widths={[300, 400, 600]}
                   sizes="(max-width: 650px) 40vw, (max-width: 1000px) 300px, 20vw"
@@ -114,12 +76,12 @@ const formatDate = (iso: string) =>
               </a>
               <div class="blog-item__body">
                 <p class="blog__meta">
-                  <time datetime={post.date}>{formatDate(post.date)}</time>
+                  <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
                   <span class="blog__sep" aria-hidden="true">|</span>
                   <span class="blog__author">by <b>{author}</b></span>
                 </p>
                 <h3 class="blog-item__title">
-                  <a href={post.href}>{post.title}</a>
+                  <a href={postHref(post)}>{post.data.title}</a>
                 </h3>
               </div>
             </article>

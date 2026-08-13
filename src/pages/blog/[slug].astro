@@ -1,0 +1,137 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/header/Header.astro";
+import PostHeader from "../../components/blog/PostHeader.astro";
+import KeyTakeaways from "../../components/blog/KeyTakeaways.astro";
+import PostSidebar from "../../components/blog/PostSidebar.astro";
+import RelatedPosts from "../../components/blog/RelatedPosts.astro";
+import {
+  allCategories,
+  byNewest,
+  isoDate,
+  postHref,
+  readingTime,
+  relatedPosts,
+} from "../../components/blog/blog";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const all = (await getCollection("blog")).sort(byNewest);
+/* The sidebar lists five titles, the closing band shows three cards. Both come
+   from the same ranking so the band is always a subset of the list. */
+const sidebarRelated = relatedPosts(post, all, 5);
+const related = sidebarRelated.slice(0, 3);
+const categories = allCategories(all);
+const minutes = readingTime(post.body ?? "");
+
+const canonical = new URL(postHref(post), Astro.site ?? Astro.url).href;
+const ogImage = post.data.image
+  ? new URL(post.data.image.src, Astro.site ?? Astro.url).href
+  : undefined;
+
+/* Built from the same values as the markup so the two can't drift — the same
+   pattern Faq.astro uses for its FAQPage schema. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: isoDate(post.data.date),
+  author: { "@type": "Organization", name: post.data.author },
+  publisher: { "@type": "Organization", name: "The Dieye Firm" },
+  mainEntityOfPage: canonical,
+  ...(ogImage ? { image: ogImage } : {}),
+};
+---
+
+<Layout
+  title={`${post.data.seoTitle ?? post.data.title} | The Dieye Firm`}
+  description={post.data.description}
+  canonical={canonical}
+  ogType="article"
+  ogImage={ogImage}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* In flow, not overlay: there is no hero here — the article opens directly
+      under the header, so a transparent header would sit on white. */}
+  <Header />
+
+  <div class="post section">
+    <div class="container">
+      <div class="post__grid">
+        <article class="post__main">
+          <PostHeader title={post.data.title} categories={post.data.categories} />
+
+          <KeyTakeaways items={post.data.keyTakeaways ?? []} />
+
+          {/* .prose lives unscoped in global.css because Astro's scoping never
+              reaches markup rendered by a child component. */}
+          <div class="prose post__body">
+            <Content />
+          </div>
+        </article>
+
+        <PostSidebar
+          date={post.data.date}
+          minutes={minutes}
+          categories={categories}
+          activeCategories={post.data.categories}
+          related={sidebarRelated}
+        />
+      </div>
+    </div>
+  </div>
+
+  <RelatedPosts posts={related} />
+</Layout>
+
+<style>
+  .post {
+    background: var(--white);
+  }
+
+  /* Three equal columns with the article spanning two — the interior template
+     from AGENTS.md. align-items: start keeps each column at its own height
+     rather than stretching the sidebar cards down the full row. */
+  .post__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--section-gap);
+    align-items: start;
+  }
+
+  .post__main {
+    grid-column: span 2;
+    min-width: 0;
+  }
+
+  .post__body {
+    margin-top: 40px;
+    font-size: 17px;
+    line-height: 29px;
+  }
+
+  @media (max-width: 1439px) {
+    .post__grid {
+      gap: 56px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .post__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .post__main {
+      grid-column: auto;
+    }
+  }
+</style>

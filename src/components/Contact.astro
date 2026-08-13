@@ -85,10 +85,10 @@ const { phone, email, address, hours } = await getFirmDetails();
           best interests.
         </p>
 
-        {/* PLACEHOLDER: no endpoint yet, so submission is cancelled and confirmed
-            inline rather than posting to a dead URL and losing the enquiry.
-            Set an action, drop the preventDefault and drop novalidate to go live. */}
-        <form class="cform" data-contact-form novalidate>
+        {/* Behaviour (phone mask, validate-and-confirm) lives in
+            src/scripts/lead-form.ts, shared with the blog sidebar's
+            case-evaluation form. See that file for the placeholder contract. */}
+        <form class="cform" data-lead-form novalidate>
           <div class="cform__row">
             <p class="cform__field">
               <label for="c-first">First name</label>
@@ -140,7 +140,7 @@ const { phone, email, address, hours } = await getFirmDetails();
           <button class="btn btn--gold cform__submit" type="submit">Submit Request</button>
         </form>
 
-        <p class="contact__status" data-contact-status role="status" aria-live="polite" hidden></p>
+        <p class="contact__status" data-lead-status role="status" aria-live="polite" hidden></p>
 
         <p class="contact__note">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -466,75 +466,3 @@ const { phone, email, address, hours } = await getFirmDetails();
     }
   }
 </style>
-
-<script>
-  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
-  const status = document.querySelector<HTMLElement>("[data-contact-status]");
-  const phoneInput = document.querySelector<HTMLInputElement>("[data-phone-input]");
-
-  /* The field carries a pattern for (555) 555-5555, so it has to actually
-     produce that shape — otherwise anyone typing "5551234567" or "555.123.4567"
-     is just told they're wrong. This formats digits as they're entered, which
-     means the constraint is met by typing normally rather than by guessing the
-     punctuation. */
-  if (phoneInput) {
-    phoneInput.addEventListener("input", () => {
-      const digits = phoneInput.value.replace(/\D/g, "").slice(0, 10);
-      if (!digits) {
-        phoneInput.value = "";
-        return;
-      }
-      const area = digits.slice(0, 3);
-      const prefix = digits.slice(3, 6);
-      const line = digits.slice(6);
-      phoneInput.value =
-        digits.length <= 3
-          ? `(${area}`
-          : digits.length <= 6
-            ? `(${area}) ${prefix}`
-            : `(${area}) ${prefix}-${line}`;
-    });
-
-    // Backspacing into the punctuation would otherwise re-add it and trap the
-    // caret, so an all-punctuation value clears instead.
-    phoneInput.addEventListener("keydown", (event) => {
-      if (event.key === "Backspace" && /^\(\d{0,3}\)?\s?$/.test(phoneInput.value)) {
-        phoneInput.value = "";
-      }
-    });
-  }
-
-  if (form && status) {
-    form.addEventListener("submit", (event) => {
-      // Always cancelled: there is no endpoint yet, and a form allowed to post
-      // with no action navigates and loses the enquiry silently.
-      event.preventDefault();
-
-      // novalidate suppresses the browser bubble so the message can live
-      // inline; the constraints themselves still drive this.
-      if (!form.checkValidity()) {
-        form.classList.add("is-invalid");
-        const firstBad = form.querySelector<HTMLInputElement>(":invalid");
-        status.hidden = false;
-        // Name the actual offending field rather than always blaming email —
-        // the phone pattern can fail too.
-        status.textContent =
-          firstBad?.id === "c-phone"
-            ? "Please enter a 10-digit phone number, or leave it blank."
-            : "Please add a valid email address so we can reply.";
-        firstBad?.focus();
-        return;
-      }
-
-      form.classList.remove("is-invalid");
-      status.hidden = false;
-      status.textContent = "Thank you. We'll be in touch within one business day.";
-      form.reset();
-    });
-
-    form.addEventListener("input", () => {
-      form.classList.remove("is-invalid");
-      status.hidden = true;
-    });
-  }
-</script>
