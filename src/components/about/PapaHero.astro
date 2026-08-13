@@ -1,0 +1,212 @@
+---
+// Papa Dieye hero — full-bleed Old Town Pearland photo with a navy side-scrim
+// holding the copy on the left. Built like the homepage hero, but with a
+// single CTA and no stat row, and with the header in flow above it rather
+// than overlaying it (see the note in the page).
+
+import { Image } from "astro:assets";
+import Eyebrow from "../Eyebrow.astro";
+import street from "../../assets/images/papa-old-town-pearland.png";
+---
+
+<section class="phero">
+  <div class="phero__media">
+    <Image
+      class="phero__img"
+      src={street}
+      alt="Attorney Papa Dieye on the brick sidewalk in Old Town Pearland"
+      widths={[768, 1024, 1454]}
+      sizes="100vw"
+      format="webp"
+      quality={78}
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+    <div class="phero__scrim" aria-hidden="true"></div>
+  </div>
+
+  <div class="container phero__inner">
+    <div class="phero__content">
+      <Eyebrow light eager>About The Dieye Firm</Eyebrow>
+
+      <h1 class="phero__title">
+        Treated like a <em>neighbor</em>, not a case number.
+      </h1>
+
+      <p class="phero__lead">
+        For more than seventeen years, attorney Papa Dieye has guided Pearland
+        and Houston families through divorce, custody, and the hardest seasons
+        of their lives, with steady counsel and genuine compassion.
+      </p>
+
+      <a class="btn btn--gold phero__cta" href="/contact-us/">
+        Schedule a Consultation
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .phero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    min-height: 640px;
+    overflow: hidden;
+    background: var(--navy-900);
+  }
+
+  .phero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .phero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Papa stands in the right third of the frame, so the crop is anchored
+       right: as the viewport narrows the street is given up before he is.
+       Anchored top vertically as well, so that whenever the frame is wide
+       enough to overflow, the trim comes off the street at the bottom rather
+       than off his head. */
+    object-position: 72% top;
+    filter: var(--photo-filter);
+  }
+
+  /* Horizontal wash rather than the homepage's --scrim-navy: this photo is
+     bright end to end, so the copy needs solid navy behind it and a long
+     fade out past the midpoint. No top band is needed here, because the
+     header sits above the photo rather than on it. */
+  .phero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      var(--navy-900) 0%,
+      color-mix(in srgb, var(--navy-900) 78%, transparent) 40%,
+      color-mix(in srgb, var(--navy-900) 30%, transparent) 66%,
+      transparent 92%
+    );
+  }
+
+  /* The header sits in flow above this section, so the hero carries no
+     offset for it. */
+  .phero__inner {
+    padding-block: 96px 90px;
+  }
+
+  .phero__content {
+    max-width: 760px;
+  }
+
+  .phero__title {
+    margin: 22px 0 0;
+    font-family: var(--font-serif);
+    font-size: clamp(40px, 3.2911vw + 1.163rem, 66px);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-wrap: balance;
+    max-width: 22ch;
+  }
+
+  .phero__title em {
+    font-style: italic;
+    color: var(--gold-500);
+  }
+
+  .phero__lead {
+    max-width: 600px;
+    margin-top: 28px;
+    font-size: 18px;
+    line-height: 30px;
+    color: rgba(255, 255, 255, 0.9);
+    text-wrap: pretty;
+  }
+
+  .phero__cta {
+    margin-top: 40px;
+    padding: 14px 30px;
+  }
+
+  /* Tablet — less room for the photo, so the scrim tightens up to keep the
+     headline legible where it now overlaps him. */
+  @media (max-width: 1000px) {
+    .phero {
+      min-height: 540px;
+    }
+
+    .phero__scrim {
+      background: linear-gradient(
+        90deg,
+        var(--navy-900) 0%,
+        color-mix(in srgb, var(--navy-900) 86%, transparent) 46%,
+        color-mix(in srgb, var(--navy-900) 52%, transparent) 78%,
+        color-mix(in srgb, var(--navy-900) 20%, transparent) 100%
+      );
+    }
+
+    .phero__inner {
+      padding-bottom: 72px;
+    }
+
+    .phero__content {
+      max-width: 620px;
+    }
+  }
+
+  /* Mobile — a side-scrim can't work at this width: the copy would sit on top
+     of Papa whatever the gradient does, so dimming it enough to read means
+     losing him entirely. Instead the photo drops into flow as its own band
+     with the copy on solid navy beneath it, which is how the homepage hero
+     handles the same problem. */
+  @media (max-width: 650px) {
+    .phero {
+      min-height: 0;
+    }
+
+    .phero__media {
+      position: relative;
+      inset: auto;
+      z-index: auto;
+      height: clamp(300px, 46svh, 400px);
+    }
+
+    /* Nothing overlays the band now, so the crop can sit on him properly. */
+    .phero__img {
+      object-position: 76% center;
+    }
+
+    .phero__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(15, 36, 56, 0) 0%,
+        rgba(15, 36, 56, 0.18) 52%,
+        rgba(15, 36, 56, 0.72) 84%,
+        var(--navy-900) 100%
+      );
+    }
+
+    .phero__inner {
+      padding-block: 28px 56px;
+    }
+
+    .phero__lead {
+      font-size: 17px;
+      line-height: 29px;
+      margin-top: 22px;
+    }
+
+    .phero__cta {
+      margin-top: 32px;
+      width: 100%;
+    }
+  }
+</style>

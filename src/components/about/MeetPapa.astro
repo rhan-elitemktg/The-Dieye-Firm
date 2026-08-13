@@ -1,0 +1,543 @@
+---
+// Meet Papa Dieye — the attorney introduction. Portrait on the left with the
+// Google rating card breaking out of its bottom-left corner, biography on the
+// right, and a four-part "then / now" strip closing the section.
+
+import { Image } from "astro:assets";
+import Eyebrow from "../Eyebrow.astro";
+import headshot from "../../assets/images/papa-headshot-square.jpg";
+
+const chips = [
+  { value: "17+ Years", label: "Texas Family Law", icon: "scales" },
+  { value: "5.0 Stars", label: "Google Reviews", icon: "star" },
+  { value: "500+", label: "Families Helped", icon: "heart" },
+];
+
+const milestones = [
+  {
+    when: "Then",
+    title: "A Calling to Serve",
+    text: "Answered a calling to family law, the area where steady counsel matters most.",
+  },
+  {
+    when: "Now",
+    title: "Rooted in Pearland",
+    text: "Serving neighbors across the greater Houston area, right here from Old Town Pearland.",
+  },
+  {
+    when: "Always",
+    title: "People First",
+    text: "Plain-language advice, realistic expectations, and empathy on every single matter.",
+  },
+  {
+    when: "With You",
+    title: "To Resolution",
+    text: "Standing beside your family from the first call through the final signed order.",
+  },
+];
+---
+
+<section class="meet section" aria-labelledby="meet-title">
+  <div class="container">
+    <div class="meet__grid">
+      <div class="meet__media">
+        <Image
+          class="meet__photo"
+          src={headshot}
+          alt="Attorney Papa Dieye, founding attorney of The Dieye Firm"
+          widths={[620, 900, 1024]}
+          sizes="(max-width: 1000px) 100vw, 620px"
+          format="webp"
+          quality={80}
+          loading="lazy"
+          decoding="async"
+        />
+
+        <div class="meet__rating">
+          <svg class="meet__google" viewBox="0 0 48 48" aria-hidden="true">
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+            />
+          </svg>
+
+          <div class="meet__rating-text">
+            <div class="meet__rating-score">
+              <span class="meet__stars" role="img" aria-label="Rated 5 out of 5">
+                {[...Array(5)].map(() => (
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                  </svg>
+                ))}
+              </span>
+              <b>5.0</b>
+            </div>
+            <span class="meet__rating-note">Over 150 five-star Google reviews</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="meet__body">
+        <Eyebrow>Meet the Attorney</Eyebrow>
+
+        <h2 class="meet__name" id="meet-title">Papa Dieye</h2>
+        <p class="meet__role">Founding Attorney</p>
+
+        <ul class="meet__chips">
+          {chips.map((chip) => (
+            <li class="chip">
+              <span class="chip__icon" aria-hidden="true">
+                {chip.icon === "scales" && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="M7 21h10" />
+                    <path d="M12 3v18" />
+                    <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                  </svg>
+                )}
+                {chip.icon === "star" && (
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01z" />
+                  </svg>
+                )}
+                {chip.icon === "heart" && (
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                )}
+              </span>
+              <span class="chip__text">
+                <b>{chip.value}</b>
+                <span>{chip.label}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <blockquote class="meet__quote">
+          "I became a family lawyer to be the steady voice families need on
+          their hardest day."
+        </blockquote>
+
+        <p class="meet__para">
+          For more than seventeen years, Papa Dieye has guided families across
+          Pearland and the greater Houston area through divorce, custody, and
+          support. He built this firm on a simple belief: that people in crisis
+          deserve a lawyer who treats them with dignity, answers honestly, and
+          fights thoughtfully for what matters most.
+        </p>
+        <p class="meet__para">
+          As a solo practitioner, Papa works with you directly. No handoffs, no
+          shuffle. Just one experienced attorney who knows your story.
+        </p>
+
+        <div class="meet__foot">
+          <a class="btn btn--gold" href="/contact-us/">Get in Touch</a>
+          <span class="meet__sign" aria-hidden="true">Papa Dieye</span>
+        </div>
+      </div>
+    </div>
+
+    <ul class="meet__miles">
+      {milestones.map((milestone) => (
+        <li class="mile">
+          <span class="mile__when">{milestone.when}</span>
+          <span class="mile__title">{milestone.title}</span>
+          <p class="mile__text">{milestone.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .meet {
+    background: var(--white);
+    /* The awards strip that follows carries its own 56px of top padding and
+       closes with a rule, so this section stops at the milestones. */
+    padding-bottom: 0;
+  }
+
+  .meet__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 620px) minmax(0, 1fr);
+    column-gap: var(--section-gap);
+    align-items: center;
+  }
+
+  /* ---- Portrait ---- */
+  .meet__media {
+    position: relative;
+    align-self: stretch;
+    min-height: 720px;
+  }
+
+  .meet__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 12%;
+    background: var(--bone-300);
+    border-radius: var(--radius-sm);
+    filter: var(--photo-filter);
+  }
+
+  /* Breaks out of the photo's left edge so the card reads as a separate
+     layer rather than an inset caption. */
+  .meet__rating {
+    position: absolute;
+    left: -24px;
+    bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 18px 26px;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .meet__google {
+    width: 38px;
+    height: 38px;
+    flex: none;
+  }
+
+  .meet__rating-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .meet__rating-score {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .meet__stars {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--gold-500);
+  }
+
+  .meet__stars svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .meet__rating-score b {
+    font-family: var(--font-ui);
+    font-size: 22px;
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    color: var(--ink-900);
+  }
+
+  .meet__rating-note {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15.5px;
+    color: var(--navy-500);
+  }
+
+  /* ---- Biography ---- */
+  .meet__body {
+    min-width: 0;
+  }
+
+  .meet__name {
+    margin: 18px 0 0;
+    font-size: clamp(44px, 2.5316vw + 1.7215rem, 64px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .meet__role {
+    margin-top: 12px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  /* ---- Credential chips ---- */
+  .meet__chips {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 32px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 18px;
+    border: 1px solid var(--bone-300);
+    border-radius: var(--radius-md);
+  }
+
+  .chip__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--gold-500) 15%, transparent);
+    color: var(--gold-600);
+  }
+
+  .chip__icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .chip__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .chip__text b {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: var(--fw-semibold);
+    line-height: 1.05;
+    color: var(--navy-700);
+  }
+
+  .chip__text span {
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+
+  /* ---- Quote and copy ---- */
+  .meet__quote {
+    margin: 34px 0 0;
+    padding: 4px 0 4px 26px;
+    border-left: 3px solid var(--gold-500);
+    font-family: var(--font-serif);
+    font-size: clamp(24px, 0.8861vw + 1.1401rem, 31px);
+    font-weight: var(--fw-medium);
+    font-style: italic;
+    line-height: 1.32;
+    color: var(--navy-700);
+  }
+
+  .meet__para {
+    margin-top: 18px;
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  .meet__quote + .meet__para {
+    margin-top: 28px;
+  }
+
+  .meet__foot {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    flex-wrap: wrap;
+    margin-top: 34px;
+  }
+
+  .meet__foot .btn {
+    padding: 15px 34px;
+    font-size: 15px;
+  }
+
+  .meet__sign {
+    white-space: nowrap;
+    font-family: var(--font-script);
+    font-size: clamp(46px, 1.519vw + 2.2579rem, 58px);
+    line-height: 1;
+    color: var(--navy-700);
+    /* Yellowtail's descenders and slant overhang the box; this keeps the
+       signature optically level with the button. */
+    transform: translateY(-6px);
+  }
+
+  /* ---- Then / now strip ---- */
+  .meet__miles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 80px 0 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--bone-300);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .mile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 38px 32px;
+  }
+
+  .mile + .mile {
+    border-left: 1px solid var(--bone-300);
+  }
+
+  .mile__when {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .mile__title {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: var(--fw-semibold);
+    line-height: 1.1;
+    color: var(--navy-700);
+  }
+
+  .mile__text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .meet__grid {
+      column-gap: 56px;
+    }
+
+    .meet__media {
+      min-height: 640px;
+    }
+  }
+
+  /* Tablet */
+  @media (max-width: 1000px) {
+    .meet__grid {
+      grid-template-columns: 1fr;
+      row-gap: 48px;
+    }
+
+    .meet__media {
+      min-height: 0;
+      aspect-ratio: 1;
+    }
+
+    /* The photo now runs the full width of the container, so the card's
+       breakout would hang into the viewport gutter. It sits inside instead. */
+    .meet__rating {
+      left: 20px;
+      bottom: 20px;
+    }
+
+    .meet__miles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 56px;
+    }
+
+    /* On two columns only the odd cells open a row, and every cell past the
+       first row needs its own top rule. */
+    .mile + .mile {
+      border-left: 0;
+    }
+
+    .mile:nth-child(2n) {
+      border-left: 1px solid var(--bone-300);
+    }
+
+    .mile:nth-child(n + 3) {
+      border-top: 1px solid var(--bone-300);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .meet__chips {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 650px) {
+    .meet__rating {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      padding: 14px 18px;
+    }
+
+    .meet__para {
+      font-size: 17px;
+      line-height: 29px;
+    }
+
+    .meet__foot {
+      gap: 20px;
+    }
+
+    .meet__foot .btn {
+      width: 100%;
+    }
+
+    .meet__miles {
+      grid-template-columns: 1fr;
+    }
+
+    .mile {
+      padding: 28px 24px;
+    }
+
+    .mile:nth-child(2n) {
+      border-left: 0;
+    }
+
+    .mile + .mile {
+      border-top: 1px solid var(--bone-300);
+    }
+  }
+</style>

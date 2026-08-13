@@ -1,0 +1,66 @@
+---
+// Eyebrow — the gold-bird kicker that opens almost every section.
+// Each homepage section carries its own copy of these rules (they predate this
+// component); interior pages share this one instead.
+
+import { Image } from "astro:assets";
+import birdGold from "../assets/images/logo-bird-gold.png";
+
+interface Props {
+  /* On navy bands the text flips to white. The bird stays gold either way. */
+  light?: boolean;
+  /* Above-the-fold eyebrows opt out of lazy loading so the bird doesn't
+     pop in after the headline has already painted. */
+  eager?: boolean;
+}
+
+const { light = false, eager = false } = Astro.props;
+---
+
+<p class:list={["eyebrow", { "eyebrow--light": light }]}>
+  <Image
+    src={birdGold}
+    alt=""
+    width={70}
+    format="webp"
+    loading={eager ? "eager" : "lazy"}
+    decoding="async"
+  />
+  <span><slot /></span>
+</p>
+
+<style>
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+  }
+
+  .eyebrow--light {
+    color: #fff;
+  }
+
+  /* The source is 70px wide for a 30px slot, so it stays crisp at 2x. */
+  .eyebrow img {
+    width: 30px;
+    height: auto;
+    flex: none;
+  }
+
+  @media (max-width: 650px) {
+    .eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+    }
+
+    .eyebrow img {
+      width: 24px;
+    }
+  }
+</style>

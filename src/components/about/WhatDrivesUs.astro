@@ -1,0 +1,206 @@
+---
+// What Drives Us — the firm's three standards, on a navy band over the Old
+// Town Pearland street. Same photo as the hero, but dimmed far enough that it
+// reads as texture rather than as a second look at the same shot.
+
+import { Image } from "astro:assets";
+import Eyebrow from "../Eyebrow.astro";
+import street from "../../assets/images/papa-old-town-pearland.png";
+
+/* Inlined rather than linked so they cost no extra request and take their
+   colour from the card via `currentColor`. */
+import compassionIcon from "../../assets/icons/compassionate-approach.svg?raw";
+import personalIcon from "../../assets/icons/client-focused.svg?raw";
+import experienceIcon from "../../assets/icons/experienced.svg?raw";
+
+const values = [
+  {
+    icon: compassionIcon,
+    title: "Compassionate Approach",
+    text: "We meet you with empathy first, because this is your life, not just a case. You are heard here before anything else.",
+  },
+  {
+    icon: personalIcon,
+    title: "Direct, Personal Attention",
+    text: "You work with Papa himself, the attorney who knows your name, your story, and your goals, not a rotating cast of associates.",
+  },
+  {
+    icon: experienceIcon,
+    title: "Honest Counsel",
+    text: "Realistic expectations and straight answers, so you can make informed decisions about your family's future. No false promises.",
+  },
+];
+---
+
+<section class="drives" aria-labelledby="drives-title">
+  <div class="drives__media">
+    <Image
+      class="drives__img"
+      src={street}
+      alt=""
+      widths={[768, 1024, 1454]}
+      sizes="100vw"
+      format="webp"
+      quality={72}
+      loading="lazy"
+      decoding="async"
+    />
+    <div class="drives__scrim" aria-hidden="true"></div>
+  </div>
+
+  <div class="container drives__inner">
+    <header class="drives__head">
+      <Eyebrow light>What Drives Us</Eyebrow>
+      <h2 class="drives__title" id="drives-title">The standard <em>we hold.</em></h2>
+    </header>
+
+    <ul class="drives__grid">
+      {values.map((value) => (
+        <li class="drives-card">
+          <span class="drives-card__icon" aria-hidden="true" set:html={value.icon} />
+          <h3 class="drives-card__title">{value.title}</h3>
+          <p class="drives-card__text">{value.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .drives {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--navy-900);
+  }
+
+  .drives__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .drives__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+  }
+
+  /* Deep enough that the street reads as texture rather than as a second look
+     at the hero photo, and that white copy clears 4.5:1 even over the bright
+     storefronts at the top of the frame. */
+  .drives__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--navy-900) 84%, transparent) 0%,
+      color-mix(in srgb, var(--navy-900) 95%, transparent) 100%
+    );
+  }
+
+  .drives__inner {
+    padding-block: 120px;
+  }
+
+  .drives__head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 60px;
+    text-align: center;
+  }
+
+  .drives__title {
+    margin: 0;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.12;
+    color: #fff;
+  }
+
+  .drives__title em {
+    font-style: italic;
+    /* On navy the core brand gold has all the contrast it needs. */
+    color: var(--gold-500);
+  }
+
+  /* Three-column content blocks. */
+  .drives__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .drives-card {
+    padding: 44px 40px 48px;
+    background: rgba(14, 27, 45, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(2px);
+  }
+
+  .drives-card__icon {
+    display: block;
+    margin-bottom: 24px;
+    color: var(--gold-500);
+  }
+
+  /* :global — the SVG arrives via set:html, so it never picks up Astro's
+     scoping attribute. */
+  .drives-card__icon :global(svg) {
+    width: 60px;
+    height: 60px;
+  }
+
+  .drives-card__title {
+    margin: 0 0 14px;
+    font-size: clamp(23px, 0.3797vw + 1.2832rem, 26px);
+    line-height: 1.15;
+    color: #fff;
+    text-wrap: balance;
+  }
+
+  .drives-card__text {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.78);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 1000px) {
+    .drives__inner {
+      padding-block: 72px;
+    }
+
+    .drives__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .drives__head {
+      margin-bottom: 40px;
+    }
+
+    .drives-card {
+      padding: 36px 32px 40px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .drives__inner {
+      padding-block: 48px;
+    }
+
+    .drives-card__icon :global(svg) {
+      width: 48px;
+      height: 48px;
+    }
+  }
+</style>

@@ -1,0 +1,33 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/header/Header.astro";
+import PapaHero from "../../components/about/PapaHero.astro";
+import WhoWeAre from "../../components/about/WhoWeAre.astro";
+import ByTheNumbers from "../../components/about/ByTheNumbers.astro";
+/* Not `Promise` — that name shadows the built-in inside this module. */
+import FirmPromise from "../../components/about/FirmPromise.astro";
+import MeetPapa from "../../components/about/MeetPapa.astro";
+import Awards from "../../components/home/Awards.astro";
+import Testimonials from "../../components/home/Testimonials.astro";
+import WhyFamilyLaw from "../../components/about/WhyFamilyLaw.astro";
+import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
+---
+
+<Layout
+  title="Papa Dieye, Founding Attorney | The Dieye Firm"
+  description="Meet Papa Dieye, founding attorney of The Dieye Firm. For more than seventeen years he has guided Pearland and Houston families through divorce, custody, and support."
+>
+  {/* Not `overlay`. The Old Town Pearland hero photo puts Papa's head 11% down
+      the frame, which lands it under the nav's gold CTA if the header floats
+      over the hero. In flow, the photo starts below the header instead. */}
+  <Header />
+  <PapaHero />
+  <WhoWeAre />
+  <ByTheNumbers />
+  <FirmPromise />
+  <MeetPapa />
+  <Awards />
+  <Testimonials />
+  <WhyFamilyLaw />
+  <WhatDrivesUs />
+</Layout>

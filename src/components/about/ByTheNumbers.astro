@@ -1,0 +1,152 @@
+---
+// By the Numbers — a navy band of four figures, divided by hairline rules.
+// Deliberately quiet: no icons, no cards, just the numbers.
+
+const stats = [
+  { value: "17+", label: "Years in Family Law" },
+  { value: "6", label: "Communities Served" },
+  { value: "100%", label: "Focused on Families" },
+  { value: "Financing", label: "Payment Plans Available" },
+];
+---
+
+<section class="nums" aria-label="The Dieye Firm by the numbers">
+  <ul class="nums__grid">
+    {stats.map((stat) => (
+      <li class="nums__item">
+        <span class="nums__tick" aria-hidden="true"></span>
+        <span class="nums__value">{stat.value}</span>
+        <span class="nums__label">{stat.label}</span>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .nums {
+    background: var(--navy-900);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  /* Deliberately not .container. This wants the container's width and
+     centring but none of its gutter, because the dividing rules are meant to
+     run the full width. Borrowing .container and then zeroing its padding
+     also meant zeroing its `margin-inline: auto`, which left the band
+     left-aligned above 1660. The gutter moves onto the outer cells instead
+     (below), so the figures still land on the same left edge as every other
+     section. */
+  .nums__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nums__item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 52px 40px;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  /* The cells on the outer edges carry the container gutter as padding, so
+     "17+" starts on the same left edge as the eyebrow of every other section.
+     Which cells count as outer changes as the grid reflows, hence the repeats
+     further down.
+
+     On four columns the band carries no outer rules at all, so it reads as
+     divided columns rather than a boxed table, and these two need no 1px
+     correction because they have no rule to sit behind. */
+  .nums__item:first-child {
+    border-left: 0;
+    padding-left: var(--container-pad);
+  }
+
+  .nums__item:last-child {
+    padding-right: var(--container-pad);
+  }
+
+  .nums__tick {
+    width: 28px;
+    height: 3px;
+    margin-bottom: 20px;
+    background: var(--gold-500);
+  }
+
+  .nums__value {
+    font-family: var(--font-serif);
+    font-size: clamp(34px, 1.519vw + 1.4873rem, 46px);
+    font-weight: var(--fw-semibold);
+    line-height: 1;
+    color: #fff;
+  }
+
+  .nums__label {
+    margin-top: 14px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+    line-height: 1.5;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  @media (max-width: 1000px) {
+    .nums__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nums__item {
+      padding: 40px 32px;
+    }
+
+    /* Two columns: every odd cell opens a row and every even cell closes one,
+       so those are the edges that take the gutter. */
+    .nums__item:nth-child(odd) {
+      padding-left: calc(var(--container-pad) - 1px);
+    }
+
+    .nums__item:nth-child(even) {
+      padding-right: calc(var(--container-pad) - 1px);
+    }
+
+    /* Once the grid wraps, the outer rules come back: the first cell no
+       longer stands alone on the left edge (the third sits under it), so
+       dropping only its rule would read as a missing line rather than an
+       open-sided band. */
+    .nums__item:first-child {
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* On two columns the right-hand cells close the row instead. */
+    .nums__item:nth-child(2n) {
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .nums__item:nth-child(n + 3) {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  }
+
+  @media (max-width: 650px) {
+    .nums__grid {
+      grid-template-columns: 1fr;
+    }
+
+    /* One column: every cell is both edges. */
+    .nums__item {
+      padding: 32px calc(var(--container-pad) - 1px);
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .nums__item + .nums__item {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  }
+</style>
