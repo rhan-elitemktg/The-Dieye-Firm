@@ -12,16 +12,24 @@ _Last rewritten: 2026-08-13, end of session._
 
 ## Start here
 
-**Next task: the Blog index (`/blog/`).** It is the only thing standing between
-the blog and being finished, and two links already point at routes it owns —
-see "Known dangling routes" below.
+**Next task: the Blog index (`/blog/`)** — starting in a fresh session, by
+Rhan's call. It is the only thing standing between the blog and being
+finished, and two links already point at routes it owns (see "Known dangling
+routes"). Its comp uses a `bx-*` prefix with no overlap against the post's
+`bp-*`, so the two templates are independent. `WhatDrivesUs` and the new
+`src/components/blog/` cards are there to be reused.
+
+**Before starting it:** `blog_post` needs to be merged, or branch from it
+rather than from `master` — the Blog index depends on the content collection
+and the sidebar card components that live on it.
 
 ---
 
 ## Where we are
 
-Branch `blog_post`, **uncommitted**, working tree dirty. Nothing pushed, no PR.
-`papa_dieye` merged to `master` as PR #16.
+Branch `blog_post`, **committed and pushed** (2 commits, tree clean), tracking
+`origin/blog_post`. **No PR yet — Rhan is reviewing the diff first** and will
+open it. `papa_dieye` merged to `master` as PR #16.
 
 `/blog/[slug]/` is built and verified, and the whole 16-post archive is
 ingested. Build passes, no broken images, no horizontal overflow at
