@@ -1,0 +1,43 @@
+---
+// PracticeAreaSidebar — the rail beside a practice-area page.
+//
+// Structurally the blog post's sidebar with the bottom half swapped, which is
+// the whole point of reusing that template: who stands behind the page, how to
+// get in touch, then where to go next. The blog's Categories and Related
+// Articles cards are replaced by the section index and the service areas.
+//
+// AuthorCard is rendered with no date. A practice area has no publish date and
+// is not an article, so its footer line is omitted rather than invented — see
+// the note on its Props.
+
+import AuthorCard from "../blog/AuthorCard.astro";
+import CaseEvaluationCard from "../blog/CaseEvaluationCard.astro";
+import FamilyLawNav from "./FamilyLawNav.astro";
+import AreasWeServe from "./AreasWeServe.astro";
+import type { PracticeArea } from "./practiceAreas";
+
+interface Props {
+  areas: PracticeArea[];
+  current: PracticeArea;
+}
+
+const { areas, current } = Astro.props;
+---
+
+<aside class="pas" aria-label="About this practice area">
+  <AuthorCard />
+
+  <CaseEvaluationCard />
+
+  <FamilyLawNav areas={areas} current={current} />
+
+  <AreasWeServe />
+</aside>
+
+<style>
+  .pas {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+</style>

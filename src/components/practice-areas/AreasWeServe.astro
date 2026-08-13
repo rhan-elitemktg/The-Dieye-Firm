@@ -1,0 +1,90 @@
+---
+// AreasWeServe — the service-area card that closes the practice-area sidebar.
+//
+// Read from the firmDetails singleton, the same source the header nav and the
+// footer already use, so the three can never list different territories. The
+// full `label` is used rather than `navLabel`: the nav is tight on space and
+// wants "Harris County", a sidebar card has room for the real name.
+
+import SidebarCard from "../blog/SidebarCard.astro";
+import { getFirmDetails } from "../../sanity/firmDetails";
+
+const { serviceAreas } = await getFirmDetails();
+---
+
+{
+  serviceAreas.length > 0 && (
+    <SidebarCard title="Areas We Serve" id="aws">
+      <ul class="aws">
+        {serviceAreas.map((area) => (
+          <li>
+            <a href={area.href}>
+              <span class="aws__pin" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.7" />
+                </svg>
+              </span>
+              {area.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </SidebarCard>
+  )
+}
+
+<style>
+  .aws {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .aws li + li {
+    border-top: 1px solid var(--bone-300);
+  }
+
+  .aws a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 14px 0;
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--navy-700);
+    text-decoration: none;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .aws a:hover {
+    color: var(--gold-600);
+  }
+
+  /* Sized in the flow rather than on the <svg>, so the glyph can't drive the
+     row height if the icon is ever swapped. */
+  .aws__pin {
+    display: flex;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--gold-500);
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .aws a:hover .aws__pin {
+    color: var(--gold-600);
+  }
+
+  .aws__pin svg {
+    width: 100%;
+    height: 100%;
+  }
+</style>

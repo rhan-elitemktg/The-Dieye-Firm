@@ -88,6 +88,7 @@ const active = new Set(activeCategories);
     font-weight: 600;
     color: var(--navy-700);
     text-decoration: none;
+    transition: color var(--dur-base) var(--ease-out);
   }
 
   .ps__cats a::before {
@@ -96,7 +97,9 @@ const active = new Set(activeCategories);
     width: 16px;
     height: 2px;
     background: var(--bone-400);
-    transition: width var(--dur-base) var(--ease-out);
+    transition:
+      width var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out);
   }
 
   .ps__cats a:hover {
@@ -133,6 +136,7 @@ const active = new Set(activeCategories);
     line-height: 1.5;
     color: var(--navy-700);
     text-decoration: none;
+    transition: color var(--dur-base) var(--ease-out);
   }
 
   .ps__articles a + a {

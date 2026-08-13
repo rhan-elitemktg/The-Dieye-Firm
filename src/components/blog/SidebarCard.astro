@@ -7,14 +7,21 @@
 interface Props {
   title: string;
   id: string;
+  /* Optional. The practice-area sidebar's "Family Law" card heads a list of
+     that section's pages, and the heading is itself one of them — so there it
+     links to /family-law/. The blog's two cards head lists with no single
+     destination, and pass nothing. */
+  href?: string;
 }
 
-const { title, id } = Astro.props;
+const { title, id, href } = Astro.props;
 ---
 
 <section class="sc" aria-labelledby={id}>
   <div class="sc__head">
-    <h2 class="sc__title" id={id}>{title}</h2>
+    <h2 class="sc__title" id={id}>
+      {href ? <a href={href}>{title}</a> : title}
+    </h2>
   </div>
   <div class="sc__body">
     <slot />
@@ -42,6 +49,16 @@ const { title, id } = Astro.props;
     font-size: 22px;
     line-height: 1.2;
     color: var(--navy-700);
+  }
+
+  .sc__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .sc__title a:hover {
+    color: var(--gold-600);
   }
 
   .sc__body {

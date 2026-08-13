@@ -1,0 +1,85 @@
+---
+// PracticeAreaHeader — kicker, title and deck that open a practice-area page.
+//
+// Same shape as the blog's PostHeader, for the same reason: no hero, no
+// breadcrumb, no featured image — the page starts directly under the solid
+// header with a gold eyebrow.
+//
+// The kicker doubles as the way back up. On a child page it names the parent
+// ("Divorce"), which is the only place that relationship is stated in the main
+// column; on a top-level page it names the section.
+//
+// The deck is the source page's own subheading, lifted out of the body by the
+// scraper so it can be styled as a standfirst rather than read as the first
+// section heading.
+
+import { areaHref, type PracticeArea } from "./practiceAreas";
+
+interface Props {
+  area: PracticeArea;
+  parent?: PracticeArea;
+}
+
+const { area, parent } = Astro.props;
+
+const kicker = parent
+  ? { label: parent.data.navLabel, href: areaHref(parent) }
+  : { label: "Family Law", href: "/family-law/" };
+---
+
+<header class="pah">
+  <p class="pah__kicker">
+    <a href={kicker.href}>{kicker.label}</a>
+  </p>
+
+  <h1 class="pah__title">{area.data.title}</h1>
+
+  {area.data.subtitle && <p class="pah__deck">{area.data.subtitle}</p>}
+</header>
+
+<style>
+  .pah__kicker {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .pah__kicker a {
+    color: var(--gold-600);
+    text-decoration: none;
+  }
+
+  .pah__kicker a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .pah__title {
+    margin: 14px 0 0;
+    font-size: clamp(34px, 2.7vw + 1rem, 60px);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    color: var(--navy-700);
+    text-wrap: balance;
+  }
+
+  /* A standfirst, not body copy: larger than the prose that follows it and set
+     in the serif, so the eye reads it as part of the title block. */
+  .pah__deck {
+    margin: 20px 0 0;
+    max-width: 46em;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink-500);
+  }
+
+  @media (max-width: 650px) {
+    .pah__deck {
+      font-size: 19px;
+    }
+  }
+</style>

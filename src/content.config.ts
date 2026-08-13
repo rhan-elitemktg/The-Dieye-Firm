@@ -51,4 +51,55 @@ const blog = defineCollection({
     }),
 });
 
-export const collections = { blog };
+/* Practice areas — the 31 family-law detail pages, ingested from the live site
+   by `npm run scrape:practice-areas`. See scripts/scrape-practice-areas.mjs.
+
+   The file layout IS the route: src/content/practice-areas/divorce.md becomes
+   /family-law/divorce/, and .../divorce/military-divorce.md becomes
+   /family-law/divorce/military-divorce/. The glob loader's id is already the
+   nested slug, so nothing has to reassemble it.
+
+   URLs match the live site exactly, so unlike the blog this section needs no
+   redirects — which is also why there is no `legacyPath`-driven redirect map
+   here. The field is kept only as a record of where each page came from.
+
+   The /family-law/ index is deliberately NOT in this collection: it has a comp
+   ("Practice Areas index.dc.html"), and AGENTS.md makes a comp the source of
+   truth for both layout and copy wherever one exists.
+
+   Shaped as a Sanity `practiceArea` document will return, same as the blog
+   collection — modelling stays deferred until the static site is done. */
+const practiceAreas = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/practice-areas" }),
+  schema: z.object({
+    /* The page h1, which is SEO-shaped on every page ("Pearland Divorce
+       Lawyer"). The short form used in nav and the sidebar is navLabel. */
+    title: z.string(),
+
+    /* The client's own nav wording ("Child Custody", "QDROs"). Distinct from
+       `title` on all 31 pages, which is why both exist. */
+    navLabel: z.string(),
+
+    seoTitle: z.string().optional(),
+    description: z.string(),
+
+    /* The deck that sits between the h1 and the opening paragraph. Present on
+       every page, but optional so a future page without one still builds. */
+    subtitle: z.string().optional(),
+
+    /* Top-level pages omit this. Set to the parent's slug on the 13 children
+       (10 under divorce, 3 under child-custody). */
+    parent: z.string().optional(),
+
+    /* schema.org FAQPage microdata found in the source. Only
+       mediation-vs-litigation carries any today; the extractor is generic so
+       more can arrive without a code change. */
+    faqs: z
+      .array(z.object({ question: z.string(), answer: z.string() }))
+      .default([]),
+
+    legacyPath: z.string(),
+  }),
+});
+
+export const collections = { blog, practiceAreas };

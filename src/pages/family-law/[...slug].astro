@@ -1,0 +1,156 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/header/Header.astro";
+import PracticeAreaHeader from "../../components/practice-areas/PracticeAreaHeader.astro";
+import PracticeAreaFaqs from "../../components/practice-areas/PracticeAreaFaqs.astro";
+import PracticeAreaSidebar from "../../components/practice-areas/PracticeAreaSidebar.astro";
+import { areaHref } from "../../components/practice-areas/practiceAreas";
+import { getFirmDetails } from "../../sanity/firmDetails";
+
+/* The collection id is already the route tail — "divorce",
+   "divorce/military-divorce" — because the scraper writes the files in that
+   shape. A rest param consumes both depths, so one route covers all 31 pages.
+
+   /family-law/ itself is not in the collection and so is not generated here:
+   the index has a comp, and AGENTS.md makes a comp the source of truth
+   wherever one exists. */
+export async function getStaticPaths() {
+  const areas = await getCollection("practiceAreas");
+  return areas.map((area) => ({ params: { slug: area.id }, props: { area } }));
+}
+
+const { area } = Astro.props;
+const { Content } = await render(area);
+
+const areas = await getCollection("practiceAreas");
+const parent = area.data.parent
+  ? areas.find((candidate) => candidate.id === area.data.parent)
+  : undefined;
+
+const firm = await getFirmDetails();
+const canonical = new URL(areaHref(area), Astro.site ?? Astro.url).href;
+
+/* The source pages carry LegalService structured data, so dropping it on the
+   rebuild would be a regression on the section that earns the most search
+   traffic. Built from the same values as the markup, the way Faq.astro and the
+   blog post template both already do it. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: area.data.navLabel,
+  serviceType: area.data.navLabel,
+  description: area.data.description,
+  url: canonical,
+  provider: {
+    "@type": "LegalService",
+    name: firm.firmName,
+    telephone: firm.phone.display,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: firm.address.street,
+      addressLocality: firm.address.locality,
+      addressRegion: firm.address.region,
+      postalCode: firm.address.postalCode,
+      addressCountry: "US",
+    },
+  },
+  areaServed: firm.serviceAreas.map((serviceArea) => ({
+    "@type": "Place",
+    name: serviceArea.label,
+  })),
+};
+---
+
+<Layout
+  title={`${area.data.seoTitle ?? area.data.title} | The Dieye Firm`}
+  description={area.data.description}
+  canonical={canonical}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* Stamped before <body> is parsed, so a collapsed branch in the sidebar is
+      never painted open and then closed. FamilyLawNav's hide rule is keyed on
+      it; without JS the attribute never lands and every branch stays open. */}
+  <script is:inline slot="head">
+    document.documentElement.setAttribute("data-pa-boot", "");
+  </script>
+
+  {/* In flow, not overlay: there is no hero here. The page opens directly
+      under the header on white, the same as both blog templates. */}
+  <Header />
+
+  <div class="pa section">
+    <div class="container">
+      <div class="pa__grid">
+        <article class="pa__main">
+          <PracticeAreaHeader area={area} parent={parent} />
+
+          {/* .prose lives unscoped in global.css because Astro's scoping never
+              reaches markup rendered by a child component. */}
+          <div class="prose pa__body">
+            <Content />
+          </div>
+
+          <PracticeAreaFaqs faqs={area.data.faqs} />
+        </article>
+
+        <PracticeAreaSidebar areas={areas} current={area} />
+      </div>
+    </div>
+  </div>
+
+  {/* Nothing closes the page below the grid yet — the related-posts band that
+      the blog template ends on was removed, and its replacement is still to
+      come. */}
+
+  {/* Bound here, once for the document, the same split Layout uses for
+      lead-form.ts — the sidebar component stays pure markup. */}
+  <script>
+    import { initPracticeAreaNav } from "../../scripts/pa-nav";
+    initPracticeAreaNav();
+  </script>
+</Layout>
+
+<style>
+  .pa {
+    background: var(--white);
+  }
+
+  /* The interior template from AGENTS.md: three equal columns with the article
+     spanning two. align-items: start keeps the sidebar at its own height
+     rather than stretching its cards down a 2,000-word row. */
+  .pa__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--section-gap);
+    align-items: start;
+  }
+
+  .pa__main {
+    grid-column: span 2;
+    min-width: 0;
+  }
+
+  .pa__body {
+    margin-top: 40px;
+    font-size: 18px;
+    line-height: 30px;
+  }
+
+  @media (max-width: 1439px) {
+    .pa__grid {
+      gap: 56px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .pa__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pa__main {
+      grid-column: auto;
+    }
+  }
+</style>

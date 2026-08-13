@@ -14,11 +14,16 @@ import papa from "../../assets/images/papa-headshot-square.jpg";
 import { formatDate, isoDate } from "./blog";
 
 interface Props {
-  date: Date;
-  minutes: number;
+  /* Both optional, and both absent on practice-area pages. A practice area has
+     no publish date and is not an article, so the footer line is omitted there
+     rather than filled with something invented — the card still does its real
+     job, which is to say who stands behind the page. */
+  date?: Date;
+  minutes?: number;
 }
 
 const { date, minutes } = Astro.props;
+const showFooter = date !== undefined && minutes !== undefined;
 ---
 
 <section class="ac" aria-labelledby="ac-kicker">
@@ -46,13 +51,17 @@ const { date, minutes } = Astro.props;
       This flips to "Updated on" once editors can actually revise a post, which
       is the Sanity pass: the source JSON-LD has a `dateModified` the scraper
       doesn't capture today. See HANDOFF.md. */}
-  <p class="ac__foot">
-    Posted on
-    <span class="ac__dot" aria-hidden="true"></span>
-    <time datetime={isoDate(date)}>{formatDate(date)}</time>
-    <span class="ac__dot" aria-hidden="true"></span>
-    {minutes} min read
-  </p>
+  {
+    showFooter && (
+      <p class="ac__foot">
+        Posted on
+        <span class="ac__dot" aria-hidden="true" />
+        <time datetime={isoDate(date!)}>{formatDate(date!)}</time>
+        <span class="ac__dot" aria-hidden="true" />
+        {minutes} min read
+      </p>
+    )
+  }
 </section>
 
 <style>
