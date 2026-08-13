@@ -21,17 +21,26 @@ routes are already defined by the nav array at the top of
 
     ~/Downloads/The Dieye Firm/The Dieye Firm Claude Project/
 
-Comps exist for: About Papa Dieye · Practice Areas index · `_export-practice-areas`
-(the practice-area detail template) · Blog index · Blog Post · Testimonials ·
-Contact · Thank You · Homepage_v1. Their images are in that folder's `assets/`.
+Comps exist for: About Papa Dieye · Practice Areas index · Blog index ·
+Blog Post · Testimonials · Contact · Thank You · Homepage_v1. Their images are
+in that folder's `assets/`.
+
+⚠️ **`_export-practice-areas.dc.html` is not a practice-area detail template**,
+despite the name. It is the Practice Areas *index* comp with an asset-resolver
+wrapper added — the content is otherwise identical. Don't reach for it
+expecting a detail page.
 
 **Do not take copy from the SiteSucker mirror** at `~/Downloads/The Dieye Firm/sitesucker/`.
 It is a full capture of the live dieyelaw.com and is deliberately not being
 used. Fine to look at for structure or URL patterns, never for words.
 
-Four pages have **no comp** — About Us index, Choosing a Family Law Attorney,
-The Difference, and the service-area pages. Ask for direction on these rather
-than inventing copy or falling back to the live site.
+**These have no comp** and need direction before they can be built — don't
+invent copy or fall back to the live site:
+
+- About Us index, Choosing a Family Law Attorney, The Difference
+- **All 8 practice-area detail pages** (divorce, custody, support, …) — the
+  largest undesigned block in the project
+- The service-area pages
 
 These paths sit outside the repo and have moved once already. Check they exist
 before assuming.
@@ -88,6 +97,11 @@ inventing a value. The parts worth stating up front:
 ---
 
 ## Building a page
+
+**Build templates hardest first, easiest last.** The hard ones carry the shared
+infrastructure — the interior main+sidebar shell, `.prose`, dynamic routes,
+sidebar cards — so everything after them gets cheaper. The reverse order builds
+the same things piecemeal and worse. `HANDOFF.md` tracks the current ranking.
 
 1. One component per section under `src/components/<page-group>/`. Page files
    stay thin — imports and section order only (see `src/pages/index.astro`).
