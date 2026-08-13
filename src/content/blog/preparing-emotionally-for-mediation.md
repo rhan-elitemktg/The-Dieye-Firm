@@ -3,6 +3,7 @@ title: "Preparing Emotionally for Mediation"
 description: "Facing divorce mediation? The Dieye Firm walks you through what to expect and how to prepare."
 date: "2026-04-01"
 author: "The Dieye Firm"
+featured: true
 categories:
   - "divorce"
 image: "../../assets/images/blog/iStock-1174957988.jpg"

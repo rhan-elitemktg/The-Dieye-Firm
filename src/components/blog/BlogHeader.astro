@@ -1,0 +1,72 @@
+---
+// BlogHeader — the centred opening of the Blog index. No hero photo: the comp
+// opens on white directly under the site header, the same way a blog post
+// does, so the page header is type only.
+
+import Eyebrow from "../Eyebrow.astro";
+
+interface Props {
+  title: string;
+  intro: string;
+}
+
+const { title, intro } = Astro.props;
+---
+
+<header class="bh">
+  <div class="container bh__inner">
+    <Eyebrow eager>News &amp; Insights</Eyebrow>
+    <h1 class="bh__title">{title}</h1>
+    <p class="bh__intro">{intro}</p>
+  </div>
+</header>
+
+<style>
+  .bh {
+    background: var(--white);
+    padding-block: 96px 48px;
+  }
+
+  .bh__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .bh__title {
+    margin: 0;
+    font-size: clamp(42px, 3.4vw + 1rem, 76px);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    color: var(--navy-700);
+  }
+
+  .bh__intro {
+    margin: 0;
+    max-width: 640px;
+    font-family: var(--font-ui);
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 1000px) {
+    .bh {
+      padding-block: 72px 40px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .bh {
+      padding-block: 48px 32px;
+    }
+
+    .bh__intro {
+      font-size: 17px;
+      line-height: 29px;
+    }
+  }
+</style>

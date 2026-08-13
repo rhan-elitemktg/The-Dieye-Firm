@@ -27,10 +27,13 @@ export function allCategories(posts: Post[]): string[] {
   return [...known, ...extra];
 }
 
-/* Category archives are built with the Blog index, the next template in the
-   ranking. Until then these resolve to a route that does not exist yet — a
-   known dangle, tracked in HANDOFF.md. */
-export const categoryHref = (slug: string) => `/blog/categories/${slug}/`;
+/* There are no per-category archive routes. A category link lands on the Blog
+   index with that filter pre-selected, which the index applies before first
+   paint — so this is a real, shareable URL rather than a second set of pages
+   duplicating the same 16 posts across four thin archives. */
+export const CATEGORY_PARAM = "category";
+
+export const categoryHref = (slug: string) => `/blog/?${CATEGORY_PARAM}=${slug}`;
 
 export const postHref = (post: Post) => `/blog/${post.id}/`;
 
@@ -58,6 +61,18 @@ export const readingTime = (body: string) =>
   Math.max(1, Math.round(body.trim().split(/\s+/).length / 225));
 
 export const byNewest = (a: Post, b: Post) => b.data.date.getTime() - a.data.date.getTime();
+
+/* The Blog index splits the archive in two: one post takes the featured panel
+   and the rest fill the grid. The featured post is pinned — it stays put when
+   a category filter is applied — so it must never also appear in the grid.
+   Both halves come from here so they can't disagree.
+
+   `posts` is expected sorted by newest; the flag wins over recency, and an
+   archive with no flag set falls back to the newest post. */
+export function splitFeatured(posts: Post[]): { featured?: Post; rest: Post[] } {
+  const featured = posts.find((p) => p.data.featured) ?? posts[0];
+  return { featured, rest: posts.filter((p) => p.id !== featured?.id) };
+}
 
 /* Related posts: same category first, then backfilled by recency so the slot
    is always full even for the single domestic-violence post. */

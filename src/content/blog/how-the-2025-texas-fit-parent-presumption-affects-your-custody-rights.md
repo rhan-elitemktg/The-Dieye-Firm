@@ -4,6 +4,8 @@ seoTitle: "Texas Fit Parent Presumption 2025"
 description: "SB 2052 updated the Texas fit parent presumption on Sept. 1, 2025. See how the new standard affects custody cases in Harris and Brazoria County."
 date: "2026-08-06"
 author: "The Dieye Firm"
+categories:
+  - "child-custody"
 imageAlt: "How the 2025 Texas Fit Parent Presumption Affects Your Custody Rights"
 keyTakeaways:
   - "SB 2052 took effect on September 1, 2025, codifying a presumption that a fit parent acts in their child's best interest."

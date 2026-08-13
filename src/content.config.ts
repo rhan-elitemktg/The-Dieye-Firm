@@ -27,6 +27,13 @@ const blog = defineCollection({
          domestic-violence. One post carries three, most carry one. */
       categories: z.array(z.string()).default([]),
 
+      /* Which post takes the Blog index's featured panel. Editorial rather
+         than date-driven on purpose: the newest post is sometimes the one
+         without artwork, and the panel renders its image half-width and
+         ~600px tall. Unset on every post falls back to the newest.
+         Maps to a Sanity boolean in the migration. */
+      featured: z.boolean().default(false),
+
       /* Optional: the August 2026 post was published with no featured image
          (its JSON-LD points at the bare origin), so the template falls back
          to the firm's generic blog artwork rather than breaking the build. */

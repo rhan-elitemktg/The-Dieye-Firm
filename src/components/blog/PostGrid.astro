@@ -1,0 +1,167 @@
+---
+// PostGrid — the filtered card grid and its Load More control.
+//
+// Every post renders into the document once; filtering and paging are both
+// visibility passes over that markup rather than re-fetches. With 16 posts
+// that is far cheaper than a round trip, and it means a filtered arrival needs
+// nothing but a class change (see FilterBoot).
+//
+// Each card is wrapped in .pg__item rather than filtered directly: the card
+// owns a translateY on hover, and the entry animation needs a transform of its
+// own that can't fight it.
+
+import PostCard from "./PostCard.astro";
+import type { Post } from "./blog";
+
+interface Props {
+  posts: Post[];
+  /* Cards shown before the first Load More. A multiple of three so the last
+     row of the 3-up desktop grid is never left short. */
+  initial?: number;
+}
+
+const { posts, initial = 9 } = Astro.props;
+---
+
+<section class="pg section" aria-labelledby="pg-title">
+  <div class="container">
+    <h2 class="visually-hidden" id="pg-title">All blog posts</h2>
+
+    <div class="pg__grid" data-blog-grid>
+      {
+        posts.map((post, i) => (
+          <div
+            class="pg__item"
+            data-cats={post.data.categories.join(" ")}
+            data-rest={i >= initial ? "" : undefined}
+          >
+            <PostCard post={post} tone="light" />
+          </div>
+        ))
+      }
+    </div>
+
+    {/* Announces the result of a filter, which is otherwise a silent change to
+        a region well below the chip that caused it. */}
+    <p class="visually-hidden" role="status" aria-live="polite" data-blog-status></p>
+
+    <div class="pg__foot">
+      <button class="btn btn--gold pg__more" type="button" data-blog-more>Load More Posts</button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pg {
+    background: var(--white);
+    padding-top: 64px;
+  }
+
+  .pg__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 40px;
+    row-gap: 56px;
+    align-items: stretch;
+  }
+
+  /* display: grid so the single child fills the cell on both axes without a
+     :global() reach into PostCard. */
+  .pg__item {
+    display: grid;
+  }
+
+  .pg__item.is-hidden {
+    display: none;
+  }
+
+  /* Entry animation. Applied only to cards revealed by a filter change or a
+     Load More click — never on first paint, where there is nothing to explain
+     and the movement would just delay the content. */
+  .pg__item.is-entering {
+    animation: pg-in var(--dur-slow) var(--ease-out) both;
+    animation-delay: min(calc(var(--i, 0) * 45ms), 270ms);
+  }
+
+  @keyframes pg-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* global.css collapses animation-duration under reduced motion but leaves
+     the delay, which would hold a card at opacity 0 for a quarter second. */
+  @media (prefers-reduced-motion: reduce) {
+    .pg__item.is-entering {
+      animation-delay: 0ms !important;
+    }
+  }
+
+  .pg__foot {
+    display: flex;
+    justify-content: center;
+    margin-top: 64px;
+  }
+
+  .pg__more {
+    min-width: 280px;
+    padding: 16px 34px;
+  }
+
+  /* Without a script there is nothing to load and nothing hidden, so the
+     control would be a dead end — every post is already on the page. */
+  .pg__more:not([data-blog-ready]) {
+    display: none;
+  }
+
+  /* .btn sets display: inline-flex, which outranks the UA stylesheet's
+     [hidden] { display: none }. Without this the button stays on screen with
+     nothing left to load. */
+  .pg__more[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 1439px) {
+    .pg__grid {
+      column-gap: 32px;
+      row-gap: 48px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .pg {
+      padding-top: 48px;
+    }
+
+    .pg__grid {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 24px;
+      row-gap: 40px;
+    }
+
+    .pg__foot {
+      margin-top: 48px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .pg__grid {
+      grid-template-columns: 1fr;
+      row-gap: 32px;
+    }
+
+    .pg__foot {
+      margin-top: 36px;
+    }
+
+    .pg__more {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+</style>

@@ -1,0 +1,173 @@
+---
+// PostCard — the article card. One definition, two surfaces: the navy band
+// that closes a blog post (white card) and the white Blog index grid (cream
+// card). The comp draws the same card in both places, so it lives here rather
+// than being written twice and drifting.
+
+import { Image } from "astro:assets";
+import fallbackImg from "../../assets/images/blog/blog-img.jpg";
+import { categoryLabel, formatDate, isoDate, postHref, type Post } from "./blog";
+
+interface Props {
+  post: Post;
+  /* "navy" sits on the dark band and fills white; "light" sits on the white
+     index and fills --bone-50, because a white card on a white page has only
+     its hairline to stand on. */
+  tone?: "navy" | "light";
+  /* Cards are h3 under a section h2 on both surfaces today. Exposed so a
+     future surface can keep the document outline honest. */
+  headingLevel?: 2 | 3;
+}
+
+const { post, tone = "navy", headingLevel = 3 } = Astro.props;
+const Heading = `h${headingLevel}` as "h2" | "h3";
+
+/* Read by the index's filter. Harmless on the navy band, which never filters. */
+const cats = post.data.categories.join(" ");
+---
+
+<a class:list={["pc", `pc--${tone}`]} href={postHref(post)} data-cats={cats}>
+  <Image
+    class="pc__photo"
+    src={post.data.image ?? fallbackImg}
+    alt={post.data.imageAlt || ""}
+    width={520}
+    height={293}
+    format="webp"
+    loading="lazy"
+    decoding="async"
+  />
+  <div class="pc__body">
+    <p class="pc__meta">
+      {
+        post.data.categories[0] && (
+          <>
+            <span class="pc__cat">{categoryLabel(post.data.categories[0])}</span>
+            <span class="pc__dot" aria-hidden="true" />
+          </>
+        )
+      }
+      <time class="pc__date" datetime={isoDate(post.data.date)}>
+        {formatDate(post.data.date)}
+      </time>
+    </p>
+    <Heading class="pc__name">{post.data.title}</Heading>
+    <p class="pc__desc">{post.data.description}</p>
+    <span class="pc__more">Read More &rarr;</span>
+  </div>
+</a>
+
+<style>
+  /* The whole card is one link, so "Read More" is a span — a nested anchor
+     would be invalid and would add a second tab stop per card. */
+  .pc {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+
+  .pc--navy {
+    background: var(--white);
+  }
+
+  .pc--navy:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* On white, the fill is what separates the card from the page — the shadow
+     is a much lighter touch than it can be against navy. */
+  .pc--light {
+    background: var(--bone-50);
+    box-shadow: inset 0 0 0 1px var(--bone-300);
+  }
+
+  .pc--light:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 0 0 1px var(--bone-400),
+      0 18px 38px -22px rgba(15, 36, 56, 0.45);
+  }
+
+  .pc__photo {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+  }
+
+  .pc__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 28px;
+  }
+
+  .pc__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+  }
+
+  .pc__cat {
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .pc__dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--ink-500);
+  }
+
+  .pc__date {
+    color: var(--ink-500);
+  }
+
+  .pc__name {
+    margin: 0 0 12px;
+    font-size: 24px;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .pc__desc {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-500);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pc__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 22px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .pc:hover .pc__more {
+    gap: 16px;
+  }
+</style>

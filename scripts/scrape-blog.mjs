@@ -57,6 +57,26 @@ const KNOWN_ROUTES = new Set([
   "/blog/",
 ]);
 
+/* Editorial decisions that belong to this site rather than to the old one.
+   They live here, keyed by the slug we generate, so re-running the scrape
+   can't quietly undo them — every post file is rewritten on each run, so a
+   hand edit to frontmatter would not survive. */
+
+/* The August 2026 post was published with no category at all: the source page
+   carries no category links for the extractor to find. Without one it can only
+   ever appear under "All Posts" on the Blog index and never under a filter.
+   Assigned from its own subject — it is about custody rights.
+
+   Remove this entry once the category is set on the live site. */
+const CATEGORY_OVERRIDES = {
+  "how-the-2025-texas-fit-parent-presumption-affects-your-custody-rights": ["child-custody"],
+};
+
+/* The post that takes the Blog index's featured panel. The old site has no
+   equivalent concept, so it can only come from here. Unset falls back to the
+   newest post — see splitFeatured() in src/components/blog/blog.ts. */
+const FEATURED_SLUG = "preparing-emotionally-for-mediation";
+
 /* ---------------------------------------------------------------- fetching */
 
 async function cachedFetch(url, binary = false) {
@@ -466,13 +486,16 @@ async function main() {
     const legacyPath = new URL(url).pathname;
     redirects.push({ source: legacyPath.replace(/\/$/, ""), destination: `/blog/${slug}/`, permanent: true });
 
+    const categories = CATEGORY_OVERRIDES[slug] ?? post.categories;
+
     const fm = frontmatter({
       title: post.title,
       seoTitle: post.seoTitle && post.seoTitle !== post.title ? post.seoTitle : null,
       description: post.description,
       date: post.date,
       author: "The Dieye Firm",
-      categories: post.categories,
+      featured: slug === FEATURED_SLUG ? true : null,
+      categories,
       image: imageField,
       imageAlt: post.imageAlt,
       legacyPath,
@@ -484,7 +507,7 @@ async function main() {
     notes.push({
       slug, date: post.date, words,
       headings: Object.entries(map).map(([f, t]) => `h${f}->h${t}`).join(" ") || "none",
-      cats: post.categories.join(",") || "(none)",
+      cats: categories.join(",") || "(none)",
       coverage: (coverage * 100).toFixed(0) + "%",
       links: report.rewritten,
       unknown: [...report.unknown],
