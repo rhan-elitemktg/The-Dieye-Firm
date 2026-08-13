@@ -1,0 +1,55 @@
+---
+// FilterBoot — head-time setup for the Blog index filter. Renders into
+// Layout's `head` slot.
+//
+// Why this exists: a post's sidebar links land on `/blog/?category=<slug>`, so
+// arriving pre-filtered is a primary path, not an edge case. The page is
+// static, so without this the browser would paint all 16 posts and the module
+// would collapse them to six a moment later — which reads as a bug.
+//
+// So a tiny blocking script stamps the filter onto <html> before <body> is
+// parsed, and the rules below hide the non-matching cards in the same pass.
+// Both are keyed on `data-blog-boot`, which blog-filter.ts removes the instant
+// it has applied the real state — after that these rules are inert and the
+// module owns everything.
+
+import { CATEGORY_PARAM, allCategories, type Post } from "./blog";
+
+interface Props {
+  posts: Post[];
+}
+
+const categories = allCategories(Astro.props.posts);
+
+/* One pair of rules per category, generated because CSS can't read a value out
+   of an attribute. Unscoped by necessity — it styles two other components'
+   markup — which is safe here: both class names are prefixed and unique.
+
+   The cap on `[data-rest]` is only applied when no category is selected. Under
+   a filter the module works out the count; no category in the archive comes
+   close to the initial batch, so there is nothing to cap before it boots. */
+const bootCss = [
+  `html[data-blog-boot]:not([data-blog-cat]) .pg__item[data-rest]{display:none}`,
+  ...categories.flatMap((slug) => [
+    `html[data-blog-boot][data-blog-cat="${slug}"] .pg__item:not([data-cats~="${slug}"]){display:none}`,
+    `html[data-blog-boot][data-blog-cat="${slug}"] .cf__chip:not([data-cat="${slug}"]){--chip-bg:var(--white);--chip-bd:var(--bone-300);--chip-fg:var(--ink-500)}`,
+    `html[data-blog-boot][data-blog-cat="${slug}"] .cf__chip[data-cat="${slug}"]{--chip-bg:color-mix(in srgb, var(--gold-500) 14%, var(--white));--chip-bd:var(--gold-500);--chip-fg:var(--navy-700)}`,
+  ]),
+].join("");
+---
+
+<style is:inline set:html={bootCss}></style>
+
+<script is:inline define:vars={{ param: CATEGORY_PARAM, valid: categories }}>
+  var root = document.documentElement;
+  root.setAttribute("data-blog-boot", "");
+  try {
+    var wanted = new URLSearchParams(location.search).get(param);
+    /* Validated against the archive's own categories so the attribute can only
+       ever hold a value one of the generated rules matches. */
+    if (wanted && valid.indexOf(wanted) !== -1) root.setAttribute("data-blog-cat", wanted);
+  } catch (e) {
+    /* A malformed query string is not worth failing the page over — the grid
+       just renders unfiltered. */
+  }
+</script>

@@ -1,0 +1,47 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/header/Header.astro";
+import BlogHeader from "../../components/blog/BlogHeader.astro";
+import FeaturedPost from "../../components/blog/FeaturedPost.astro";
+import CategoryFilter from "../../components/blog/CategoryFilter.astro";
+import PostGrid from "../../components/blog/PostGrid.astro";
+import FilterBoot from "../../components/blog/FilterBoot.astro";
+import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
+import { byNewest, splitFeatured } from "../../components/blog/blog";
+
+const title = "Our Blog";
+const intro =
+  "Clear, compassionate guidance on divorce, custody, support, and everything Texas families face - straight from Papa Dieye.";
+
+const all = (await getCollection("blog")).sort(byNewest);
+/* The featured post is pinned above the filter and never appears in the grid,
+   so both halves come from one split. */
+const { featured, rest } = splitFeatured(all);
+
+const canonical = new URL("/blog/", Astro.site ?? Astro.url).href;
+---
+
+<Layout
+  title={`${title} | The Dieye Firm`}
+  description="Family law insight from The Dieye Firm - divorce, custody, child support and more, written for Texas families in Pearland and Houston."
+  canonical={canonical}
+>
+  <FilterBoot posts={all} slot="head" />
+
+  {/* In flow, not overlay: the page opens on white type with no hero photo,
+      exactly as a blog post does, so a transparent header would sit on white. */}
+  <Header />
+
+  <BlogHeader title={title} intro={intro} />
+  {featured && <FeaturedPost post={featured} />}
+  <CategoryFilter posts={all} />
+  <PostGrid posts={rest} />
+
+  <WhatDrivesUs />
+</Layout>
+
+<script>
+  import { initBlogFilter } from "../../scripts/blog-filter";
+  initBlogFilter();
+</script>

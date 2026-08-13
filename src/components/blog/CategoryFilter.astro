@@ -1,0 +1,182 @@
+---
+// CategoryFilter — the chip row that filters the grid below it.
+//
+// Sits under the featured panel, which it deliberately does not control (see
+// FeaturedPost). Chips are real links to `/blog/?category=<slug>`, not
+// buttons: the Categories card in a post's sidebar points at the same URLs, so
+// a filter has to be a shareable address rather than a click that only exists
+// in this tab. The script intercepts them and filters in place.
+
+import { allCategories, categoryHref, categoryLabel, type Post } from "./blog";
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+const categories = allCategories(posts);
+---
+
+{/* Filtering is client-side, so without a script these links would land back
+    on an unfiltered page — the chips would say they had done something they
+    hadn't. The grid below shows the whole archive in that case, which is a
+    complete answer on its own. Same reasoning hides Load More. */}
+<noscript><style is:inline>.cf{display:none}</style></noscript>
+
+<nav class="cf" aria-label="Filter posts by category">
+  <div class="container">
+    <span class="cf__label" id="cf-label">Select Category</span>
+
+    {/* The track is width: max-content and centred by auto margins, so the row
+        centres while it fits and scrolls once it doesn't — `justify-content:
+        center` on the scroller would clip the first chip out of reach. */}
+    <div class="cf__scroll" tabindex="0" role="group" aria-labelledby="cf-label">
+      <div class="cf__track" data-blog-chips>
+        <a class="cf__chip" href="/blog/" data-cat="" aria-current="true">All Posts</a>
+        {
+          categories.map((slug) => (
+            <a class="cf__chip" href={categoryHref(slug)} data-cat={slug}>
+              {categoryLabel(slug)}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .cf {
+    background: var(--white);
+    padding-block: 56px 0;
+  }
+
+  .cf__label {
+    display: block;
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    text-align: center;
+  }
+
+  /* Scrolls horizontally rather than wrapping. tabindex makes the overflow
+     container keyboard-scrollable, which browsers otherwise only grant to
+     focusable content. */
+  .cf__scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bone-400) transparent;
+
+    /* Top: room for the focus ring, which the scroll container would
+       otherwise clip.
+
+       Bottom: a lane for the scrollbar. Overlay scrollbars take no layout
+       space and paint straight over whatever is at the bottom of the
+       scroller — which was the chips' lower border. The negative margin gives
+       the lane back to the layout, so the bar gets its clearance while the
+       gap down to the cards stays exactly what it was. `.pg` opens with empty
+       top padding, so there is nothing down there to collide with.
+
+       Only the extra is neutralised — the original 4px still counts, so the
+       rhythm below the chips is untouched rather than 4px tighter. */
+    --chip-ring: 4px;
+    --chip-lane: 14px;
+
+    padding-top: var(--chip-ring);
+    padding-bottom: var(--chip-lane);
+    margin-bottom: calc((var(--chip-lane) - var(--chip-ring)) * -1);
+  }
+
+  .cf__track {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+    margin-inline: auto;
+  }
+
+  .cf__chip {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    padding: 0 24px;
+    border-radius: var(--radius-md);
+    background: var(--chip-bg, var(--white));
+    box-shadow: inset 0 0 0 1px var(--chip-bd, var(--bone-300));
+    color: var(--chip-fg, var(--ink-500));
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
+  }
+
+  .cf__chip:hover {
+    --chip-bd: var(--gold-500);
+    --chip-fg: var(--navy-700);
+  }
+
+  /* The selected chip. Weight and colour alone would not carry it, so the
+     tinted fill does the work — the same rule the post sidebar's Categories
+     card follows. */
+  .cf__chip[aria-current] {
+    --chip-bg: color-mix(in srgb, var(--gold-500) 14%, var(--white));
+    --chip-bd: var(--gold-500);
+    --chip-fg: var(--navy-700);
+  }
+
+  @media (max-width: 1000px) {
+    .cf {
+      padding-block: 44px 0;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .cf {
+      padding-block: 36px 0;
+    }
+
+    .cf__label {
+      margin-bottom: 14px;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+    }
+
+    /* The track is wider than a phone, so the scroller runs full-bleed and the
+       row scrolls under the gutter rather than being boxed inside it. */
+    .cf__scroll {
+      margin-inline: calc(var(--container-pad) * -1);
+    }
+
+    /* The gutter belongs to the track, not to the scroller. A scroll
+       container's trailing padding is not part of its scrollable width, so
+       padding here would hold the first chip off the left edge and then let
+       the last one sit flush against the right — a gutter on the way in and
+       none on the way out. On the track it is real content width, so both
+       ends keep the page's margin. */
+    .cf__track {
+      margin-inline: 0;
+      padding-inline: var(--container-pad);
+      gap: 10px;
+    }
+
+    .cf__chip {
+      height: 48px;
+      padding: 0 18px;
+      font-size: 12px;
+    }
+  }
+</style>
