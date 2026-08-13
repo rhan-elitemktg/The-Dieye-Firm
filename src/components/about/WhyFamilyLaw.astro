@@ -1,0 +1,162 @@
+---
+// Why Family Law — the "why he does this" section. Heading block over a
+// portrait-left, copy-right split.
+
+import { Image } from "astro:assets";
+import Eyebrow from "../Eyebrow.astro";
+import portrait from "../../assets/images/papa-portico-portrait.jpg";
+---
+
+<section class="why section" aria-labelledby="why-title">
+  <div class="container">
+    <header class="why__head">
+      <Eyebrow>Why Family Law</Eyebrow>
+      <h2 class="why__title" id="why-title">Why Papa chose <em>family law.</em></h2>
+    </header>
+
+    <div class="why__grid">
+      <div class="why__media">
+        <Image
+          src={portrait}
+          alt="Attorney Papa Dieye outside the courthouse"
+          widths={[400, 571]}
+          sizes="(max-width: 1000px) 100vw, 40vw"
+          format="webp"
+          quality={80}
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <div class="why__body">
+        <p>
+          Family law is the one area of practice where the stakes are never
+          abstract. The outcome of a case decides where children sleep at
+          night, how parents share holidays, and whether a family can move
+          forward with dignity. For Papa, that weight is exactly the point. It
+          is work worth doing well.
+        </p>
+        <p>
+          He built his practice in the heart of the Houston area, rooted in Old
+          Town Pearland, because he wanted to serve the neighbors he lives
+          alongside. Over the years, that has meant guiding families through
+          divorce, custody, child support, property division, and the
+          modifications that come as life keeps changing.
+        </p>
+        <p>
+          Through all of it, one principle has never wavered: meet people with
+          empathy first, because this is their life, not just a case. It is a
+          standard he holds himself to on every matter, from the most amicable
+          agreement to the most difficult trial.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .why {
+    background: var(--white);
+  }
+
+  .why__head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 1080px; /* the project's long-form text ceiling */
+    margin-bottom: 56px;
+  }
+
+  .why__title {
+    margin: 0;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.12;
+  }
+
+  .why__title em {
+    font-style: italic;
+    color: var(--gold-600);
+  }
+
+  /* The copy is capped at 720px so it keeps a readable measure; the photo
+     takes whatever the container has left. */
+  .why__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 720px);
+    column-gap: var(--section-gap);
+    align-items: start;
+  }
+
+  /* The portrait is taller than it is wide, so it's taken out of flow: left
+     in flow it would set the row height to its own full 4:3-and-then-some and
+     leave the copy stranded against a column of dead space. Out of flow, the
+     row is sized by the copy and the frame crops to it. */
+  .why__media {
+    position: relative;
+    align-self: stretch;
+    min-height: 520px;
+    overflow: hidden;
+    background: var(--bone-300);
+    border-radius: var(--radius-sm);
+  }
+
+  .why__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    filter: var(--photo-filter);
+  }
+
+  .why__body p {
+    margin-bottom: 18px;
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  .why__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 1439px) {
+    .why__grid {
+      column-gap: 56px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .why__grid {
+      grid-template-columns: 1fr;
+      row-gap: 40px;
+    }
+
+    /* Stacked, the portrait becomes a wide band rather than a tall column. */
+    .why__media {
+      min-height: 0;
+      aspect-ratio: 4 / 3;
+    }
+
+    .why__media img {
+      object-position: center 22%;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .why__head {
+      margin-bottom: 36px;
+    }
+
+    .why__media {
+      aspect-ratio: 3 / 4;
+    }
+
+    .why__body p {
+      font-size: 17px;
+      line-height: 29px;
+    }
+  }
+</style>

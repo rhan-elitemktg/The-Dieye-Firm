@@ -229,8 +229,11 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
 </div>
 
 <style>
+  /* A shade deeper than the info bar above it, so the header reads as two
+     tones rather than one slab. This matches the state the overlay header
+     settles into once the page is scrolled. */
   .mainnav {
-    background: var(--navy-700);
+    background: var(--navy-900);
   }
 
   .mainnav__inner {

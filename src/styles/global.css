@@ -315,17 +315,10 @@ ul, ol { list-style-position: inside; }
   .section { padding-block: 48px; }
 }
 
-/* Eyebrow / kicker — the signature gold-bird kicker device.
-  (Icon added per-section as needed; this sets the type + rule.) */
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  font: var(--fw-heavy) 18px/1.2 var(--font-ui);
-  letter-spacing: var(--eyebrow-tracking);
-  text-transform: uppercase;
-  color: var(--ink-500);
-}
+/* The gold-bird kicker lives in src/components/Eyebrow.astro rather than here.
+   It was never more than type + an image, and every section that wanted one
+   also wanted the bird, so a component that carries both beats a class that
+   carries half of it. */
 
 /* ------------------------------------------------------------
    Rich text (.prose) — for editor-authored copy.
