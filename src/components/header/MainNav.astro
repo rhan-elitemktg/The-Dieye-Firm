@@ -4,12 +4,58 @@
 // Nav labels/hrefs come from the live dieyelaw.com source; Family Law is a
 // curated shortlist with a "View All" link to the full family-law index.
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
 import logoLight from "../../assets/images/logo-light.png";
 import { getFirmDetails } from "../../sanity/firmDetails";
+import { areaHref } from "../practice-areas/practiceAreas";
 
 const { phone, serviceAreas } = await getFirmDetails();
 
-const nav = [
+/* The Family Law flyout: a curated shortlist of five, in this order, with
+   everything else behind "View All +". Each practice-area page carries the
+   full index of 31 in its sidebar, so the nav does not have to.
+
+   Order is editorial and deliberate — it is not alphabetical like the sidebar,
+   because a menu ranks and an index lists.
+
+   Entries are keyed on collection id rather than hardcoded hrefs, so a page
+   that moves takes its nav link with it, and a typo or a removed page fails
+   the build instead of shipping a dead menu item. `label` overrides the
+   collection's navLabel where the nav wants it shorter. */
+const FAMILY_LAW_NAV: { id: string; label?: string }[] = [
+  { id: "divorce" },
+  { id: "child-custody" },
+  { id: "child-support" },
+  { id: "domestic-violence" },
+  /* Shortened from the collection's "Protective & Restraining Orders": the nav
+     row is tight, and the two are the same thing to a visitor. */
+  { id: "protective-restraining-orders", label: "Protective Orders" },
+];
+
+const practiceAreas = await getCollection("practiceAreas");
+
+const familyLawItems = FAMILY_LAW_NAV.map((entry) => {
+  const area = practiceAreas.find((candidate) => candidate.id === entry.id);
+  if (!area) {
+    throw new Error(
+      `MainNav: no practice area "${entry.id}". Either the id is wrong or the ` +
+        `page is gone from the last scrape — fix FAMILY_LAW_NAV in this file.`
+    );
+  }
+  return { label: entry.label ?? area.data.navLabel, href: areaHref(area) };
+});
+
+/* `href` is optional: "Resources" is a grouping label with no page behind it,
+   so it renders as a button rather than a link. Everything else has a real
+   destination, even where that destination isn't built yet. */
+type NavItem = {
+  label: string;
+  href?: string;
+  viewAll?: { label: string; href: string };
+  items?: { label: string; href: string }[];
+};
+
+const nav: NavItem[] = [
   {
     label: "About Us",
     href: "/about-us/",
@@ -20,19 +66,12 @@ const nav = [
     ],
   },
   {
+    /* /family-law/ is not built yet — it will become the practice-area index,
+       and it has a comp waiting. Until then this link 404s, knowingly. */
     label: "Family Law",
     href: "/family-law/",
-    viewAll: { label: "View All Family Law", href: "/family-law/" },
-    items: [
-      { label: "Divorce", href: "/family-law/divorce/" },
-      { label: "Child Custody", href: "/family-law/child-custody/" },
-      { label: "Child Support", href: "/family-law/child-support/" },
-      { label: "Property Division", href: "/family-law/property-division/" },
-      { label: "Spousal Support", href: "/family-law/spousal-support/" },
-      { label: "Paternity", href: "/family-law/paternity/" },
-      { label: "Modifications & Enforcement", href: "/family-law/modifications-enforcement/" },
-      { label: "Protective Restraining Orders", href: "/family-law/protective-restraining-orders/" },
-    ],
+    viewAll: { label: "View All +", href: "/family-law/" },
+    items: familyLawItems,
   },
   {
     label: "Service Areas",
@@ -42,7 +81,14 @@ const nav = [
     items: serviceAreas.map((area) => ({ label: area.navLabel, href: area.href })),
   },
   { label: "Testimonials", href: "/testimonials/" },
-  { label: "Blog", href: "/blog/" },
+  {
+    /* A grouping label, not a page — deliberately no href. The Blog is its only
+       child today; the name exists so guides, FAQs and video can join it
+       without renaming the nav again. Rendered as a button so it is still
+       reachable by keyboard, since the flyout opens on :focus-within. */
+    label: "Resources",
+    items: [{ label: "Blog", href: "/blog/" }],
+  },
   { label: "Contact Us", href: "/contact-us/" },
 ];
 
@@ -54,16 +100,19 @@ const nav = [
 const normalise = (path: string) => (path.endsWith("/") ? path : `${path}/`);
 const currentPath = normalise(Astro.url.pathname);
 
-const isActive = (href: string) => {
+/* A hrefless item ("Resources") is never active in its own right — only
+   through its children, which isBranchActive already covers. */
+const isActive = (href?: string) => {
+  if (!href) return false;
   const target = normalise(href);
   // "/" would prefix-match everything, so it only ever matches exactly.
   return target === "/" ? currentPath === "/" : currentPath.startsWith(target);
 };
 
-const isExact = (href: string) => normalise(href) === currentPath;
+const isExact = (href?: string) => Boolean(href) && normalise(href!) === currentPath;
 
 // True when the item itself or any of its children is active.
-const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
+const isBranchActive = (item: NavItem) =>
   isActive(item.href) || (item.items ?? []).some((sub) => isActive(sub.href));
 ---
 
@@ -77,14 +126,24 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
       {nav.map((item) =>
         item.items ? (
           <div class:list={["navitem", "navitem--has-drop", { "is-active": isBranchActive(item) }]}>
-            <a
-              class="navitem__link"
-              href={item.href}
-              aria-current={isExact(item.href) ? "page" : undefined}
-            >
-              {item.label}
-              <span class="caret" aria-hidden="true">&#9662;</span>
-            </a>
+            {/* A grouping label with no page behind it is a button, not a link
+                — but it still has to be focusable, because the flyout opens on
+                :focus-within. */}
+            {item.href ? (
+              <a
+                class="navitem__link"
+                href={item.href}
+                aria-current={isExact(item.href) ? "page" : undefined}
+              >
+                {item.label}
+                <span class="caret" aria-hidden="true">&#9662;</span>
+              </a>
+            ) : (
+              <button class="navitem__link" type="button" aria-haspopup="true">
+                {item.label}
+                <span class="caret" aria-hidden="true">&#9662;</span>
+              </button>
+            )}
             <div class="nav-drop">
               <ul>
                 {item.items.map((sub) => (
@@ -161,16 +220,31 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
           item.items ? (
             <li class:list={["mobile-nav__item", { "is-expanded": isBranchActive(item) }]}>
               <div class="mobile-nav__row">
-                <a
-                  class:list={["mobile-nav__link", { "is-active": isBranchActive(item) }]}
-                  href={item.href}
-                  aria-current={isExact(item.href) ? "page" : undefined}
-                >
-                  {item.label}
-                </a>
+                {/* No page behind it, so the label toggles the group rather
+                    than pretending to navigate. data-mobile-toggle marks both
+                    this and the chevron for the script below. */}
+                {item.href ? (
+                  <a
+                    class:list={["mobile-nav__link", { "is-active": isBranchActive(item) }]}
+                    href={item.href}
+                    aria-current={isExact(item.href) ? "page" : undefined}
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <button
+                    class="mobile-nav__link mobile-nav__link--group"
+                    type="button"
+                    data-mobile-toggle
+                    aria-expanded={isBranchActive(item) ? "true" : "false"}
+                  >
+                    {item.label}
+                  </button>
+                )}
                 <button
                   class="mobile-nav__toggle"
                   type="button"
+                  data-mobile-toggle
                   aria-expanded={isBranchActive(item) ? "true" : "false"}
                   aria-label={`Toggle ${item.label} submenu`}
                 >
@@ -282,6 +356,15 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
     color: rgba(255, 255, 255, 0.9);
     white-space: nowrap;
     transition: color var(--dur-base) var(--ease-out);
+  }
+
+  /* "Resources" renders as a <button> because it has no page. Strip the UA's
+     button chrome so it sits in the row indistinguishably from the links. */
+  button.navitem__link {
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
   }
 
   .navitem__link:hover {
@@ -608,6 +691,15 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
     transition: color var(--dur-base) var(--ease-out);
   }
 
+  /* Same reset as the desktop trigger. Left-aligned because a button centres
+     its text by default and every row beside it is left-aligned. */
+  button.mobile-nav__link {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+
   .mobile-nav__link:hover,
   .mobile-nav__link.is-active {
     color: var(--gold-500);
@@ -728,8 +820,20 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
     }
   }
 
-  /* Small Desktop — shrink so the full row still fits down to ~1200px. */
-  @media (max-width: 1439px) {
+  /* Small Desktop — shrink so the full row still fits down to ~1200px.
+
+     The ceiling is 1520, not the usual 1439, and the reason is counter-
+     intuitive: --container-pad jumps from 40px to 100px at 1440, so the
+     content box gets NARROWER as the viewport gets wider — 1359px at 1439,
+     1240px at 1440. The header is the only row wide enough to notice, and the
+     full-size nav needs ~1258px, so it overflows from 1440 until the viewport
+     has grown enough to pay back the extra gutter (~1458). Holding the compact
+     tier to 1520 covers that band with room to spare.
+
+     Same class of exception as the 1200px collapse documented in AGENTS.md,
+     and for the same reason: this row's width is driven by its contents, not
+     by the layout grid. */
+  @media (max-width: 1520px) {
     .mainnav__inner { gap: 20px; }
     .mainnav__nav { gap: 15px; }
     .navitem__link { font-size: 13px; letter-spacing: 0.03em; gap: 4px; }
@@ -799,12 +903,17 @@ const isBranchActive = (item: { href: string; items?: { href: string }[] }) =>
       if (e.key === "Escape" && menu.classList.contains("is-open")) closeMenu();
     });
 
-    // Accordion sub-menus
-    menu.querySelectorAll(".mobile-nav__toggle").forEach((btn) => {
+    /* Accordion sub-menus. A group with no page of its own ("Resources") has
+       two toggles on the row — the label and the chevron — so the new state is
+       written to every toggle in that row, not just the one clicked. */
+    menu.querySelectorAll("[data-mobile-toggle]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const li = btn.closest(".mobile-nav__item");
+        if (!li) return;
         const expanded = li.classList.toggle("is-expanded");
-        btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+        li.querySelectorAll("[data-mobile-toggle]").forEach((t) =>
+          t.setAttribute("aria-expanded", expanded ? "true" : "false")
+        );
       });
     });
 

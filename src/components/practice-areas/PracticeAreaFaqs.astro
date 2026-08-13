@@ -1,0 +1,167 @@
+---
+// PracticeAreaFaqs — the Q&A block that closes a page's main column.
+//
+// Content-driven, unlike home/Faq.astro whose six questions are hardcoded.
+// These come from the source page's own schema.org/FAQPage microdata, which
+// the scraper lifts into frontmatter — only /family-law/mediation-vs-litigation/
+// carries any today, so 30 of the 31 pages render nothing here.
+//
+// Native <details name> gives exclusive open/close, keyboard support and
+// find-in-page for free, the same as the homepage accordion. No JS.
+//
+// The JSON-LD is generated from the same array as the markup so the two can't
+// drift — the pattern home/Faq.astro and blog/[slug].astro both already use.
+
+interface Props {
+  faqs: { question: string; answer: string }[];
+  /* Scopes the exclusive-accordion group and the heading id. Only one of these
+     renders per page today, but a hardcoded name would silently link two
+     accordions together the day that changes. */
+  name?: string;
+}
+
+const { faqs, name = "pa-faq" } = Astro.props;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};
+---
+
+{
+  faqs.length > 0 && (
+    <section class="pfaq" aria-labelledby={`${name}-title`}>
+      <h2 class="pfaq__title" id={`${name}-title`}>
+        Frequently Asked Questions
+      </h2>
+
+      <ul class="pfaq__list">
+        {faqs.map((item, i) => (
+          <li>
+            <details class="pfaq__item" name={name} open={i === 0}>
+              <summary class="pfaq__q">
+                <span>{item.question}</span>
+                <span class="pfaq__marker" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M12 5v14M5 12h14"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </span>
+              </summary>
+              <div class="pfaq__a">
+                <p>{item.answer}</p>
+              </div>
+            </details>
+          </li>
+        ))}
+      </ul>
+
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    </section>
+  )
+}
+
+<style>
+  .pfaq {
+    margin-top: 56px;
+    /* Lets the open/close transition interpolate to `auto` height, the same
+       way the homepage accordion does. Scoped here, not on :root. */
+    interpolate-size: allow-keywords;
+  }
+
+  .pfaq__title {
+    margin: 0 0 24px;
+    font-size: clamp(28px, 1.6vw + 1rem, 38px);
+    line-height: 1.15;
+    color: var(--navy-700);
+  }
+
+  .pfaq__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pfaq__item {
+    border-bottom: 1px solid var(--bone-300);
+  }
+
+  .pfaq__list > li:first-child .pfaq__item {
+    border-top: 1px solid var(--bone-300);
+  }
+
+  .pfaq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 0;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--navy-700);
+  }
+
+  /* Safari still paints the disclosure triangle without this. */
+  .pfaq__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .pfaq__q:hover {
+    color: var(--gold-600);
+  }
+
+  .pfaq__item[open] .pfaq__q {
+    color: var(--gold-600);
+  }
+
+  .pfaq__marker {
+    display: flex;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    color: var(--gold-500);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .pfaq__marker svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* A plus that rotates a quarter turn into a cross on open. */
+  .pfaq__item[open] .pfaq__marker {
+    transform: rotate(45deg);
+  }
+
+  .pfaq__a {
+    padding: 0 0 22px;
+  }
+
+  .pfaq__a p {
+    margin: 0;
+    max-width: 60em;
+    font-family: var(--font-ui);
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink-500);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pfaq__marker {
+      transition: none;
+    }
+  }
+</style>

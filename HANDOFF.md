@@ -12,92 +12,140 @@ _Last rewritten: 2026-08-13, end of session._
 
 ## Start here
 
-**The blog is finished.** `/blog/` and `/blog/[slug]/` are both built and
-verified, and no route in the blog dangles any more.
+**The practice-area section is built.** 31 pages under `/family-law/`, ingested
+from the live site and rendered by one template with the new sidebar.
 
-**Next task: the 8 practice-area detail pages** — the largest undesigned block
-left, and the next-hardest template after the interior main+sidebar shell that
-the blog post already banked. **They have no comp.** Nothing can start until
-Rhan supplies direction or design; see "Waiting on Rhan".
+**Next task: the practice-area index at `/family-law/`.** It 404s today, and it
+is now by some distance the most-linked missing page on the site — the nav item,
+the "View All +", the "View All +" inside each branch sidebar, plus a kicker and
+a card title on every one of the 31 pages. It has a comp
+("Practice Areas index.dc.html"), so it needs no new copy and nothing is
+blocking it.
 
-The Practice Areas *index* and Testimonials both have comps and could be built
-today if the practice-area detail pages stay blocked. Both reuse `ByTheNumbers`
-and `WhatDrivesUs`, which are still waiting to be picked up.
+After that: the About Us group and the service-area pages, both still
+undesigned.
 
 ---
 
 ## Where we are
 
-Branch `blog_index`, branched from the `blog_post` merge (`a28e32b`).
-**Uncommitted — nothing pushed, no upstream set.** `blog_post` merged to
-`master` as PR #17.
+Branch `pa_single`, branched from `master` at `19fcf05`. Pushed with an upstream
+set; open a PR when you're happy with it.
 
-Build passes. The Blog index behaviour check is 46/46 on every entry path
-(unfiltered, each category, and a bogus `?category=` value). No horizontal
-overflow at 1920 / 1440 / 1000 / 768 / 430, no broken images, and the blog
-post's two-form check still passes 19/19.
+Build passes at **51 pages** (20 + 31). No horizontal overflow at
+1920 / 1440 / 1000 / 768 / 430 on the homepage, blog index, a blog post,
+`/about-us/papa-dieye/` or any of the three practice-area sidebar states. The
+two-form check passes 19/19 on a practice-area page and still 19/19 on a blog
+post.
 
 ---
 
 ## What landed this session
 
-**The Blog index (`/blog/`)** — header, featured panel, category filter, card
-grid with Load More, then `WhatDrivesUs`. Six changes Rhan asked for, all in:
+**`scripts/scrape-practice-areas.mjs`** — sibling of the blog scraper.
+31 pages, ~34,000 words, into `src/content/practice-areas/`. Parse coverage
+82–98%; the 82% is `mediation-vs-litigation`, and that gap is its five Q&A pairs
+moving into frontmatter rather than anything lost.
 
-1. The featured post is pinned and never filtered.
-2. The chips sit **below** the featured panel, so the order shows the panel is
-   outside their scope rather than ignoring them.
-3. The chip row scrolls horizontally rather than wrapping.
-4. Grid cards are `--bone-50` cream on the white page.
-5. Filtered cards animate in — 10px rise and fade, staggered 45ms and capped.
-6. Load More hides the moment nothing is left, per filter.
-7. Arriving from a category link opens on the chip row rather than the top of
-   the page. Clicking a chip in place does not move the page.
+**The template** — `src/pages/family-law/[...slug].astro` plus
+`src/components/practice-areas/`: `PracticeAreaHeader`, `PracticeAreaSidebar`,
+`FamilyLawNav`, `AreasWeServe`, `PracticeAreaFaqs`, `practiceAreas.ts`.
 
-**`PostCard.astro`** — the article card, extracted from `RelatedPosts` and now
-shared by the navy band and the white index grid. `tone="navy"` fills white,
-`tone="light"` fills cream. `RelatedPosts` renders identically to before.
+**The sidebar**, modelled on a reference screenshot Rhan supplied: attorney
+card, enquiry form, the Family Law menu, Areas We Serve.
 
-**`scripts/checks/blog-index.js`** — behaviour check in the repo's existing
-style. Also tests FilterBoot's pre-paint CSS **on its own**, by putting the
-page back into the state those rules were written for; that failure would
-otherwise be invisible after the module boots.
+**Nav changes** — the Family Law flyout is now a curated five (Divorce, Child
+Custody, Child Support, Domestic Violence, Protective Orders) plus "View All +",
+keyed on collection id rather than hardcoded hrefs. "Blog" became **"Resources"**
+with Blog beneath it.
 
-**A `featured` flag** on the collection schema, optional, falling back to the
-newest post. Currently set on **"Preparing Emotionally for Mediation"** — the
-post the comp itself features, and one with real artwork. One line to move.
+**Reuse banked:** `SidebarCard` and `AuthorCard` gained optional props rather
+than forks, so the blog sidebar is untouched. `CaseEvaluationCard`, `.prose` and
+the interior grid came across unchanged.
 
-**Editorial overrides in the scraper.** `scrape-blog.mjs` rewrites every post
-file on each run, so anything hand-edited into frontmatter is lost on the next
-scrape. Two things now live in the script instead, keyed by slug:
-`CATEGORY_OVERRIDES` and `FEATURED_SLUG`. The August post is categorised
-`child-custody` there — it had none at all, so it could only ever appear under
-"All Posts". Drop the override once the category is set on the live site.
+---
+
+## Decisions made — don't relitigate
+
+**Sourcing**
+
+- **The live site is the source, not the SiteSucker mirror.** Rhan initially
+  asked for the mirror; it turned out to be missing `/family-law/parental-rights/`
+  entirely — a 1,545-word page published after the 20 July capture. The mirror is
+  still cross-checked on every run so a *removed* page gets reported.
+- **URLs are preserved exactly**, so this section needs no redirects. The blog
+  needed 16 because Scorpion cut its slugs mid-word; these are clean.
+- **The `/family-law/` index is not in the collection.** It has a comp, and a
+  comp outranks a scrape wherever one exists.
+- **CTAs were stripped** — 61 centred, 6 inline plugs. Zero phone numbers remain
+  in any of the 31 files. Four meta descriptions ended "Call (832) 299-1990" and
+  were trimmed for the same reason: frontmatter can't reach `getFirmDetails()`.
+- **Five links to old Scorpion blog URLs were resolved** through
+  `blog-redirects.json` to their final routes, so no internal link relies on a
+  301 hop.
+
+**Structure**
+
+- **The sidebar has two states.** A page with children lists only its children;
+  everything else lists all 18 top-level areas. Rhan's rule, and it is why the
+  children-in-a-grid idea was dropped — the expanding branch already makes
+  children reachable, and from every page in the branch rather than only the
+  parent.
+- **A child page gets the full index with its parent pre-opened**, not its
+  siblings alone. Rhan's rule covered "has children" and "doesn't"; a child page
+  is the third case, and landing with your position visible beats landing behind
+  a `+` you have to find.
+- **A branch page gets a "View All +" footer link.** Not in the reference
+  screenshot. Without it the Divorce card is a dead end — 10 children and no way
+  back to the other 16.
+- **Order is alphabetical with the `+` rows first.** Grouping the two expandable
+  rows reads as structure; scattered down an 18-row list they read as
+  inconsistency.
+- **Sort on `navLabel`, never `title`.** Every title is SEO-shaped ("Pearland
+  Divorce Lawyer"), so sorting on it files two thirds of the section under P.
+- **"Resources" has no page of its own**, so it renders as a `<button>` — the
+  flyout opens on `:focus-within` and a `<span>` would be unreachable by
+  keyboard. On mobile the label toggles the group and both toggles keep
+  `aria-expanded` in sync.
+- **Related Blog Posts was removed** from the bottom of practice-area pages;
+  something else goes there later. The now-unused `relatedByCategory` and
+  `blogCategoryFor` helpers were deleted rather than left as dead code — git has
+  them.
+
+**Naming**
+
+- **"Family Law", not "Practice Areas", in the nav** — and the URL stays
+  `/family-law/`, because all 31 detail pages live under it and the nav's
+  active-state helpers match on path prefix.
+- Two nav labels are deliberately shorter than the collection's: **"Protective
+  Orders"** for Protective & Restraining Orders, and the sidebar still says the
+  long form. Same page, different room.
 
 ---
 
 ## Waiting on Rhan
 
-1. **The 8 practice-area pages need design or direction.** Blocking the next
-   task. `_export-practice-areas.dc.html` is *not* a detail template.
-2. **The August post is categorised by us, not by the client.** "How the 2025
-   Texas Fit Parent Presumption Affects Your Custody Rights" (2026-08-06) was
-   published with no category at all, so it is assigned `child-custody` via
-   `CATEGORY_OVERRIDES` in the scraper. Worth setting on the live site so the
-   override can go away — and worth a glance in case a different category was
-   intended.
-3. **That same post still has no artwork**, which is why it isn't the featured
-   post. It falls back to the generic `blog-img.jpg` at 436x235; in the grid it
-   is visibly softer and greyer than its neighbours.
-4. **The Key Takeaways need attorney review before launch.** Unchanged. Wording
-   lives in one file, `scripts/add-takeaways.mjs`.
-5. **Two near-duplicate posts** — `understanding-child-custody-laws` (2025-01)
-   and `understanding-child-custody-laws-in-pearland-texas` (2026-07). Not
-   urgent.
-6. **The other undesigned pages** — About Us index, Choosing a Family Law
-   Attorney, The Difference, the service-area pages.
-7. **Branch granularity** — one branch per page, or one per template group?
-   Still unanswered.
+1. **~24 of the 31 pages close with a "come talk to us" section** — "Contact Our
+   Firm for Sound Legal Counsel", "Ready to Take the Next Step?". The template
+   already has a sidebar form and the sitewide Contact section, so these are a
+   third ask. Kept deliberately: several pages' final h2 is genuine content
+   ("How a Divorce Modification Is Filed in Texas"), so it needs an editorial
+   eye, and it is trivial to strip later but impossible to recover if dropped
+   now.
+2. **`modifications-enforcement` is 290 words**, the thinnest of the 31. It is
+   also the only page where the sidebar visibly overhangs the article (~780px).
+   More copy fixes it better than a layout change would.
+3. **The Key Takeaways still need attorney review before launch.** Unchanged.
+   Wording lives in `scripts/add-takeaways.mjs`.
+4. **The August blog post is still categorised by us, not the client** —
+   `child-custody` via `CATEGORY_OVERRIDES`, and still without artwork. Note it
+   is about the 2025 Texas Fit Parent Presumption, the same subject as the new
+   `/family-law/parental-rights/` page, so the client is actively building that
+   cluster.
+5. **Two near-duplicate blog posts** — `understanding-child-custody-laws` (2025-01)
+   and `understanding-child-custody-laws-in-pearland-texas` (2026-07).
+6. **Branch granularity** — one branch per page, or one per template group?
+   Still unanswered; this session used one branch for the whole section.
 
 ---
 
@@ -105,30 +153,26 @@ scrape. Two things now live in the script instead, keyed by slug:
 
 Deferred on purpose, and easy to lose if it isn't written down:
 
-**"Updated on" instead of "Posted on".** The attribution card should switch its
-label once a post has actually been revised. It stays "Posted on" today because
-the ingested archive carries only a publish date, and labelling that as an
-update date would assert something untrue.
+**"Updated on" instead of "Posted on".** The blog attribution card should switch
+its label once a post has actually been revised. It stays "Posted on" today
+because the ingested archive carries only a publish date.
 
 1. An `updated` field on the `post` document (optional), alongside `date`.
 2. The card picks the label: `updated` present **and** later than `date` →
-   "Updated on" + `updated`; otherwise "Posted on" + `date`. Both still need
-   `timeZone: "UTC"` (see the date gotcha in `AGENTS.md`).
-3. `BlogPosting` JSON-LD in `src/pages/blog/[slug].astro` gains `dateModified`
-   — that is the half search engines actually read.
+   "Updated on"; otherwise "Posted on". Both need `timeZone: "UTC"`.
+3. `BlogPosting` JSON-LD gains `dateModified` — the half search engines read.
 
-The source pages already carry a `dateModified` in their JSON-LD;
-`scripts/scrape-blog.mjs` reads `datePublished` only. One-line change plus a
-re-scrape, done as part of the migration so the field arrives with the schema
-that uses it.
+The source pages already carry `dateModified` in their JSON-LD;
+`scrape-blog.mjs` reads `datePublished` only.
 
-**`featured` is already the shape Sanity needs** — a boolean on the post
-document, with the index falling back to newest when nothing is flagged.
+**`AuthorCard` already takes an optional date** — practice-area pages render it
+without one. That is the same switch the above needs.
 
-**Categories are still derived from posts**, not modelled. `allCategories()`
-reads them off the archive, so a `category` document type in the Sanity pass
-replaces that function and nothing else. `categoryLabel()`'s map is the seed
-data for it.
+**Both collections are already the shape Sanity needs.** `practiceArea` wants
+`title` / `navLabel` / `subtitle` / `parent` / `faqs`; the parent/child relation
+is a reference, not a path. **Categories are still derived from posts**, not
+modelled — `allCategories()` reads them off the archive, and `categoryLabel()`'s
+map is the seed data for a `category` document type.
 
 ---
 
@@ -136,132 +180,38 @@ data for it.
 
 | Link | Lives in | Lands with |
 |---|---|---|
-| `/family-law/child-custody/relocation-case/` | in-body links | practice areas |
-| `/family-law/child-custody/visitation-possession/` | in-body links | practice areas |
-| `/family-law/grandparent-rights/` | in-body links | practice areas |
-| `/family-law/mediation-vs-litigation/` | in-body links | practice areas |
-| `/harris-county-family-law-attorney/` | in-body link | service areas |
+| `/family-law/` | nav, "View All +", every PA page's kicker and card title | the practice-area index |
+| `/harris-county-family-law-attorney/child-custody/` | PA in-body links | service areas |
+| `/harris-county-family-law-attorney/child-support/` | PA in-body links | service areas |
 
-All five come from the scraped posts' own internal links, rewritten from the
-old site's URLs onto our route map. The scraper prints this list on every run.
-**Worth a link audit once the interior build is done.**
-
-`/blog/` and `/blog/categories/<slug>/` are both gone from this table — the
-first because it exists, the second because it no longer does. See below.
-
----
-
-## Decisions made — don't relitigate
-
-**Blog index**
-
-- **There are no category archive routes.** A category link goes to
-  `/blog/?category=<slug>` and the index applies the filter before first paint.
-  Rhan's call: clicking a category in a post's sidebar should land on the blog
-  and auto-filter. It also avoids four thin archive pages duplicating the same
-  16 posts — one of which would have held a single article.
-- **`categoryHref()` was repointed** at that query URL, which silently updated
-  both consumers (`PostHeader`'s kicker, `PostSidebar`'s Categories card).
-- **The featured post is pinned above the filter**, never filtered, and never
-  repeated in the grid — `splitFeatured()` returns both halves from one split
-  so the two can't disagree.
-- **Which post is featured is editorial, not date-driven.** The `featured` flag
-  wins over recency because the newest post is sometimes the one without
-  artwork, and the panel renders its image half-width and ~560px tall.
-- **The chip row scrolls; it does not wrap.** The track is `width: max-content`
-  centred by auto margins, so it centres while it fits and scrolls once it
-  doesn't — `justify-content: center` on a scroller clips the first chip out of
-  reach. On mobile the scroller runs full-bleed and **the gutter lives on the
-  track, not on the scroller**: a scroll container's trailing padding is not
-  part of its scrollable width, so putting it there gives a margin on the way
-  in and none on the way out — the last chip ends up flush against the screen.
-- **The scroller's bottom padding is a scrollbar lane, and its negative bottom
-  margin gives that space back to the layout.** Overlay scrollbars take no
-  layout space and paint over whatever sits at the bottom of the scroller,
-  which was the chips' lower border. The pair buys the bar 14px of clearance
-  while leaving the gap down to the cards at exactly 68px / 52px. Deleting
-  either half breaks something: drop the padding and the bar covers the chips
-  again, drop the margin and the section grows.
-- **Filtering is client-side over markup that is already in the document.**
-  All 15 grid posts render once; filtering and paging are visibility passes.
-  With 16 posts that beats a round trip and makes a pre-filtered arrival free.
-- **`FilterBoot` exists to stop the flash.** Arriving pre-filtered is a primary
-  path now, so a blocking head script stamps the filter onto `<html>` and
-  generated CSS hides the non-matching cards in the same pass. Both are keyed
-  on `data-blog-boot`, which the module removes the instant it has applied the
-  real state — after that the rules are inert. Without it the browser paints
-  all 15 posts and collapses them a moment later, which reads as a bug.
-- **Batches are 9 then 6** — multiples of three, so the 3-up desktop grid never
-  ends on a short row. The module reads the initial batch off the markup rather
-  than repeating the number.
-- **Chips are links, not buttons**, so a filter is a shareable address and
-  cmd-click still opens a new tab. They push real history entries, so Back
-  restores the previous filter instead of leaving the page.
-- **The chip row is hidden without JS**, like Load More. Both would otherwise
-  claim to do something they can't; the grid shows the whole archive in that
-  case, which is a complete answer on its own.
-- **`.pg__more[hidden]` is declared explicitly.** `.btn` sets
-  `display: inline-flex`, which outranks the UA stylesheet's `[hidden]` rule —
-  without it Load More stays on screen with nothing left to load.
-- **Cards animate on a wrapper, not on themselves.** `PostCard` already owns a
-  `translateY` on hover; a second transform on the same element would fight it.
-- **The comp's six categories are placeholder.** The archive uses four, derived
-  from the posts. Property Division and Modifications don't exist here.
-- **A filtered arrival scrolls to the chip row; an in-place chip click does
-  not.** Someone landing from a category link asked for a category, and the
-  chips are what show which one they got — but if you are already looking at
-  the row you clicked, moving the page under you is just disorienting. The
-  scroll waits for `load`: the module is deferred, and a scroll issued before
-  the browser has settled a fresh navigation is silently undone.
-
-**Blog post — still standing**
-
-- **Blog URLs are flat** — `/blog/<slug>/`, re-slugged from each post's `h1`,
-  because the old Scorpion CMS cut every slug at 48 characters mid-word. 16
-  generated 301s in `vercel.json` cover the old paths.
-- **Scrape the live site, not the mirror.** The mirror is a 2026-07-20 snapshot.
-- **Posts are bylined "The Dieye Firm"**, so the sidebar card is an *attorney*
-  card introducing Papa, not an author card claiming he wrote the post.
-- **Markdown now, Sanity later.** The collection schema is the shape a `post`
-  document will return.
-- **In-article CTA blocks were stripped** — they hardcoded a phone number into
-  16 files. The number renders from `firmDetails` instead.
-- **Heading levels were normalised** to h2/h3.
-- **Dates display in en-GB** (`01 April 2026`), matching the built homepage.
-- **The related grid gains a 2-up tier** at ≤1000px; the comp jumps 3-up to 1-up.
-- **The deferred in-article components stay deferred** — navy callouts,
-  get-in-touch bar, in-article attorney card, fact-checked bar, pull quote.
-- **The post page is white**, so light cards are `--bone-50` cream. The index
-  grid follows the same rule for the same reason.
-- **The sidebar is not sticky**, and its order is fixed.
-- **The byline row under the `h1` is gone** — it lives in the sidebar.
-- **`Layout` owns lead-form behaviour**, bound once for the document. Form
-  components emit no script of their own.
+The four family-law routes that were dangling last session —
+`relocation-case`, `visitation-possession`, `grandparent-rights`,
+`mediation-vs-litigation` — **all resolve now**. Both scrapers print their own
+dangling list on every run.
 
 ---
 
 ## Things that would surprise you
 
-- **The comp's phone number is a typo** — `tel:+18322997990` vs the real
-  `(832) 299-1990`. Recorded in `AGENTS.md`.
-- **`_export-practice-areas.dc.html` is not a detail template.** It is the
-  Practice Areas *index* comp with an asset-resolver wrapper.
+- **The content box gets narrower as the viewport crosses 1440.** Documented in
+  `AGENTS.md`; it broke the header sitewide the moment a nav label got longer,
+  and it fixed itself again by 1458, so a sweep that skipped 1440 would have
+  missed it. The header's compact tier now runs to 1520px.
+- **A practice-area page's body lives in two containers**, and one of them is
+  behind a "read more". Also in `AGENTS.md` — it is the single easiest way to
+  silently lose half the section.
+- **`npm run probe` cannot see the Blog index's arrival scroll.** `settle()`
+  ends in `window.scrollTo(0, 0)`. Drive `launch()` directly to test it. The
+  note is in `scripts/checks/blog-index.js` too.
+- **`_export-practice-areas.dc.html` is still not a detail template.** It is the
+  index comp with an asset-resolver wrapper — and the index is the next build,
+  so this one finally matters.
 - **`CLAUDE.md` is a symlink to `AGENTS.md`.** Edit `AGENTS.md`.
-- **Neither blog template has a hero.** Both open directly under a solid
-  `<Header />` on white. Don't add one.
-- **The comps live at** `~/Downloads/The Dieye Firm/The Dieye Firm Claude Project/`
-  and have moved once already.
-- **Reuse already banked:** `ByTheNumbers` and `WhatDrivesUs` are still waiting
-  on Practice Areas index and Testimonials. `PostCard` now covers any article
-  card on either surface. Check `src/components/about/` and
-  `src/components/blog/` before building anything that sounds familiar.
-- **Rhan runs the dev server from his IDE.** Check for one on 4321 and use it
-  rather than starting a second.
-- **`npm run probe` cannot see the Blog index's arrival scroll.** `probe` calls
-  `browser.settle()`, whose lazy-iframe sweep ends in `window.scrollTo(0, 0)`,
-  and this page has an iframe (the video modal). Any scroll the page sets for
-  itself is wiped before the check runs, so the feature reads as dead when it
-  isn't. Drive `launch()` directly and skip `settle()` to test it. This cost a
-  round of false debugging — the note is in `scripts/checks/blog-index.js` too.
-- **`scrape-blog.mjs` rewrites every post file on every run.** Hand edits to
-  frontmatter do not survive. Editorial decisions go in the script.
+- **No practice-area page has a hero**, same as both blog templates. They open
+  directly under a solid `<Header />` on white. Don't add one.
+- **Rhan runs the dev server from his IDE.** Check 4321 before starting a second.
+- **`.pa-cache/` and `.blog-cache/` are gitignored fetch caches.** Delete either
+  to force a refresh; both scrapers take `--refetch`.
+- **Only one page in the section has FAQs** — `mediation-vs-litigation`, five of
+  them, lifted from schema.org microdata. The extractor is generic, so more will
+  appear on their own if the client adds them.
