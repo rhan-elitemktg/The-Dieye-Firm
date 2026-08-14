@@ -4,6 +4,7 @@ navLabel: "Paternity"
 seoTitle: "Pearland Paternity Lawyer"
 description: "Need a Pearland paternity attorney? Trust The Dieye Firm for expert legal support in establishing paternity rights. Contact us today!"
 subtitle: "Guidance on Establishing Paternity in Pearland, TX"
+parent: "parental-rights"
 legacyPath: "/family-law/paternity/"
 ---
 

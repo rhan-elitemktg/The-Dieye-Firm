@@ -161,10 +161,21 @@ the same things piecemeal and worse. `HANDOFF.md` tracks the current ranking.
 - **`/family-law/` itself is not in the collection.** It has a comp, so it is
   built from that, not scraped. Until it exists it 404s — knowingly, and it is
   now the most-linked missing page on the site.
-- **The sidebar has two states**, both in `FamilyLawNav.astro`: a page with
-  children lists only its children; everything else lists all 18 top-level
-  areas, with a `+` on the two that have children and an arrow on the rest.
-  Order is alphabetical with the `+` rows first.
+- **The sidebar menu is the same on all 31 pages** (`FamilyLawNav.astro`): the
+  10 top-level areas, a `+` on the five with children and an arrow on the rest,
+  alphabetical with the `+` rows first. The branch you are in opens by default.
+  It briefly had a second state — a branch page listing only its children —
+  which existed because the menu was 18 rows and too tall to show everywhere;
+  the nesting below removed that reason. Don't re-add it.
+- **`parent` is NOT derived from the URL.** 13 pages are nested on the live
+  site, and 8 more are re-parented by `PARENT_OVERRIDES` in the scraper so the
+  menu is 10 rows rather than 18 — Parental Rights takes the four rights pages,
+  Property Division takes Hidden Assets and QDROs, Domestic Violence takes
+  Protective Orders, Divorce takes Mediation vs Litigation. Every grouping
+  follows the client's own cross-linking. **Those 8 keep their flat URLs**, so
+  path and parent deliberately disagree and no redirect is involved. The
+  scraper prints the menu shape on every run and throws on a parent that
+  doesn't resolve.
 - **`title` is SEO-shaped, `navLabel` is short.** Every page has both
   ("Pearland Divorce Lawyer" vs "Divorce"). Sort and label menus on `navLabel`;
   sorting on `title` files two thirds of the section under P.

@@ -4,6 +4,7 @@ navLabel: "Mothers' Rights"
 seoTitle: "Mothers Rights Attorney Pearland"
 description: "Need a Pearland mothers’ rights lawyer? Call us for a consultation. Our team is dedicated to protecting your rights and securing your family's future."
 subtitle: "Comprehensive Support & Guidance"
+parent: "parental-rights"
 legacyPath: "/family-law/mothers-rights/"
 ---
 

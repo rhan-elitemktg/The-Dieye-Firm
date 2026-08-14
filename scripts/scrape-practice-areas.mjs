@@ -80,6 +80,40 @@ const LABEL_FIXES = {
   "right-type-divorce": "Right Type of Divorce",
 };
 
+/* Re-parenting, ours rather than the client's.
+ *
+ * The live site nests only two areas — divorce and child-custody — and leaves
+ * the other sixteen flat, which makes an 18-row sidebar menu. These overrides
+ * group eight of those sixteen under areas that already exist, taking the menu
+ * to ten rows without inventing a page.
+ *
+ * Each grouping follows the client's own cross-linking rather than our
+ * taxonomy: parental-rights links to fathers-rights, grandparent-rights and
+ * paternity in its body copy; property-division links to hidden-assets and
+ * qdros, and qdros links back; domestic-violence links to
+ * protective-restraining-orders; and mediation-vs-litigation's own h1 is
+ * "Pearland Divorce Mediation Lawyer".
+ *
+ * URLs are NOT affected. Parent/child is a data relationship, so
+ * /family-law/fathers-rights/ stays exactly where it is and no redirect is
+ * needed — the same arrangement the 13 natively-nested pages already have,
+ * where the file path is the route and `parent` is separate from it.
+ *
+ * Keyed by slug and living here because the scraper rewrites every file on
+ * every run; a hand edit to frontmatter would not survive. Every value is
+ * checked against the scraped set at the end of main(), so a typo fails loudly
+ * instead of hiding a page from the menu entirely. */
+const PARENT_OVERRIDES = {
+  "fathers-rights": "parental-rights",
+  "mothers-rights": "parental-rights",
+  "grandparent-rights": "parental-rights",
+  paternity: "parental-rights",
+  "hidden-assets": "property-division",
+  qdros: "property-division",
+  "protective-restraining-orders": "domestic-violence",
+  "mediation-vs-litigation": "divorce",
+};
+
 /* Five practice-area pages link to blog posts by their old Scorpion URLs.
    scripts/blog-redirects.json already maps every one of those onto the flat
    /blog/<slug>/ route the ingest created, so we resolve them here rather than
@@ -538,7 +572,8 @@ async function main() {
     const pathname = new URL(url).pathname;
     const slug = pathname.replace(/^\/family-law\//, "").replace(/\/$/, "");
     const leaf = slug.split("/").pop();
-    const parent = slug.includes("/") ? slug.split("/")[0] : null;
+    /* The URL's own nesting, unless we have re-parented this page above. */
+    const parent = PARENT_OVERRIDES[slug] ?? (slug.includes("/") ? slug.split("/")[0] : null);
 
     const label =
       LABEL_FIXES[leaf] ?? labels.get(pathname) ?? titleCase(leaf);
@@ -560,7 +595,7 @@ async function main() {
 
     const words = wordCount(markdown.replace(/[#*\-]|\[|\]\([^)]*\)/g, " "));
     notes.push({
-      slug, label, words,
+      slug, label, words, parent,
       source: page.sourceWords,
       coverage: page.sourceWords ? words / page.sourceWords : 1,
       expander: page.hasExpander,
@@ -599,6 +634,34 @@ async function main() {
       n.expander ? " yes" : "  - ",
       n.faqs || "-"
     );
+  }
+
+  /* A parent that doesn't resolve would drop its page out of the top-level
+     list without putting it under anything — invisible in the menu, still
+     built, and easy to miss. Fail loudly instead. */
+  const slugs = new Set(notes.map((n) => n.slug));
+  const orphans = notes.filter((n) => n.parent && !slugs.has(n.parent));
+  if (orphans.length) {
+    throw new Error(
+      `Unresolvable parent on: ${orphans.map((n) => `${n.slug} -> ${n.parent}`).join(", ")}. ` +
+        `Fix PARENT_OVERRIDES in this file.`
+    );
+  }
+
+  /* The menu shape, printed so a re-parenting is visible in the run rather
+     than only in the browser. */
+  const tops = notes.filter((n) => !n.parent);
+  console.log(`\nSidebar menu: ${tops.length} top-level rows`);
+  for (const top of [...tops].sort((a, b) => {
+    const kids = (n) => notes.filter((x) => x.parent === n.slug).length;
+    const byGroup = Number(kids(b) > 0) - Number(kids(a) > 0);
+    return byGroup !== 0 ? byGroup : a.label.localeCompare(b.label, "en");
+  })) {
+    const kids = notes.filter((n) => n.parent === top.slug);
+    console.log(`  ${kids.length ? "+" : "→"} ${top.label}${kids.length ? ` (${kids.length})` : ""}`);
+    for (const kid of kids.sort((a, b) => a.label.localeCompare(b.label, "en"))) {
+      console.log(`      ${kid.label}${PARENT_OVERRIDES[kid.slug] ? "  [re-parented]" : ""}`);
+    }
   }
 
   const blogLinks = notes.flatMap((n) => n.blogLinks);

@@ -4,6 +4,7 @@ navLabel: "Grandparent Rights"
 seoTitle: "Pearland Grandparents' Rights Attorney"
 description: "If you're a grandparent who wants access to your grandchild, The Dieye Firm can help. Contact our Pearland grandparents' rights lawyer today."
 subtitle: "Experienced Grandparents' Rights Lawyer Serving Harris County, TX"
+parent: "parental-rights"
 legacyPath: "/family-law/grandparent-rights/"
 ---
 

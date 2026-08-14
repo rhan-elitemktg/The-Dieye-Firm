@@ -4,6 +4,7 @@ navLabel: "Hidden Assets"
 seoTitle: "Hidden Assets Attorneys in Pearland"
 description: "Think your spouse is hiding assets during your divorce? Call the Pearland hidden assets Lawyer at The Dieye Firm to help ensure your fair share."
 subtitle: "Helping Residents of Harris County & the Surrounding Areas Ensure They Receive a Fair Share of Marital Property"
+parent: "property-division"
 legacyPath: "/family-law/hidden-assets/"
 ---
 
