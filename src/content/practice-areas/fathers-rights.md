@@ -3,6 +3,7 @@ title: "Pearland Fathers' Rights Attorney"
 navLabel: "Fathers' Rights"
 description: "Protect your rights with our experienced fathers' rights lawyer in Pearland. Personalized, culturally sensitive family law representation with transparent communication. Call today!"
 subtitle: "Understanding Fathers' Rights in Pearland, TX"
+parent: "parental-rights"
 legacyPath: "/family-law/fathers-rights/"
 ---
 

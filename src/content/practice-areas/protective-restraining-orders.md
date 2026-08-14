@@ -4,6 +4,7 @@ navLabel: "Protective & Restraining Orders"
 seoTitle: "Protective Restraining Order Lawyer in Pearland"
 description: "At The Dieye Firm, our Pearland protective restraining order attorneys will help you take the legal steps necessary to obtain your and your family’s safety."
 subtitle: "Helping Clients Legally Ensure Their Safety & the Safety of Their Families in Harris County & Surrounding Areas"
+parent: "domestic-violence"
 legacyPath: "/family-law/protective-restraining-orders/"
 ---
 

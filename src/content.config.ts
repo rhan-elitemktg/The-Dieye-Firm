@@ -87,8 +87,14 @@ const practiceAreas = defineCollection({
        every page, but optional so a future page without one still builds. */
     subtitle: z.string().optional(),
 
-    /* Top-level pages omit this. Set to the parent's slug on the 13 children
-       (10 under divorce, 3 under child-custody). */
+    /* Top-level pages omit this. Set to the parent's slug on the 21 children,
+       leaving 10 top-level areas.
+
+       It is NOT derived from the URL. 13 of the 21 are nested on the live site
+       too (10 under divorce, 3 under child-custody); the other 8 are
+       re-parented by PARENT_OVERRIDES in the scraper to keep the sidebar menu
+       to ten rows. Those 8 keep their flat URLs, so a page's path and its
+       parent deliberately disagree — see the note there. */
     parent: z.string().optional(),
 
     /* schema.org FAQPage microdata found in the source. Only

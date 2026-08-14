@@ -17,8 +17,8 @@ from the live site and rendered by one template with the new sidebar.
 
 **Next task: the practice-area index at `/family-law/`.** It 404s today, and it
 is now by some distance the most-linked missing page on the site — the nav item,
-the "View All +", the "View All +" inside each branch sidebar, plus a kicker and
-a card title on every one of the 31 pages. It has a comp
+the nav's "View All +", plus a kicker and a sidebar card title on every one of
+the 31 pages. It has a comp
 ("Practice Areas index.dc.html"), so it needs no new copy and nothing is
 blocking it.
 
@@ -52,7 +52,8 @@ moving into frontmatter rather than anything lost.
 `FamilyLawNav`, `AreasWeServe`, `PracticeAreaFaqs`, `practiceAreas.ts`.
 
 **The sidebar**, modelled on a reference screenshot Rhan supplied: attorney
-card, enquiry form, the Family Law menu, Areas We Serve.
+card, enquiry form, the Family Law menu, Areas We Serve. The menu is one
+10-row list on all 31 pages after the re-parenting below.
 
 **Nav changes** — the Family Law flyout is now a curated five (Divorce, Child
 Custody, Child Support, Domestic Violence, Protective Orders) plus "View All +",
@@ -86,20 +87,22 @@ the interior grid came across unchanged.
 
 **Structure**
 
-- **The sidebar has two states.** A page with children lists only its children;
-  everything else lists all 18 top-level areas. Rhan's rule, and it is why the
-  children-in-a-grid idea was dropped — the expanding branch already makes
-  children reachable, and from every page in the branch rather than only the
-  parent.
-- **A child page gets the full index with its parent pre-opened**, not its
-  siblings alone. Rhan's rule covered "has children" and "doesn't"; a child page
-  is the third case, and landing with your position visible beats landing behind
-  a `+` you have to find.
-- **A branch page gets a "View All +" footer link.** Not in the reference
-  screenshot. Without it the Divorce card is a dead end — 10 children and no way
-  back to the other 16.
-- **Order is alphabetical with the `+` rows first.** Grouping the two expandable
-  rows reads as structure; scattered down an 18-row list they read as
+- **Eight areas were re-parented so the menu is 10 rows, not 18.** Parental
+  Rights takes Fathers'/Mothers'/Grandparent Rights and Paternity; Property
+  Division takes Hidden Assets and QDROs; Domestic Violence takes Protective
+  Orders; Divorce takes Mediation vs Litigation. No page was invented and no
+  URL moved — every grouping follows the client's own cross-linking, and the
+  menu card went 1,068px → 637px.
+- **One menu on every page.** The sidebar briefly had a second state where a
+  branch page listed only its children; that existed because 18 rows were too
+  tall to show everywhere, and the nesting removed the reason. One state also
+  killed the "View All +" footer (it only rescued the branch state from being a
+  dead end) and the thin one-child sidebar on Domestic Violence.
+- **The branch you are in opens by default**, so you land seeing your position
+  rather than behind a `+` you have to find. On a branch page its own row is
+  both current and expanded.
+- **Order is alphabetical with the `+` rows first.** Grouping the expandable
+  rows reads as structure; scattered through the list they read as
   inconsistency.
 - **Sort on `navLabel`, never `title`.** Every title is SEO-shaped ("Pearland
   Divorce Lawyer"), so sorting on it files two thirds of the section under P.
@@ -132,9 +135,10 @@ the interior grid came across unchanged.
    ("How a Divorce Modification Is Filed in Texas"), so it needs an editorial
    eye, and it is trivial to strip later but impossible to recover if dropped
    now.
-2. **`modifications-enforcement` is 290 words**, the thinnest of the 31. It is
-   also the only page where the sidebar visibly overhangs the article (~780px).
-   More copy fixes it better than a layout change would.
+2. **`modifications-enforcement` is 290 words**, the thinnest of the 31, and the
+   only page where the sidebar still overhangs the article — now ~350px, down
+   from ~780px before the menu was nested. More copy fixes it better than a
+   layout change would.
 3. **The Key Takeaways still need attorney review before launch.** Unchanged.
    Wording lives in `scripts/add-takeaways.mjs`.
 4. **The August blog post is still categorised by us, not the client** —

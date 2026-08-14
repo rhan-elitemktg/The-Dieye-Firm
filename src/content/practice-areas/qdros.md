@@ -4,6 +4,7 @@ navLabel: "QDROs"
 seoTitle: "Pearland Qualified Domestic Relations Orders Lawyer"
 description: "The Dieye Firm can help you obtain a portion of your spouse's retirement fund. Contact our Pearland qualified domestic relations orders attorneys today."
 subtitle: "Ensuring Our Clients Receive a Share of Their Spouse’s Retirement Fund in Harris County & Surrounding Areas"
+parent: "property-division"
 legacyPath: "/family-law/qdros/"
 ---
 

@@ -4,6 +4,7 @@ navLabel: "Mediation vs Litigation"
 seoTitle: "Divorce Mediation Attorney in Pearland"
 description: "Need a Pearland divorce mediation lawyer? The Dieye Firm offers 17 years of family law experience, direct attorney access, and multilingual support."
 subtitle: "17 Years of Family Law Experience Serving Pearland, Harris County and Brazoria County"
+parent: "divorce"
 faqs:
   - question: "What are the advantages of choosing family law mediation in Pearland over litigation?"
     answer: "Mediation typically costs less than litigation, allows both parties to control the outcome rather than leaving decisions to a judge, and keeps the process confidential. It also can help resolve matters more efficiently than a contested court case and can support a more cooperative dynamic between co-parents after the divorce is final."
