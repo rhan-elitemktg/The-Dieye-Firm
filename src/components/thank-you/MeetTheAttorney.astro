@@ -1,0 +1,248 @@
+---
+// Meet the Attorney — the inset photo card that fills the wait between
+// submitting the form and hearing back.
+//
+// Same side-scrim idea as the interior heroes (TestimonialsHero, PapaHero,
+// PracticeAreasHero), with one difference: this one is a rounded card inside
+// the container rather than a full-bleed band, because it sits mid-page under
+// a white confirmation block rather than directly under the header.
+//
+// The source is 1200x670. The card is at most 1460px wide (container max less
+// the 100px gutters at >=1440), so `widths` stops at native rather than asking
+// Astro for a 1920 variant that would only upscale - the same trade the three
+// heroes make. At that width the card's 2:1 aspect is close enough to the
+// photo's 1.79:1 that almost nothing is cropped; it is a ~1.2x stretch, not a
+// re-crop.
+
+import { Image } from "astro:assets";
+import papa from "../../assets/images/papa-tan-wide.jpg";
+---
+
+<section class="tyband" aria-labelledby="tyband-title">
+  <div class="container">
+    <div class="tyband__card">
+      <div class="tyband__media">
+        <Image
+          class="tyband__img"
+          src={papa}
+          alt="Attorney Papa Dieye outdoors in a tan suit and bow tie, smiling beside a stone wall"
+          widths={[768, 1024, 1200]}
+          sizes="(min-width: 1660px) 1460px, 92vw"
+          format="webp"
+          quality={80}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <div class="tyband__scrim" aria-hidden="true"></div>
+      </div>
+
+      <div class="tyband__content">
+        <h2 class="tyband__title" id="tyband-title">
+          Your Family Law<br /><em>Attorney</em> in Pearland.
+        </h2>
+
+        <span class="tyband__rule" aria-hidden="true"></span>
+
+        <p class="tyband__lead">
+          While you wait, take a moment to learn how our firm walks alongside Texas
+          families through their most difficult seasons. From divorce and child custody
+          to support, property division, and modifications, Papa Dieye brings steady,
+          plain-spoken counsel and a genuine commitment to protecting the people who
+          matter most to you. Every case is handled personally, with the care and
+          attention your family deserves at each step of the way.
+        </p>
+
+        <a class="btn btn--gold tyband__cta" href="/about-us/papa-dieye/">
+          Meet the Attorney
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Continuous with ThankYouHead above it - the two share the white block, and
+     the bone awards strip below closes it. The bottom padding is what makes
+     that read: without it the card sits flush on the tone change and the white
+     looks like a bug rather than a band. */
+  .tyband {
+    padding-bottom: var(--section-pad-y);
+    background: var(--white);
+  }
+
+  .tyband__card {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    min-height: 720px;
+    overflow: hidden;
+    /* The comp's 12px isn't on the ramp; --radius-lg is the neighbouring
+       token and the card is large enough to carry it. */
+    border-radius: var(--radius-lg);
+    background: var(--navy-900);
+  }
+
+  .tyband__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .tyband__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Papa stands in the right third and the left is foliage, so the crop is
+       anchored right: as the card narrows the trees go before he does. */
+    object-position: 72% 50%;
+    filter: var(--photo-filter);
+  }
+
+  /* Heavier on the left than TestimonialsHero's - this frame opens on
+     sunlit foliage rather than an out-of-focus shoulder, so the gradient has
+     to do all of the work rather than finishing it. */
+  .tyband__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--navy-900) 94%, transparent) 0%,
+      color-mix(in srgb, var(--navy-900) 82%, transparent) 40%,
+      color-mix(in srgb, var(--navy-900) 35%, transparent) 70%,
+      color-mix(in srgb, var(--navy-900) 8%, transparent) 100%
+    );
+  }
+
+  .tyband__content {
+    position: relative;
+    padding: 72px 64px 72px 80px;
+    max-width: 780px;
+  }
+
+  /* Ceiling is 58px rather than the comp's 68px, and the column is 780 rather
+     than its 720, so "Attorney in Pearland." holds on one line. The comp sets
+     the headline as two hardcoded spans, so two lines is its intent - at 68px
+     in a 640px column it would have broken to three and left "Pearland."
+     stranded on its own. */
+  .tyband__title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(34px, 3.038vw + 0.8906rem, 58px);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+
+  .tyband__title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--gold-500);
+  }
+
+  .tyband__rule {
+    display: block;
+    width: 64px;
+    height: 3px;
+    margin: 30px 0;
+    background: var(--gold-500);
+  }
+
+  .tyband__lead {
+    max-width: 560px;
+    margin: 0;
+    font-size: 17px;
+    line-height: 29px;
+    color: rgba(255, 255, 255, 0.9);
+    text-wrap: pretty;
+  }
+
+  .tyband__cta {
+    margin-top: 40px;
+    padding: 14px 30px;
+  }
+
+  @media (max-width: 1000px) {
+    /* Same easing as .section, so the block keeps the site's rhythm. */
+    .tyband {
+      padding-bottom: 72px;
+    }
+
+    .tyband__card {
+      min-height: 560px;
+    }
+
+    .tyband__content {
+      padding: 56px 48px;
+      max-width: 620px;
+    }
+
+    /* Less photo to work with, so the copy end of the gradient tightens to
+       keep the headline off the brightest foliage. */
+    .tyband__scrim {
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--navy-900) 95%, transparent) 0%,
+        color-mix(in srgb, var(--navy-900) 88%, transparent) 50%,
+        color-mix(in srgb, var(--navy-900) 55%, transparent) 82%,
+        color-mix(in srgb, var(--navy-900) 25%, transparent) 100%
+      );
+    }
+  }
+
+  /* Mobile - a side-scrim can't work at this width: the copy would sit on top
+     of Papa whatever the gradient does. The photo becomes its own band at the
+     top of the card with the copy on solid navy beneath it, the same collapse
+     the three interior heroes make. */
+  @media (max-width: 650px) {
+    .tyband {
+      padding-bottom: 48px;
+    }
+
+    .tyband__card {
+      display: block;
+      min-height: 0;
+    }
+
+    .tyband__media {
+      position: relative;
+      inset: auto;
+      z-index: auto;
+      display: block;
+      height: clamp(240px, 34svh, 320px);
+    }
+
+    /* Nothing overlays the photo now, so the crop can sit on him properly. */
+    .tyband__img {
+      object-position: 68% 40%;
+    }
+
+    .tyband__scrim {
+      background: linear-gradient(
+        180deg,
+        rgba(15, 36, 56, 0) 0%,
+        rgba(15, 36, 56, 0.14) 56%,
+        rgba(15, 36, 56, 0.68) 86%,
+        var(--navy-900) 100%
+      );
+    }
+
+    .tyband__content {
+      padding: 32px 24px 44px;
+      max-width: none;
+    }
+
+    .tyband__rule {
+      margin: 24px 0;
+    }
+
+    .tyband__cta {
+      margin-top: 32px;
+      width: 100%;
+    }
+  }
+</style>

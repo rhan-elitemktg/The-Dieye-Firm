@@ -18,8 +18,15 @@ interface Props {
   /* /contact-us/ is the one page where the sitewide Contact section is the
      page rather than its closing prompt, so it renders a stripped-back
      variant. Forwarded rather than letting the page render its own Contact:
-     one component, one form, one place the markup lives. See Contact.astro. */
-  contactVariant?: "section" | "page";
+     one component, one form, one place the markup lives. See Contact.astro.
+
+     "none" drops the section entirely, and /thank-you/ is the one page that
+     asks for it: the visitor has just submitted this exact form, so closing
+     with "Take the First Step - reach out for a free consultation" invites a
+     duplicate enquiry and reads as though the first one didn't register. The
+     comp omits it there too. Still a Layout prop rather than a page opting out
+     by omission, so the default stays "every page closes with the prompt". */
+  contactVariant?: "section" | "page" | "none";
 }
 
 const {
@@ -74,8 +81,9 @@ const {
   <body>
     <slot />
     {/* Site chrome — every page closes with the consultation prompt and the
-        footer, so they live here rather than being remembered per page. */}
-    <Contact variant={contactVariant} />
+        footer, so they live here rather than being remembered per page.
+        /thank-you/ is the sole exception; see contactVariant above. */}
+    {contactVariant !== "none" && <Contact variant={contactVariant} />}
     {/* For the rare section that has to sit below the consultation prompt
         rather than above it. /contact-us/ puts its office map here, because
         the comp runs hero → form → map and the default slot is above Contact,

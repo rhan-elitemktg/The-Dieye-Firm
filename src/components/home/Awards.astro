@@ -44,9 +44,25 @@ const awards = [
   },
   { src: texasBarCollege, width: 380, alt: "Proud member of the Texas Bar College" },
 ];
+
+interface Props {
+  /* The strip is a white band on the page's bone ground everywhere but
+     /thank-you/, which swaps the two: the confirmation and the photo card
+     share a white block, and this closes it in bone. A prop rather than a
+     page-side override, because the background is the component's own and
+     reaching in with :global() from one page would make it everyone's
+     problem. */
+  tone?: "white" | "bone";
+}
+
+const { tone = "white" } = Astro.props;
 ---
 
-<section class="awards" aria-labelledby="awards-title" data-awards>
+<section
+  class:list={["awards", { "awards--bone": tone === "bone" }]}
+  aria-labelledby="awards-title"
+  data-awards
+>
   <div class="container">
     <h2 class="awards__title" id="awards-title">Awards &amp; Recognition</h2>
 
@@ -99,6 +115,13 @@ const awards = [
     padding-block: 56px;
     background: var(--white);
     border-bottom: 1px solid var(--bone-300);
+  }
+
+  /* The hairline goes with the tone change: it exists to part a white band
+     from the bone ground, and on bone it is just a line. */
+  .awards--bone {
+    background: var(--bone-100);
+    border-bottom: 0;
   }
 
   .awards__title {
