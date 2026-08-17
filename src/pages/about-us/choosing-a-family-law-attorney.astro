@@ -1,0 +1,193 @@
+---
+// Choosing a Texas Family Law Attorney — the client's own guide to hiring an
+// attorney, on the interior main+sidebar template.
+//
+// WHERE THE COPY COMES FROM. There is no comp for this page. The six
+// paragraphs below are the client's own published prose, taken verbatim from
+// dieyelaw.com/about-us/choosing-a-family-law-attorney/ — 739 words, split on
+// the live site across #MainContent (325) and #ContentS3RightContent (414),
+// which is Scorpion's two-column wrapper and not an editorial division. Taking
+// only the first container would have shipped less than half the page while
+// looking like it worked, the same trap the practice-area scraper documents.
+//
+// AGENTS.md's "leave the client's published prose alone" governs it, so their
+// en dashes and the one em-dash pair are theirs and are kept. The five
+// headings are ours and follow the repo's spaced-hyphen rule.
+//
+// The FAQ block at the foot of the live page is NOT page content — it is
+// sitewide boilerplate, byte-identical across the old About Us pages — so it
+// is excluded.
+//
+// FOUR DELIBERATE DEVIATIONS from verbatim, listed here the way ReviewWall
+// lists its own. Add to this list rather than editing the copy silently:
+//
+//   1. "Lawyer" -> "lawyers", twice, both in the consultation section ("a few
+//      Lawyer you like", "Many Lawyer will offer"). A singular noun after "a
+//      few" and "many" is a CMS defect, not a voice. Nothing else is reworded.
+//   2. The five h2s are ours. The live page has no headings at all and no h1
+//      either — its visible page title is a styled <p> — and 739 words of
+//      unbroken prose is unscannable. Each heading names what the paragraph
+//      beneath it already says; none adds a claim.
+//   3. The self-referential link in the final paragraph is dropped. The words
+//      "choosing an attorney" stay; a link to the page you are already on is a
+//      dead end, not navigation.
+//   4. The link to /family-law/divorce/ in the opening paragraph is KEPT.
+//
+// The h1 is the live page's own visible heading, which says "Texas". The
+// <title> and the nav label in MainNav both say "Choosing a Family Law
+// Attorney" without it. That disagreement is the client's, and it is the same
+// title/navLabel split every practice-area page already carries.
+
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/header/Header.astro";
+import InteriorShell from "../../components/interior/InteriorShell.astro";
+import InteriorHeader from "../../components/interior/InteriorHeader.astro";
+import AboutSidebar from "../../components/about/AboutSidebar.astro";
+import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
+
+/* The sidebar's practice-area menu. The live page carries the same
+   cross-reference — a flat card of twelve areas with labels auto-generated
+   from their slugs ("Qdros", "Mediation Vs Litigation") — and FamilyLawNav is
+   that list done properly: the 11 top-level areas on the client's own
+   navLabels, children behind a "+". No `current` is passed; see AboutSidebar. */
+const areas = await getCollection("practiceAreas");
+
+const canonical = new URL(
+  "/about-us/choosing-a-family-law-attorney/",
+  Astro.site ?? Astro.url
+).href;
+
+const description =
+  "How to choose a family law attorney in Texas - where to base your lawyer, how to research one, what to ask at the consultation and how to weigh cost.";
+
+/* Headings ours, paragraphs the client's. Kept as a named array so the Sanity
+   sweep is a query and a map rather than a re-typing — the same shape
+   ReviewWall's `reviews` and Hero's `stats` already use.
+
+   Paragraphs carry inline HTML for the one link and render through set:html.
+   That is safe here precisely because .prose is unscoped in global.css; a
+   scoped rule would never reach set:html output. */
+const sections = [
+  {
+    heading: "Start Planning Before You File",
+    paragraphs: [
+      `One of the smartest decisions you can make if you decide to <a href="/family-law/divorce/">file for divorce</a> is hiring an attorney. Planning ahead before filing gives you an advantage. How do you decide which attorney is the best one for you? There are several steps you should take before you retain a lawyer, and always follow your instincts.`,
+    ],
+  },
+  {
+    heading: "Decide Where You Want Your Lawyer Based",
+    paragraphs: [
+      `First, determine where you want your attorney to be. If you live near the place your divorce is being handled, then your decision is easier. However, if your divorce is far away from where you live, you will need to decide if you want a lawyer close to you or close to the courthouse. If a lawyer is close to you, then it is more convenient for meetings and dropping items or documents off. However, you will have to pay them more in travel time whenever they have a hearing or mediation to attend on your behalf. If the lawyer is closer to the courthouse and from that jurisdiction, then they are probably at an advantage. They will know how particular judges operate, what their preferences are, and the basic procedures of the local court. An &ldquo;out-of-town&rdquo; lawyer will be less familiar, which can make a difference.`,
+    ],
+  },
+  {
+    heading: "Research Before You Call",
+    paragraphs: [
+      `Once you decide where you want your lawyer based, try to do some research. The internet is a great place to start, but take everything you read with a grain of salt. Reviews&mdash;good and bad&mdash;can be exaggerated by clients. Try to find a professional rating, such as Avvo or Martindale-Hubbell. See if there are any reviews from the Better Business Bureau. And finally, check the State Bar of Texas website to see if there is any disciplinary history on that lawyer. One of the best ways of finding a lawyer is through word of mouth. If any of your family or friends have gone through a divorce, ask them who their lawyer was and if they had a good experience with them.`,
+    ],
+  },
+  {
+    heading: "Treat the Consultation as an Interview",
+    paragraphs: [
+      /* "Lawyer" -> "lawyers" twice in this paragraph. Deviation 1 above. */
+      `Once you&rsquo;ve found a few lawyers you like, call to see if you can make an appointment for a consultation. Many lawyers will offer a free or discounted initial consultation. You can use this opportunity to ask some basic questions about your case and get a feel for how that lawyer operates. Pay attention to everything. Is there a receptionist who answers the phone? How is their demeanor? Were you put on hold for a long time? When you come into the office, is it clean and organized? How big is it? When you meet with the lawyer, pay attention to how they behave. Have they reviewed your notes? Are they taking notes when speaking to you and asking questions? Or are they on their computer, or taking calls from other people?`,
+      `Remember to use this opportunity as a job interview for them. Ask them if they&rsquo;ve ever had cases similar to yours and what the outcome was. Find out who can handle your case if the attorney you retain is unavailable (such as if they have a long trial or go on vacation). Maybe they know your spouse&rsquo;s attorney and have a good working relationship with them. Most consultations will be limited in time &ndash; usually half an hour. So come prepared with a list of questions and notebook to write down important points.`,
+    ],
+  },
+  {
+    heading: "Weigh the Cost Without Letting It Decide",
+    paragraphs: [
+      /* The live paragraph links "choosing an attorney" to this very page.
+         Deviation 3 above — the words stay, the link goes. */
+      `Try not to let cost be the sole factor in choosing an attorney. Of course, fees are important &ndash; you need to make sure you can actually afford the representation you choose. However, you often get what you pay for. Attorneys who charge you a minimal amount may not be comfortable in using all the resources at their disposal in pursuing your case. However, attorneys who charge a huge retainer might also not be worth the money. This is where listening to your instincts can pay off. If something seems too good to be true, it probably is. No matter how much your attorney charges, make sure you sign a contract and understand the terms of their services. Find out how they bill, what their hourly rate is, and how often you&rsquo;ll be expected to pay. Learn as much as you can up front before retaining a lawyer. And do not forget that if your lawyer does not live up to your expectations, you can always hire another one. (Just remember, hiring a lawyer to start over in the middle of your case can be expensive and difficult!)`,
+    ],
+  },
+];
+
+/* Article, not FAQPage and not another LegalService. The FAQ block on the live
+   page is sitewide boilerplate that is not reproduced here, so FAQPage would
+   mark up content the page doesn't have; and every practice-area page already
+   nests a LegalService as its Service `provider`, so a further copy of the
+   same NAP adds nothing — the same call /practice-areas/ makes.
+
+   Deliberately no datePublished or dateModified. The source page carries
+   neither, and inventing one is the error AuthorCard refuses to make with its
+   footer line. They arrive in the Sanity pass, with real values. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: "Choosing a Texas Family Law Attorney",
+  description,
+  inLanguage: "en-US",
+  author: { "@type": "Organization", name: "The Dieye Firm" },
+  publisher: { "@type": "Organization", name: "The Dieye Firm" },
+  mainEntityOfPage: canonical,
+  url: canonical,
+};
+---
+
+<Layout
+  title="Choosing a Family Law Attorney | The Dieye Firm"
+  description={description}
+  canonical={canonical}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* Stamped before <body> is parsed, so the sidebar's collapsed branches are
+      never painted open and then closed. FamilyLawNav's hide rule is keyed on
+      it; without JS the attribute never lands and every branch stays open, so
+      no link is unreachable. Same pair as the practice-area route. */}
+  <script is:inline slot="head">
+    document.documentElement.setAttribute("data-pa-boot", "");
+  </script>
+
+  {/* In flow, not overlay: there is no hero here. The page opens directly
+      under the header on white, the same as both interior templates. */}
+  <Header />
+
+  <InteriorShell>
+    <InteriorHeader
+      title="Choosing a Texas Family Law Attorney"
+      kicker={{ label: "About Us", href: "/about-us/" }}
+    />
+
+    {/* .prose lives unscoped in global.css, which is also why the paragraphs
+        can arrive through set:html and still be styled. `.cfa__body` is scoped
+        and still reaches this div — see the note in InteriorShell about where
+        Astro assigns a scope hash. */}
+    <div class="prose cfa__body">
+      {
+        sections.map((section) => (
+          <>
+            <h2>{section.heading}</h2>
+            {section.paragraphs.map((html) => (
+              <p set:html={html} />
+            ))}
+          </>
+        ))
+      }
+    </div>
+
+    <AboutSidebar slot="sidebar" areas={areas} label="About this guide" />
+  </InteriorShell>
+
+  <WhatDrivesUs />
+
+  {/* Bound here, once for the document — the same split Layout uses for
+      lead-form.ts, so the sidebar component stays pure markup. */}
+  <script>
+    import { initPracticeAreaNav } from "../../scripts/pa-nav";
+    initPracticeAreaNav();
+  </script>
+</Layout>
+
+<style>
+  /* Interior section copy runs 18px/30px (AGENTS.md), matching the
+     practice-area template rather than the blog's 17px/29px. */
+  .cfa__body {
+    margin-top: 40px;
+    font-size: 18px;
+    line-height: 30px;
+  }
+</style>
