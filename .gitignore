@@ -4,8 +4,9 @@ dist/
 .screenshots/
 # cached page fetches from `npm run scrape:blog`
 .blog-cache/
-# cached page fetches from `npm run scrape:practice-areas`
+# cached page fetches from `npm run scrape:practice-areas` / `scrape:locations`
 .pa-cache/
+.loc-cache/
 # generated types
 .astro/
 
