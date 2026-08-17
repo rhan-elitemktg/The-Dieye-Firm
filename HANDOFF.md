@@ -16,7 +16,7 @@ _Last rewritten: 2026-08-17, end of session._
 plus the index at `/practice-areas/`. No 404s left inside the section.
 
 **Next up: `/contact-us/`.** It has always 404ed, and it is the destination of
-the gold header button on all 53 pages plus five in-page CTAs — the worst dead
+the gold header button on all 53 pages plus six in-page CTAs — the worst dead
 link on the site. It has a comp, so it needs no direction and no new copy.
 
 After that: the About Us group (About Us index, Choosing a Family Law Attorney,
@@ -28,11 +28,12 @@ flyout.
 
 ## Where we are
 
-Branch `pa_index`, one commit ahead of `master` at `8bc8be2`. The practice-area
-section's earlier work is already on `master` — PRs #19 and #20 are merged.
+Branch `pa_index`, **two commits ahead** of `master` at `8bc8be2`, pushed.
+**PR still to open.** The practice-area section's earlier work is already on
+`master` — PRs #19 and #20 are merged.
 
 Build passes at **53 pages**. No horizontal overflow at 1920 / 1441 / 1440 /
-1260 / 1259 / 1000 / 768 / 430 on the new pages, the homepage, the blog, a
+1160 / 1159 / 1000 / 768 / 430 on the new pages, the homepage, the blog, a
 detail page, or Papa's page.
 
 ---
@@ -51,6 +52,12 @@ featured cards, an A–Z grid of all 32, then `ByTheNumbers` and `WhatDrivesUs`
 "Practice Areas" → `/practice-areas/`, the sidebar card on all 32 detail pages
 is titled "Practice Areas" and links there, and a top-level page's kicker does
 too. Family Law joined the nav flyout as an ordinary item.
+
+**The header row was slimmed** in a second commit — "About Us" → "About", the
+"Contact Us" item removed in favour of the gold button (which now reads
+"Contact Us" and carries `aria-current`), and Blog returned to top level with
+Resources keeping a dropdown. The row went 1,252px → 998px and the collapse
+point moved 1260 → 1160.
 
 ---
 
@@ -98,11 +105,16 @@ too. Family Law joined the nav flyout as an ordinary item.
 1. **Two authored strings on the index** — the A–Z section head ("Full Index" /
    "Every practice area, *A to Z.*") and the page title ("Texas Family Law
    Practice Areas | The Dieye Firm"). Neither has a comp.
-2. **~24 of the 32 detail pages close with a "come talk to us" section.** The
-   template already has a sidebar form and the sitewide Contact section, so
-   these are a third ask. Kept deliberately — several pages' final h2 is real
-   content, so it needs an editorial eye, and it is trivial to strip later and
-   impossible to recover if dropped now.
+2. **26 of the 32 detail pages close with a "come talk to us" section** —
+   "Contact Our Firm for Sound Legal Counsel", "Ready to Take the Next Step?",
+   "Don't Wait! Contact Our Office Today." The template already has a sidebar
+   form and the sitewide Contact section, so these are a third ask.
+   Kept deliberately, because it is **not** a blanket strip: the other six end
+   on real content and must survive — Commonly Asked Questions · Frequently
+   Asked Questions · How Mediation Can Save Time and Reduce Costs · How a
+   Divorce Modification Is Filed in Texas · Parental Rights Cases in Harris
+   County Family Court · Visitation Rights for Unmarried Parents in Pearland.
+   Trivial to strip later, impossible to recover if dropped now.
 3. **`modifications-enforcement` is 290 words**, the thinnest page and the only
    one where the sidebar overhangs the article.
 4. **Key Takeaways still need attorney review before launch** —
@@ -112,7 +124,8 @@ too. Family Law joined the nav flyout as an ordinary item.
 6. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
    (2025-01) and `understanding-child-custody-laws-in-pearland-texas` (2026-07).
 7. **Branch granularity** — one branch per page, or per template group? Still
-   unanswered; this branch now carries the whole section.
+   unanswered. The section itself is on `master`; this branch carries the
+   index and the nav work.
 
 ---
 
@@ -156,7 +169,7 @@ map is the seed data for a `category` type.
 | `/harris-county-family-law-attorney/child-support/` | PA in-body links | service areas |
 
 **`/contact-us/` is the urgent one.** It is the destination of the gold header
-button on all 53 pages and of five more in-page CTAs, and it has always 404ed —
+button on all 53 pages and of six more in-page CTAs, and it has always 404ed —
 it predates this session's nav work. There is a comp ("Contact.dc.html"), so it
 is a small, unblocked build. A law firm's contact button going nowhere is the
 worst dead link on the site.
@@ -178,7 +191,7 @@ Both scrapers print their own dangling list on every run.
   is `family-law`; `areaHref` and `getStaticPaths` both special-case it, the
   latter with `slug: undefined`, which a rest param renders at the parent path.
 - **The header collapse point is measured, not chosen.** A longer nav label
-  moves it. It has moved twice.
+  moves it. It has moved three times.
 - **The content box gets narrower as the viewport crosses 1440** —
   `--container-pad` jumps 40→100px. Test 1440 and 1441 separately.
 - **A practice-area page's body lives in two containers**, one behind a "read
