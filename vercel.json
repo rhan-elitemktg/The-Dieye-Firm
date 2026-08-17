@@ -1,6 +1,26 @@
 {
   "redirects": [
     {
+      "source": "/about-us/papa-dieye",
+      "destination": "/about-us/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us/papa-dieye/",
+      "destination": "/about-us/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us/the-difference",
+      "destination": "/about-us/",
+      "permanent": true
+    },
+    {
+      "source": "/about-us/the-difference/",
+      "destination": "/about-us/",
+      "permanent": true
+    },
+    {
       "source": "/blog/2020/august/10-reasons-why-shared-child-custody-might-be-a-b",
       "destination": "/blog/10-reasons-why-shared-child-custody-might-be-a-better-idea/",
       "permanent": true

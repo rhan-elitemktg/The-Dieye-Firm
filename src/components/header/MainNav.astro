@@ -66,13 +66,21 @@ type NavItem = {
 const nav: NavItem[] = [
   {
     /* "About", not "About Us" — the row is width-constrained and the label
-       reads the same. The URL keeps /about-us/. */
+       reads the same. The URL keeps /about-us/.
+
+       No "Papa Dieye" child any more: his page moved up to /about-us/, which
+       is this item's own href, so the row would have been a second link to the
+       parent. The parent is a real link at both widths — the mobile row splits
+       the label from the chevron — so he is still one tap away.
+
+       "The Dieye Difference" is gone too — that page folded into /about-us/
+       and 301s there, so a nav row pointing at it would be a menu item that
+       redirects. One child left; if it loses that one, drop `items` and this
+       becomes a plain link rather than a dropdown with a single row. */
     label: "About",
     href: "/about-us/",
     items: [
-      { label: "Papa Dieye", href: "/about-us/papa-dieye/" },
       { label: "Choosing a Family Law Attorney", href: "/about-us/choosing-a-family-law-attorney/" },
-      { label: "The Dieye Difference", href: "/about-us/the-difference/" },
     ],
   },
   {

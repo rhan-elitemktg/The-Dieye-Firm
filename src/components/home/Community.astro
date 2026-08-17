@@ -58,7 +58,12 @@ const photos = [
         <p class="community__text">
           Because caring for families shouldn't stop at the office door.
         </p>
-        <a class="btn btn--gold community__cta" href="/about-us/the-difference/">
+        {/* Was /about-us/the-difference/, which folded into /about-us/ and now
+            301s there. Pointed at the canonical rather than left to ride the
+            redirect — see "Moving or removing a route" in AGENTS.md. The label
+            still reads as the firm's own phrase, and /about-us/ is where that
+            story now lives. */}
+        <a class="btn btn--gold community__cta" href="/about-us/">
           The Dieye Difference
         </a>
       </div>

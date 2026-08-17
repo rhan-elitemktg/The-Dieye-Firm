@@ -50,8 +50,10 @@ const KNOWN_ROUTES = new Set([
   "/family-law/paternity/",
   "/family-law/modifications-enforcement/",
   "/family-law/protective-restraining-orders/",
+  /* Papa's page now IS /about-us/. The old /about-us/papa-dieye/ is a 301 in
+     vercel.json and deliberately not listed, so a post still linking to it is
+     reported rather than silently riding the redirect. */
   "/about-us/",
-  "/about-us/papa-dieye/",
   "/testimonials/",
   "/contact-us/",
   "/blog/",
