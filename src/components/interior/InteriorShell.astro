@@ -1,0 +1,86 @@
+---
+// InteriorShell — the main+sidebar body of an interior page.
+//
+// The template AGENTS.md describes: three equal columns with the article
+// spanning two (1080px at the container's widest, the long-form cap) and the
+// sidebar in the third, main first in source order. It was written twice,
+// identically, for the blog post and practice-area routes; this is that grid
+// lifted out so the third consumer doesn't write it a third time.
+//
+// It takes no props, and each omission is deliberate:
+//
+//   - The sidebar is a NAMED SLOT rather than a prop. The three sidebars are
+//     different components with different prop shapes — PostSidebar takes
+//     five, PracticeAreaSidebar two, AboutSidebar none — so a prop would force
+//     this file to import all three. The grid has no business knowing which
+//     one it is holding.
+//
+//   - The prose size is NOT a prop. A practice area runs 18px/30px and a blog
+//     post 17px/29px; that difference is real and stays in each page's own
+//     scoped <style>, on its own `__body` class. Which works because Astro
+//     assigns a scope hash at the AUTHORING site, not the render site: a
+//     <div class="prose pa__body"> written in the page keeps the page's hash
+//     even though it renders inside this component's <article>, so the page's
+//     scoped rule still matches it. No :global() needed.
+//
+//     (What still gets no hash at all is <Content />'s markdown output, which
+//     is why .prose itself lives unscoped in global.css. Unchanged by this.)
+//
+//   - The background is NOT a prop. All three consumers are --white. Awards
+//     gained `tone` only when /thank-you/ actually needed bone; add one here
+//     the same way, when a consumer needs it, rather than shipping a branch
+//     nothing takes.
+//
+// The class prefix is `.interior`, not the shorter `.pa` the practice-area
+// route used: home/PracticeAreas.astro already has a `.pa__grid` of its own on
+// a <ul>. Both are scoped so they never collided, but the name is ambiguous to
+// anyone grepping for it.
+---
+
+<div class="interior section">
+  <div class="container">
+    <div class="interior__grid">
+      <article class="interior__main">
+        <slot />
+      </article>
+
+      <slot name="sidebar" />
+    </div>
+  </div>
+</div>
+
+<style>
+  .interior {
+    background: var(--white);
+  }
+
+  /* align-items: start keeps the sidebar at its own height rather than
+     stretching its cards down a 2,000-word row. */
+  .interior__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--section-gap);
+    align-items: start;
+  }
+
+  .interior__main {
+    grid-column: span 2;
+    min-width: 0;
+  }
+
+  @media (max-width: 1439px) {
+    .interior__grid {
+      gap: 56px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .interior__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .interior__main {
+      grid-column: auto;
+    }
+  }
+</style>

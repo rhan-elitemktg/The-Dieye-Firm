@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
+import InteriorShell from "../../components/interior/InteriorShell.astro";
 import PostHeader from "../../components/blog/PostHeader.astro";
 import KeyTakeaways from "../../components/blog/KeyTakeaways.astro";
 import PostSidebar from "../../components/blog/PostSidebar.astro";
@@ -64,74 +65,40 @@ const schema = {
       under the header, so a transparent header would sit on white. */}
   <Header />
 
-  <div class="post section">
-    <div class="container">
-      <div class="post__grid">
-        <article class="post__main">
-          <PostHeader title={post.data.title} categories={post.data.categories} />
+  <InteriorShell>
+    <PostHeader title={post.data.title} categories={post.data.categories} />
 
-          <KeyTakeaways items={post.data.keyTakeaways ?? []} />
+    <KeyTakeaways items={post.data.keyTakeaways ?? []} />
 
-          {/* .prose lives unscoped in global.css because Astro's scoping never
-              reaches markup rendered by a child component. */}
-          <div class="prose post__body">
-            <Content />
-          </div>
-        </article>
-
-        <PostSidebar
-          date={post.data.date}
-          minutes={minutes}
-          categories={categories}
-          activeCategories={post.data.categories}
-          related={sidebarRelated}
-        />
-      </div>
+    {/* .prose lives unscoped in global.css because Astro's scoping never
+        reaches markup rendered by a child component. `.post__body` below is
+        scoped and still reaches this div: slotted markup carries the hash of
+        the component that wrote it, not of the one that renders it. */}
+    <div class="prose post__body">
+      <Content />
     </div>
-  </div>
+
+    <PostSidebar
+      slot="sidebar"
+      date={post.data.date}
+      minutes={minutes}
+      categories={categories}
+      activeCategories={post.data.categories}
+      related={sidebarRelated}
+    />
+  </InteriorShell>
 
   <RelatedPosts posts={related} />
 </Layout>
 
 <style>
-  .post {
-    background: var(--white);
-  }
-
-  /* Three equal columns with the article spanning two — the interior template
-     from AGENTS.md. align-items: start keeps each column at its own height
-     rather than stretching the sidebar cards down the full row. */
-  .post__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--section-gap);
-    align-items: start;
-  }
-
-  .post__main {
-    grid-column: span 2;
-    min-width: 0;
-  }
-
+  /* The grid itself lives in InteriorShell. This is the one thing the two
+     interior templates genuinely disagree about: a post runs 17px/29px, a
+     practice area 18px/30px. Still scoped, and it still reaches the div above
+     — see the note in InteriorShell about where Astro assigns a scope hash. */
   .post__body {
     margin-top: 40px;
     font-size: 17px;
     line-height: 29px;
-  }
-
-  @media (max-width: 1439px) {
-    .post__grid {
-      gap: 56px;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .post__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .post__main {
-      grid-column: auto;
-    }
   }
 </style>

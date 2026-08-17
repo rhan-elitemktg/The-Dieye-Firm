@@ -11,11 +11,17 @@ import Awards from "../../components/home/Awards.astro";
 import Testimonials from "../../components/home/Testimonials.astro";
 import WhyFamilyLaw from "../../components/about/WhyFamilyLaw.astro";
 import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
+
+/* This page is the About Us page and the attorney bio at once — there is no
+   separate /about-us/papa-dieye/ any more, so the title has to answer both
+   "about this firm" and "who is Papa Dieye". It leads on his name because that
+   is the distinctive half: "About The Dieye Firm" would only repeat the suffix
+   the whole site already carries. */
 ---
 
 <Layout
-  title="Papa Dieye, Founding Attorney | The Dieye Firm"
-  description="Meet Papa Dieye, founding attorney of The Dieye Firm. For more than seventeen years he has guided Pearland and Houston families through divorce, custody, and support."
+  title="About Papa Dieye, Pearland Family Law Attorney | The Dieye Firm"
+  description="Meet Papa Dieye, founding attorney of The Dieye Firm, and the people-first approach behind more than seventeen years of guiding Pearland and Houston families."
 >
   {/* Not `overlay`. The Old Town Pearland hero photo puts Papa's head 11% down
       the frame, which lands it under the nav's gold CTA if the header floats

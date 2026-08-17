@@ -318,10 +318,12 @@ function buildKnownRoutes(paths) {
   return new Set([
     ...paths,
     "/family-law/",
+    /* Papa's page now IS /about-us/, and The Difference folded into it too.
+       Both old paths are 301s in vercel.json and deliberately absent here, so
+       client copy still pointing at either gets reported rather than silently
+       riding the redirect. */
     "/about-us/",
-    "/about-us/papa-dieye/",
     "/about-us/choosing-a-family-law-attorney/",
-    "/about-us/the-difference/",
     "/testimonials/",
     "/contact-us/",
     "/blog/",

@@ -1,0 +1,60 @@
+---
+// AboutSidebar — the rail beside an About Us interior page.
+//
+// The same four cards as the practice-area sidebar, in the same order: who
+// stands behind the page, how to get in touch, where to go next in the
+// section, where we work. The live About pages carry a practice-area list of
+// their own, so the menu belongs here too.
+//
+// FamilyLawNav renders WITHOUT a `current` — an About page is not in that
+// collection, and handing it an arbitrary area would light up a page the
+// visitor isn't on. Nothing is highlighted and every branch starts collapsed.
+// The page rendering this must stamp `data-pa-boot` and call
+// initPracticeAreaNav(); see the note on that component.
+//
+// AuthorCard renders with no date: an About page has no publish date and is
+// not an article, so its footer line is omitted rather than invented. Same
+// call PracticeAreaSidebar makes.
+//
+// Named for the group rather than for one page: /about-us/ could take the same
+// rail, and any future About page should get it without a rename.
+
+import AuthorCard from "../blog/AuthorCard.astro";
+import CaseEvaluationCard from "../blog/CaseEvaluationCard.astro";
+import FamilyLawNav from "../practice-areas/FamilyLawNav.astro";
+import AreasWeServe from "../practice-areas/AreasWeServe.astro";
+import type { PracticeArea } from "../practice-areas/practiceAreas";
+
+interface Props {
+  /* The whole collection. Optional: an About page with no practice-area
+     cross-reference omits it and the menu simply doesn't render, rather than
+     the component fetching the collection itself — a sidebar that reaches for
+     content is a sidebar that can't be rendered from a page that already has
+     it. */
+  areas?: PracticeArea[];
+
+  /* Names the rail for screen readers. Defaulted rather than required so a
+     second About page can drop it in unchanged. */
+  label?: string;
+}
+
+const { areas, label = "About The Dieye Firm" } = Astro.props;
+---
+
+<aside class="abs" aria-label={label}>
+  <AuthorCard />
+
+  <CaseEvaluationCard />
+
+  {areas && <FamilyLawNav areas={areas} />}
+
+  <AreasWeServe />
+</aside>
+
+<style>
+  .abs {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+</style>

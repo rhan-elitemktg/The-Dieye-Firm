@@ -15,13 +15,26 @@
 // A "+" is a real button with aria-expanded, bound by src/scripts/pa-nav.ts
 // from the route — the same split Layout uses for lead-form.ts. Without JS
 // every branch renders open, so no link is ever unreachable.
+//
+// It also renders OUTSIDE the section, on the About Us pages, whose live
+// versions carry the same cross-reference. There `current` is omitted: nothing
+// is highlighted and every branch starts collapsed. Any page rendering this
+// must do the two things the practice-area route does — stamp `data-pa-boot`
+// on <html> from a blocking head script, and call initPracticeAreaNav() —
+// or the branches render open and the "+" buttons do nothing.
 
 import SidebarCard from "../blog/SidebarCard.astro";
 import { areaHref, branchOf, buildTree, type PracticeArea } from "./practiceAreas";
 
 interface Props {
   areas: PracticeArea[];
-  current: PracticeArea;
+
+  /* Omitted when the menu is rendered somewhere outside the section — the
+     About Us pages carry it as a cross-reference, and no row there is "the
+     page you are on". Without it nothing is highlighted and every branch
+     starts collapsed, which is the right resting state for a menu that is
+     pointing away from the current page rather than locating you within it. */
+  current?: PracticeArea;
 }
 
 const { areas, current } = Astro.props;
@@ -29,8 +42,9 @@ const { areas, current } = Astro.props;
 const tree = buildTree(areas);
 
 /* The branch to open: this page if it is a parent, its parent if it is a
-   child, and nothing if it is a childless top-level area. */
-const openBranch = branchOf(current);
+   child, and nothing if it is a childless top-level area — or if there is no
+   current page at all. */
+const openBranch = current ? branchOf(current) : undefined;
 const rowId = (area: PracticeArea) => `fl-${area.id.replace(/\//g, "-")}`;
 ---
 
@@ -43,7 +57,7 @@ const rowId = (area: PracticeArea) => `fl-${area.id.replace(/\//g, "-")}`;
       tree.map(({ area, children }) => {
         const hasKids = children.length > 0;
         const isOpen = hasKids && area.id === openBranch;
-        const isCurrent = area.id === current.id;
+        const isCurrent = area.id === current?.id;
 
         return (
           <li class:list={["fl__row", { "is-expanded": isOpen }]}>
@@ -100,9 +114,9 @@ const rowId = (area: PracticeArea) => `fl-${area.id.replace(/\//g, "-")}`;
                 {children.map((child) => (
                   <li>
                     <a
-                      class:list={["fl__kid", { "is-active": child.id === current.id }]}
+                      class:list={["fl__kid", { "is-active": child.id === current?.id }]}
                       href={areaHref(child)}
-                      aria-current={child.id === current.id ? "page" : undefined}
+                      aria-current={child.id === current?.id ? "page" : undefined}
                     >
                       {child.data.navLabel}
                     </a>

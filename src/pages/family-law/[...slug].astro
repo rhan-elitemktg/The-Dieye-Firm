@@ -2,7 +2,8 @@
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
-import PracticeAreaHeader from "../../components/practice-areas/PracticeAreaHeader.astro";
+import InteriorShell from "../../components/interior/InteriorShell.astro";
+import InteriorHeader from "../../components/interior/InteriorHeader.astro";
 import PracticeAreaFaqs from "../../components/practice-areas/PracticeAreaFaqs.astro";
 import PracticeAreaSidebar from "../../components/practice-areas/PracticeAreaSidebar.astro";
 import { areaHref, SECTION_ROOT_ID } from "../../components/practice-areas/practiceAreas";
@@ -32,6 +33,23 @@ const areas = await getCollection("practiceAreas");
 const parent = area.data.parent
   ? areas.find((candidate) => candidate.id === area.data.parent)
   : undefined;
+
+/* The kicker names the BRANCH you are in — the parent on a child page, the
+   page itself on a top-level one. So /family-law/child-custody/ and
+   /family-law/child-custody/out-of-state-custody/ both say "Child Custody",
+   and the label stops changing shape as you move up and down a branch.
+
+   A top-level page gets no href, because the only honest destination would be
+   itself and a link to the page you are already on is a dead end. That is also
+   why it isn't "Practice Areas" pointing at the index any more: the index is
+   still one click away from the sidebar card's own title, so the main column
+   doesn't have to carry it.
+
+   Lives here rather than in InteriorHeader because this is the only caller that
+   knows what a parent is; the header takes plain values. */
+const kicker = parent
+  ? { label: parent.data.navLabel, href: areaHref(parent) }
+  : { label: area.data.navLabel };
 
 const firm = await getFirmDetails();
 const canonical = new URL(areaHref(area), Astro.site ?? Astro.url).href;
@@ -85,25 +103,21 @@ const schema = {
       under the header on white, the same as both blog templates. */}
   <Header />
 
-  <div class="pa section">
-    <div class="container">
-      <div class="pa__grid">
-        <article class="pa__main">
-          <PracticeAreaHeader area={area} parent={parent} />
+  <InteriorShell>
+    <InteriorHeader title={area.data.title} kicker={kicker} deck={area.data.subtitle} />
 
-          {/* .prose lives unscoped in global.css because Astro's scoping never
-              reaches markup rendered by a child component. */}
-          <div class="prose pa__body">
-            <Content />
-          </div>
-
-          <PracticeAreaFaqs faqs={area.data.faqs} />
-        </article>
-
-        <PracticeAreaSidebar areas={areas} current={area} />
-      </div>
+    {/* .prose lives unscoped in global.css because Astro's scoping never
+        reaches markup rendered by a child component. `.pa__body` below is
+        scoped and still reaches this div: slotted markup carries the hash of
+        the component that wrote it, not of the one that renders it. */}
+    <div class="prose pa__body">
+      <Content />
     </div>
-  </div>
+
+    <PracticeAreaFaqs faqs={area.data.faqs} />
+
+    <PracticeAreaSidebar slot="sidebar" areas={areas} current={area} />
+  </InteriorShell>
 
   {/* Nothing closes the page below the grid yet — the related-posts band that
       the blog template ends on was removed, and its replacement is still to
@@ -118,44 +132,14 @@ const schema = {
 </Layout>
 
 <style>
-  .pa {
-    background: var(--white);
-  }
-
-  /* The interior template from AGENTS.md: three equal columns with the article
-     spanning two. align-items: start keeps the sidebar at its own height
-     rather than stretching its cards down a 2,000-word row. */
-  .pa__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--section-gap);
-    align-items: start;
-  }
-
-  .pa__main {
-    grid-column: span 2;
-    min-width: 0;
-  }
-
+  /* The grid itself lives in InteriorShell. Interior section copy runs
+     18px/30px (AGENTS.md), one step up from the blog's 17px/29px — the one
+     thing the two interior templates genuinely disagree about, so it stays
+     here. Still scoped, and it still reaches the div above; see the note in
+     InteriorShell about where Astro assigns a scope hash. */
   .pa__body {
     margin-top: 40px;
     font-size: 18px;
     line-height: 30px;
-  }
-
-  @media (max-width: 1439px) {
-    .pa__grid {
-      gap: 56px;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .pa__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .pa__main {
-      grid-column: auto;
-    }
   }
 </style>
