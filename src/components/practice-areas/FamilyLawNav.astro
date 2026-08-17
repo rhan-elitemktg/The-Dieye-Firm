@@ -40,7 +40,7 @@ interface Props {
 
 const { areas, current } = Astro.props;
 
-const rows = buildTree(areas).map(({ area, children }) => ({
+const rows = buildTree(areas).map(({ item: area, children }) => ({
   id: area.id,
   label: area.data.navLabel,
   href: areaHref(area),

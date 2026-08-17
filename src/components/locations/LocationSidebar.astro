@@ -1,0 +1,50 @@
+---
+// LocationSidebar — the rail beside a location page.
+//
+// The same four cards in the same order as PracticeAreaSidebar, with the third
+// swapped for the location-scoped menu. Not extracted into a shared component
+// with that one: the difference between the two IS the file, and a wrapper
+// taking a "which nav" prop would be longer than either.
+//
+// AuthorCard is rendered with no date, for the same reason it is on a practice
+// area: these pages have no publish date and are not articles, so its footer
+// line is omitted rather than invented.
+//
+// AreasWeServe stays, and earns its place here more than anywhere else on the
+// site — it is the only lateral move between locations, now that the menu above
+// it deliberately shows one city's pages rather than all four.
+
+import AuthorCard from "../blog/AuthorCard.astro";
+import CaseEvaluationCard from "../blog/CaseEvaluationCard.astro";
+import AreasWeServe from "../practice-areas/AreasWeServe.astro";
+import LocationNav from "./LocationNav.astro";
+import { locationHref, type LocationPage } from "./locations";
+
+interface Props {
+  pages: LocationPage[];
+  current: LocationPage;
+  root: LocationPage;
+}
+
+const { pages, current, root } = Astro.props;
+---
+
+<aside class="ls" aria-label="About this service area">
+  <AuthorCard />
+
+  <CaseEvaluationCard />
+
+  <LocationNav pages={pages} current={current} root={root} />
+
+  {/* The location you are on is marked rather than dropped: a card that
+      changes length between sibling pages reads as a bug. */}
+  <AreasWeServe current={locationHref(root)} />
+</aside>
+
+<style>
+  .ls {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+</style>

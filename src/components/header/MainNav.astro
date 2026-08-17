@@ -48,6 +48,23 @@ const familyLawItems = FAMILY_LAW_NAV.map((entry) => {
   return { label: entry.label ?? area.data.navLabel, href: areaHref(area) };
 });
 
+/* Location pages whose path does not sit under their own location root — the
+   two Pasadena orphans, /pasadena-child-support-attorney/ and
+   /pasadena-family-law-mediation-attorney/. Prefix matching lights Service
+   Areas up on the other 30 for free; these two would go dark without an
+   explicit prefix.
+
+   Derived from the collection rather than typed out, so the day the client
+   publishes another stray page the nav follows it without an edit here. */
+const locationPages = await getCollection("locations");
+const strayLocationPaths = [
+  ...new Set(
+    locationPages
+      .filter((page) => !page.id.startsWith(page.data.location))
+      .map((page) => `/${page.id.split("/")[0]}/`)
+  ),
+];
+
 /* `href` is optional: "Resources" is a grouping label with no page behind it,
    so it renders as a button rather than a link. Everything else has a real
    destination, even where that destination isn't built yet. */
@@ -56,11 +73,19 @@ type NavItem = {
   href?: string;
   viewAll?: { label: string; href: string };
   items?: { label: string; href: string }[];
-  /* An extra path prefix that also lights this item up. Practice Areas needs
-     it: the item points at /practice-areas/, but the 32 pages it indexes live
-     under /family-law/, and only six of them are in the flyout. Without this
-     the nav goes dark on the other twenty-six. */
-  activeUnder?: string;
+  /* Extra path prefixes that also light this item up. Two items need it, for
+     the same reason: the pages they cover do not all live under the href.
+
+     Practice Areas points at /practice-areas/ while the 32 pages it indexes
+     live under /family-law/, and only six are in the flyout — without this the
+     nav goes dark on the other twenty-six.
+
+     Service Areas lists four roots, and 30 of the 32 location pages sit under
+     one of them, so prefix matching covers them for free. The two that do not
+     are the Pasadena pages hanging off the site root; they are derived from the
+     collection below rather than typed here, so a future orphan needs no nav
+     edit. */
+  activeUnder?: string | string[];
 };
 
 const nav: NavItem[] = [
@@ -96,8 +121,12 @@ const nav: NavItem[] = [
   {
     label: "Service Areas",
     /* No index page for these, so the parent points at the first area rather
-       than a URL that 404s. */
+       than a URL that 404s — which it no longer does, now the section is
+       built. Four rows stays four rows: like the Family Law flyout, this is a
+       curated shortlist, and every location page carries its own full menu in
+       the sidebar. */
     href: serviceAreas[0].href,
+    activeUnder: strayLocationPaths,
     items: serviceAreas.map((area) => ({ label: area.navLabel, href: area.href })),
   },
   { label: "Testimonials", href: "/testimonials/" },
@@ -145,10 +174,12 @@ const isActive = (href?: string) => {
 
 const isExact = (href?: string) => Boolean(href) && normalise(href!) === currentPath;
 
-// True when the item itself, its extra prefix, or any of its children is active.
+// True when the item itself, any extra prefix, or any of its children is active.
+const asList = (v?: string | string[]) => (Array.isArray(v) ? v : v ? [v] : []);
+
 const isBranchActive = (item: NavItem) =>
   isActive(item.href) ||
-  isActive(item.activeUnder) ||
+  asList(item.activeUnder).some((prefix) => isActive(prefix)) ||
   (item.items ?? []).some((sub) => isActive(sub.href));
 ---
 

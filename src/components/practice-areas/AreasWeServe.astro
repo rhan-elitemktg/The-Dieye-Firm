@@ -9,31 +9,58 @@
 import SidebarCard from "../blog/SidebarCard.astro";
 import { getFirmDetails } from "../../sanity/firmDetails";
 
+interface Props {
+  /* The href of the area being viewed, on the location pages. That row renders
+     as text rather than a link — a link to the page you are already on is the
+     same dead end the kicker rule refuses. Omitted everywhere else, where no
+     row is the current page. */
+  current?: string;
+}
+
+const { current } = Astro.props;
 const { serviceAreas } = await getFirmDetails();
+
+/* Trailing slashes are normalised on both sides: the hrefs are free text in
+   Sanity, so one saved without its slash would silently never match. */
+const slash = (href: string) => href.replace(/\/?$/, "/");
 ---
 
 {
   serviceAreas.length > 0 && (
     <SidebarCard title="Areas We Serve" id="aws">
       <ul class="aws">
-        {serviceAreas.map((area) => (
-          <li>
-            <a href={area.href}>
-              <span class="aws__pin" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linejoin="round"
-                  />
-                  <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.7" />
-                </svg>
-              </span>
-              {area.label}
-            </a>
-          </li>
-        ))}
+        {serviceAreas.map((area) => {
+          const isCurrent = Boolean(current) && slash(area.href) === slash(current!);
+          const pin = (
+            <span class="aws__pin" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linejoin="round"
+                />
+                <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.7" />
+              </svg>
+            </span>
+          );
+
+          return (
+            <li>
+              {isCurrent ? (
+                <span class="aws__row is-current" aria-current="page">
+                  {pin}
+                  {area.label}
+                </span>
+              ) : (
+                <a class="aws__row" href={area.href}>
+                  {pin}
+                  {area.label}
+                </a>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </SidebarCard>
   )
@@ -50,7 +77,7 @@ const { serviceAreas } = await getFirmDetails();
     border-top: 1px solid var(--bone-300);
   }
 
-  .aws a {
+  .aws__row {
     display: flex;
     align-items: center;
     gap: 11px;
@@ -64,8 +91,16 @@ const { serviceAreas } = await getFirmDetails();
     transition: color var(--dur-base) var(--ease-out);
   }
 
-  .aws a:hover {
+  a.aws__row:hover {
     color: var(--gold-600);
+  }
+
+  /* The area you are on. Gold and bold, matching the sidebar menu's own
+     is-active row, plus aria-current on the element so it doesn't rest on
+     colour alone. */
+  .aws__row.is-current {
+    color: var(--gold-600);
+    font-weight: 700;
   }
 
   /* Sized in the flow rather than on the <svg>, so the glyph can't drive the
@@ -79,7 +114,8 @@ const { serviceAreas } = await getFirmDetails();
     transition: color var(--dur-base) var(--ease-out);
   }
 
-  .aws a:hover .aws__pin {
+  a.aws__row:hover .aws__pin,
+  .aws__row.is-current .aws__pin {
     color: var(--gold-600);
   }
 

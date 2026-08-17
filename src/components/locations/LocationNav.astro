@@ -1,0 +1,63 @@
+---
+// LocationNav — the practice-area menu in a location page's sidebar.
+//
+// Scoped to ONE location. On a Sugar Land page it lists the 14 Sugar Land
+// pages and nothing else; the statewide /family-law/ section is deliberately
+// absent, because a visitor who arrived on "Sugar Land Paternity Attorney"
+// wants the rest of Sugar Land, not the rest of Texas.
+//
+// Sibling of FamilyLawNav: both are thin adapters over TreeNav, and both feed
+// it rows built by the same buildTree, so the two menus sort and nest
+// identically without either knowing about the other.
+//
+// The card keeps the title "Practice Areas" and links to the location root.
+// Two cards on the site therefore read "Practice Areas" and mean different
+// scopes — which is safe here only because they never appear on the same page,
+// and because the h1 and kicker above have already said which city you are in.
+//
+// Like FamilyLawNav, the page rendering this must stamp `data-pa-boot` from a
+// blocking head script AND call initPracticeAreaNav(), or the branches render
+// open and the "+" buttons are inert.
+
+import TreeNav from "../interior/TreeNav.astro";
+import { buildTree, branchOf } from "../interior/tree";
+import { locationHref, pagesIn, type LocationPage } from "./locations";
+
+interface Props {
+  pages: LocationPage[];
+  current: LocationPage;
+  root: LocationPage;
+}
+
+const { pages, current, root } = Astro.props;
+
+const rows = buildTree(pagesIn(pages, root.id)).map(({ item, children }) => ({
+  id: item.id,
+  label: item.data.navLabel,
+  href: locationHref(item),
+  children: children.map((child) => ({
+    id: child.id,
+    label: child.data.navLabel,
+    href: locationHref(child),
+  })),
+}));
+
+/* Nothing opens on the location root: it is the card's title, not a row, so
+   there is no branch it sits inside. */
+const openId = current.id === root.id ? undefined : branchOf(current);
+
+/* Row ids are namespaced per location, not just per card. Every location id
+   already starts with its own slug, so collisions are impossible by
+   construction — but stating it beats relying on it. */
+const rowIdPrefix = `loc-${root.id}`;
+---
+
+<TreeNav
+  title="Practice Areas"
+  cardId="loc-nav"
+  cardHref={locationHref(root)}
+  rowIdPrefix={rowIdPrefix}
+  rows={rows}
+  currentId={current.id}
+  openId={openId}
+/>
