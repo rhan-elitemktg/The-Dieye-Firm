@@ -1,0 +1,95 @@
+---
+// Find Us — the office map, at the size a contact page should give it.
+//
+// This is where the map lives on /contact-us/. The shared Contact section
+// drops its own small one on this page (see Contact.astro's `page` variant)
+// so the office is embedded once, not twice.
+
+import Eyebrow from "../Eyebrow.astro";
+import { getFirmDetails } from "../../sanity/firmDetails";
+
+const { address } = await getFirmDetails();
+---
+
+<section class="findus section">
+  <div class="container">
+    <header class="findus__head">
+      <Eyebrow>Find Us</Eyebrow>
+      <h2 class="findus__title">Visit our <em>Pearland office.</em></h2>
+    </header>
+
+    {/* The comp hardcodes a different suite number than the firmDetails
+        singleton carries. Same class of error as its wrong phone number, so
+        the address comes from Sanity here as it does everywhere else.
+
+        `mapEmbed` rather than `mapQuery`: it resolves the firm's own Business
+        Profile, so the pin carries the name and logo instead of a generic
+        red marker. */}
+    <iframe
+      class="findus__map"
+      src={address.mapEmbed}
+      title={`Map showing The Dieye Firm at ${address.street}, ${address.locality}`}
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+</section>
+
+<style>
+  /* Tinted, not white. The Contact block above it gives up its own tint on
+     this page (see Contact.astro's `page` variant), so with both white the
+     map band and the form ran together as one undifferentiated slab. This is
+     the same cool tint the Contact section wears on the other 53 pages, which
+     keeps the page to two surfaces rather than introducing a third. */
+  .findus {
+    background: var(--mist-100);
+  }
+
+  .findus__head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 48px;
+    text-align: center;
+  }
+
+  .findus__title {
+    margin: 0;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.12;
+  }
+
+  .findus__title em {
+    font-style: italic;
+    color: var(--gold-600);
+  }
+
+  /* max-width + margin-inline declared directly rather than borrowing
+     .container and resetting its padding, which would kill the auto margins
+     above 1660px. See AGENTS.md. */
+  .findus__map {
+    display: block;
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    aspect-ratio: 64 / 30;
+    border: 0;
+    border-radius: var(--radius-md);
+  }
+
+  @media (max-width: 1000px) {
+    .findus__head {
+      margin-bottom: 40px;
+    }
+
+    .findus__map {
+      aspect-ratio: 2 / 1;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .findus__map {
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>

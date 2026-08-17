@@ -15,6 +15,11 @@ interface Props {
   canonical?: string;
   ogType?: "website" | "article";
   ogImage?: string;
+  /* /contact-us/ is the one page where the sitewide Contact section is the
+     page rather than its closing prompt, so it renders a stripped-back
+     variant. Forwarded rather than letting the page render its own Contact:
+     one component, one form, one place the markup lives. See Contact.astro. */
+  contactVariant?: "section" | "page";
 }
 
 const {
@@ -23,6 +28,7 @@ const {
   canonical,
   ogType = "website",
   ogImage,
+  contactVariant = "section",
 } = Astro.props;
 ---
 
@@ -69,7 +75,12 @@ const {
     <slot />
     {/* Site chrome — every page closes with the consultation prompt and the
         footer, so they live here rather than being remembered per page. */}
-    <Contact />
+    <Contact variant={contactVariant} />
+    {/* For the rare section that has to sit below the consultation prompt
+        rather than above it. /contact-us/ puts its office map here, because
+        the comp runs hero → form → map and the default slot is above Contact,
+        which would push the form under a 600px map. */}
+    <slot name="after-contact" />
     <Footer />
     {/* Rendered at body level so `position: fixed` can never be broken by an
         ancestor transform/filter/contain, and so any page's video triggers

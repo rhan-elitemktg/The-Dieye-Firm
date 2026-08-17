@@ -49,6 +49,13 @@ const SOCIAL_ICONS: Record<string, { label: string; path: string }> = {
   },
 };
 
+/* The firm's Google Business Profile id. It lives here rather than in the
+   singleton for the same reason the `tel:` scheme and the social icon paths
+   do: it is a fixed identifier the editor never types, not a fact they
+   maintain. It should become a real field in the Sanity sweep, so a new office
+   doesn't need a deploy — noted in HANDOFF.md. */
+const GOOGLE_MAPS_CID = "16743639105954315447";
+
 export type NavLink = { _key?: string; label: string; href: string };
 
 export type FirmDetails = {
@@ -62,7 +69,8 @@ export type FirmDetails = {
     region: string;
     postalCode: string;
     oneLine: string;
-    mapQuery: string;
+    mapEmbed: string;
+    mapLink: string;
   };
   hours: { days: string; time: string };
   socials: { _key: string; label: string; href: string; path: string }[];
@@ -113,11 +121,22 @@ async function fetchFirmDetails(): Promise<FirmDetails> {
       region: address.region,
       postalCode: address.postalCode,
       oneLine,
-      /* The Google embed takes a plain query rather than an API key, which
-         keeps this buildable without credentials. */
-      mapQuery: encodeURIComponent(
-        `${address.street} ${address.locality} ${address.region} ${address.postalCode}`
-      ),
+      /* Takes no API key, which keeps this buildable without credentials.
+
+         An address query drops a generic red pin; a CID resolves the firm's
+         own Business Profile, so the pin carries the name, logo and hours.
+         Google 301s this straight to /maps/embed?pb=…!4s<CID>, its official
+         place-embed endpoint - still no API key.
+
+         The CID is the last digits of the listing's share URL, after
+         `!1s<feature>:` and in hex: .../data=!4m6!3m5!1s0x…:0xe85d5b0e25befcb7
+         → 0xe85d5b0e25befcb7 → 16743639105954315447. */
+      mapEmbed: `https://maps.google.com/maps?cid=${GOOGLE_MAPS_CID}&output=embed`,
+      /* Same listing, opened rather than embedded — the address in the contact
+         card links here. On a phone this hands off to the Maps app, which is
+         the whole point: the next thing someone wants after reading an address
+         is directions to it. */
+      mapLink: `https://maps.google.com/?cid=${GOOGLE_MAPS_CID}`,
     },
     hours: doc.hours ?? { days: "", time: "" },
     /* A platform with no glyph in SOCIAL_ICONS is dropped rather than rendered
