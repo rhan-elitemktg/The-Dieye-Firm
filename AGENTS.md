@@ -106,8 +106,10 @@ inventing a value. The parts worth stating up front:
   `max-width: 650px`.
   *Approved exceptions, both in the header, both because that row's width is
   driven by its contents rather than by the layout grid:* it collapses to a
-  hamburger at `max-width: 1259px`, not 1000px — logo + nav + CTA + phone
-  measure 1172px, which needs 1252px of viewport once the gutters are paid.
+  hamburger at `max-width: 1159px`, not 1000px — logo + nav + CTA + phone
+  measure 998px, which needs 1078px of viewport once the gutters are paid. The
+  ~80px of slack is deliberate, so the next label change costs a re-measure
+  rather than an overflow bug.
   And its compact tier runs to `max-width: 1520px`, not 1439px, for the gutter
   reason in Gotchas below. Don't "fix" either back.
   **The collapse point is a measurement, not a constant.** It has moved twice,

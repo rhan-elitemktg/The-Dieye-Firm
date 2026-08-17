@@ -65,7 +65,9 @@ type NavItem = {
 
 const nav: NavItem[] = [
   {
-    label: "About Us",
+    /* "About", not "About Us" — the row is width-constrained and the label
+       reads the same. The URL keeps /about-us/. */
+    label: "About",
     href: "/about-us/",
     items: [
       { label: "Papa Dieye", href: "/about-us/papa-dieye/" },
@@ -92,14 +94,28 @@ const nav: NavItem[] = [
   },
   { label: "Testimonials", href: "/testimonials/" },
   {
-    /* A grouping label, not a page — deliberately no href. The Blog is its only
-       child today; the name exists so guides, FAQs and video can join it
-       without renaming the nav again. Rendered as a button so it is still
-       reachable by keyboard, since the flyout opens on :focus-within. */
+    /* A grouping label, not a page — deliberately no href, so it renders as a
+       button rather than a link (still focusable, since the flyout opens on
+       :focus-within).
+
+       Blog moved out to its own top-level item below, so these two are what
+       Resources holds. Both are real sections of the live site that we have
+       not rebuilt yet, so both 404 for now — knowingly, and tracked in
+       HANDOFF.md. The comp's nav also lists "Free Guides"; that one is left
+       out because it exists neither here nor on the live site, and inventing
+       a route is worse than a short menu. */
     label: "Resources",
-    items: [{ label: "Blog", href: "/blog/" }],
+    items: [
+      { label: "FAQs", href: "/faq/" },
+      { label: "Videos", href: "/video-center/" },
+    ],
   },
-  { label: "Contact Us", href: "/contact-us/" },
+  { label: "Blog", href: "/blog/" },
+  /* No "Contact Us" row: the gold "Schedule a Consultation" button already
+     goes to /contact-us/, in both the desktop actions and the mobile panel, so
+     a nav item beside it was a second link to the same page. Dropping it buys
+     the row width back. If the CTA ever changes destination, /contact-us/
+     needs a home in the nav again. */
 ];
 
 /* ---- Active-state helpers ----------------------------------------------
@@ -195,7 +211,15 @@ const isBranchActive = (item: NavItem) =>
     </nav>
 
     <div class="mainnav__actions">
-      <a class="btn btn--gold mainnav__cta" href="/contact-us/">Schedule a Consultation</a>
+      {/* Now the only route to /contact-us/ in the header, so it carries the
+          current-page state the removed nav item used to. */}
+      <a
+        class="btn btn--gold mainnav__cta"
+        href="/contact-us/"
+        aria-current={isExact("/contact-us/") ? "page" : undefined}
+      >
+        Contact Us
+      </a>
       <span class="mainnav__sep" aria-hidden="true"></span>
       <a class="phonecta" href={phone.href}>
         <span class="phonecta__label">Financing Available</span>
@@ -305,7 +329,13 @@ const isBranchActive = (item: NavItem) =>
     </nav>
 
     <div class="mobile-menu__actions">
-      <a class="btn btn--gold mobile-menu__cta" href="/contact-us/">Schedule a Consultation</a>
+      <a
+        class="btn btn--gold mobile-menu__cta"
+        href="/contact-us/"
+        aria-current={isExact("/contact-us/") ? "page" : undefined}
+      >
+        Contact Us
+      </a>
       <a class="mobile-menu__phone" href={phone.href}>
         <span class="mobile-menu__phone-label">Financing Available</span>
         <span class="mobile-menu__phone-num">{phone.display}</span>
@@ -826,7 +856,7 @@ const isBranchActive = (item: NavItem) =>
   }
 
   /* Never render the mobile menu on desktop */
-  @media (min-width: 1260px) {
+  @media (min-width: 1160px) {
     .mobile-menu {
       display: none;
     }
@@ -842,7 +872,7 @@ const isBranchActive = (item: NavItem) =>
      has grown enough to pay back the extra gutter (~1458). Holding the compact
      tier to 1520 covers that band with room to spare.
 
-     Same class of exception as the 1260px collapse documented in AGENTS.md,
+     Same class of exception as the 1160px collapse documented in AGENTS.md,
      and for the same reason: this row's width is driven by its contents, not
      by the layout grid. */
   @media (max-width: 1520px) {
@@ -858,15 +888,19 @@ const isBranchActive = (item: NavItem) =>
     .phonecta__num { font-size: 17px; }
   }
 
-  /* Header-specific collapse at 1260px (an intentional exception to the global
-     1000px tablet breakpoint): logo + nav + CTA + phone measure 1172px, which
-     needs 1252px of viewport once the 40px gutters are paid.
+  /* Header-specific collapse at 1160px (an intentional exception to the global
+     1000px tablet breakpoint): logo + nav + CTA + phone measure 998px, which
+     needs 1078px of viewport once the 40px gutters are paid.
 
-     Was 1200px when the row measured ~1189px. It grew twice, both times
-     because a label got longer rather than because anything was added:
-     "Blog" became "Resources", and "Family Law" became "Practice Areas". If a
-     label changes again, re-measure rather than assuming this still holds. */
-  @media (max-width: 1259px) {
+     The ~80px of slack is deliberate. This number is a MEASUREMENT and it has
+     moved three times already, every time because a label changed rather than
+     because anything was added or removed: 1200 -> 1260 as "Blog" became
+     "Resources" and "Family Law" became "Practice Areas", then -> 1160 once
+     "About Us" became "About", the "Contact Us" item went, and the CTA was
+     shortened to "Contact Us". Holding it above the measured need means the
+     next label change costs a re-measure rather than an overflow bug.
+     Re-measure after any label change rather than assuming this still holds. */
+  @media (max-width: 1159px) {
     .mainnav__nav,
     .mainnav__actions {
       display: none;

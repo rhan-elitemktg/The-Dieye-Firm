@@ -13,12 +13,16 @@ _Last rewritten: 2026-08-17, end of session._
 ## Start here
 
 **The practice-area section is complete.** 32 detail pages under `/family-law/`
-plus the index at `/practice-areas/`. There are no 404s left in the section, and
-the dangling-routes table below is down to two service-area links.
+plus the index at `/practice-areas/`. No 404s left inside the section.
 
-**Next up: the About Us group** — About Us index, Choosing a Family Law
-Attorney, The Difference. None has a comp, so they need direction or design
-before anything can start. After that, the service-area pages.
+**Next up: `/contact-us/`.** It has always 404ed, and it is the destination of
+the gold header button on all 53 pages plus five in-page CTAs — the worst dead
+link on the site. It has a comp, so it needs no direction and no new copy.
+
+After that: the About Us group (About Us index, Choosing a Family Law Attorney,
+The Difference), which has **no comp** and needs direction before it can start,
+then the service areas, then `/faq/` and `/video-center/` to fill the Resources
+flyout.
 
 ---
 
@@ -76,9 +80,16 @@ too. Family Law joined the nav flyout as an ordinary item.
   All 32 detail pages already nest one as their `Service` provider; a 33rd copy
   of the same NAP block adds nothing. What the index can offer is the map of
   the section.
-- **The header now collapses at 1259px, was 1200px.** Not a redesign — the row
-  measured 1172px after "Family Law" became "Practice Areas". It is a
-  measurement and it has moved twice; see `AGENTS.md`.
+- **The header collapse point is a measurement, not a constant.** It has moved
+  three times this session — 1200 → 1260 → 1160 — every time because a *label*
+  changed, never because anything was added to or removed from the layout. It
+  now sits ~80px above the measured need so the next label change costs a
+  re-measure rather than an overflow bug. See `AGENTS.md`.
+- **The header nav is About · Practice Areas · Service Areas · Testimonials ·
+  Resources · Blog**, with a gold "Contact Us" button. There is no "Contact Us"
+  nav item — the button is the contact link, and carries `aria-current` when
+  you are on that page. Blog sits at top level *and* Resources keeps a dropdown
+  (FAQs, Videos) for the sections still to be built.
 
 ---
 
@@ -138,8 +149,22 @@ map is the seed data for a `category` type.
 
 | Link | Lives in | Lands with |
 |---|---|---|
+| `/contact-us/` | the header CTA on every page, plus 6 in-page CTAs | **a Contact page — has a comp** |
+| `/faq/` | Resources flyout | an FAQ page |
+| `/video-center/` | Resources flyout | a video page |
 | `/harris-county-family-law-attorney/child-custody/` | PA in-body links | service areas |
 | `/harris-county-family-law-attorney/child-support/` | PA in-body links | service areas |
+
+**`/contact-us/` is the urgent one.** It is the destination of the gold header
+button on all 53 pages and of five more in-page CTAs, and it has always 404ed —
+it predates this session's nav work. There is a comp ("Contact.dc.html"), so it
+is a small, unblocked build. A law firm's contact button going nowhere is the
+worst dead link on the site.
+
+`/faq/` and `/video-center/` are new here, added knowingly: Resources needed
+children once Blog moved up to top level, and both are real sections of the
+live site we have not rebuilt. The comp's nav also lists "Free Guides"; it was
+left out because it exists neither here nor on the live site.
 
 Both scrapers print their own dangling list on every run.
 
