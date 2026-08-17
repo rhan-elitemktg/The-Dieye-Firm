@@ -2,9 +2,12 @@
 // PracticeAreaFaqs — the Q&A block that closes a page's main column.
 //
 // Content-driven, unlike home/Faq.astro whose six questions are hardcoded.
-// These come from the source page's own schema.org/FAQPage microdata, which
-// the scraper lifts into frontmatter — only /family-law/mediation-vs-litigation/
-// carries any today, so 30 of the 31 pages render nothing here.
+// These come from the source page's own FAQ, which the scraper lifts into
+// frontmatter — as schema.org/FAQPage microdata where there is any; only
+// /family-law/mediation-vs-litigation/
+// carries any today, so 31 of the 32 render nothing here. The 32 location
+// pages use it too, and there the source is a heading-based extraction rather
+// than microdata — see scripts/scrape-locations.mjs.
 //
 // Native <details name> gives exclusive open/close, keyboard support and
 // find-in-page for free, the same as the homepage accordion. No JS.

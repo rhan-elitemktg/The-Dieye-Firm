@@ -1,12 +1,12 @@
 /* scrape-practice-areas.mjs — one-time ingest of the dieyelaw.com family-law
- * section: 31 practice-area pages, ~37,000 words.
+ * section: 32 practice-area pages, ~34,900 words.
  *
  * Sibling of scrape-blog.mjs and deliberately shaped like it. The differences
  * from that script are all forced by the source markup:
  *
  *   1. Body copy is split across TWO containers. #MainContent holds the
  *      opening, and #ColumnContentExpandExpanded holds a "read more"
- *      continuation that Scorpion collapses behind an expander. 16 of the 31
+ *      continuation that Scorpion collapses behind an expander. 16 of the 32
  *      pages have one, and on /family-law/child-custody/ it carries 1,442 of
  *      the page's 1,832 words. Taking only #MainContent silently drops most of
  *      several pages, which is the single easiest way to get this wrong.
@@ -105,7 +105,7 @@ const LABEL_FIXES = {
  * The live site nests only two areas — divorce and child-custody — and leaves
  * the other sixteen flat, which makes an 18-row sidebar menu. These overrides
  * group eight of those sixteen under areas that already exist, taking the menu
- * to ten rows without inventing a page.
+ * to 11 rows without inventing a page.
  *
  * Each grouping follows the client's own cross-linking rather than our
  * taxonomy: parental-rights links to fathers-rights, grandparent-rights and
@@ -146,7 +146,7 @@ const BLOG_REDIRECTS = new Map(
 
 /* ---------------------------------------------------------------- fetching */
 
-/* 400ms between live fetches: 31 pages off the client's own host in one run. */
+/* 400ms between live fetches: 32 pages off the client's own host in one run. */
 const cachedFetch = makeCachedFetch({
   cacheDir: CACHE, origin: ORIGIN, refetch: REFETCH, ua: UA, delayMs: 400,
 });
@@ -191,7 +191,7 @@ function extractPage(html, url) {
   const main = sliceElement(html, /<div\b[^>]*id="MainContent"[^>]*>/i, "div");
   if (!main) throw new Error(`no #MainContent — ${url}`);
 
-  /* The expander. Absent on 15 of the 31 pages, which is normal — but when it
+  /* The expander. Absent on 16 of the 32 pages, which is normal — but when it
      is present it is body copy, not chrome, and skipping it loses most of
      some pages. */
   const expanded = sliceElement(

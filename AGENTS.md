@@ -3,13 +3,14 @@
 Marketing site for a Pearland / Houston family law firm. Astro 7 + Sanity
 (embedded Studio at `/admin`) + React islands, deployed on Vercel.
 
-The homepage, the blog and the 31 practice-area pages are built. What's left is
-the remaining interior pages — the practice-area index, the About Us group and
-the service areas.
+The homepage, the blog, the 32 practice-area pages and the 32 location pages
+are built. What's left is `/faq/` and `/video-center/`, plus wiring the lead
+form to an endpoint.
 
-The nav array at the top of `src/components/header/MainNav.astro` is no longer
-the whole page map: its Family Law flyout is a curated shortlist of five, and
-the full section lives in the `practiceAreas` collection. Read both.
+**The nav array at the top of `src/components/header/MainNav.astro` is not the
+page map.** Both its flyouts are curated shortlists — five practice areas of
+32, four service areas of 32 — and the full sections live in the
+`practiceAreas` and `locations` collections. Read all three.
 
 > **Read `HANDOFF.md` first** — it holds the current state: what's in flight,
 > what's decided, and what's waiting on the user. This file holds the durable
@@ -39,15 +40,17 @@ expecting a detail page.
 practice-area body text come from the comps, which exist to replace the old
 site's voice. Fine to look at the mirror for structure or URL patterns.
 
-**Two bodies of content are ingested from the live site instead**, and both are
-already in. They are the client's own writing: they carry SEO equity, and no
-comp will ever supply them.
+**Three bodies of content are ingested from the live site instead**, and all
+three are already in. They are the client's own writing: they carry SEO equity,
+and no comp will ever supply them.
 
 - **Blog posts** — `npm run scrape:blog` → `src/content/blog/` (16).
 - **Practice areas** — `npm run scrape:practice-areas` →
-  `src/content/practice-areas/` (31, ~34,000 words).
+  `src/content/practice-areas/` (32, ~34,900 words).
+- **Location pages** — `npm run scrape:locations` →
+  `src/content/locations/` (32, ~41,400 source words).
 
-**Client reviews are a third body**, and the exception that isn't in a
+**Client reviews are a fourth body**, and the exception that isn't in a
 collection. The 14 on `/testimonials/` are the clients' own words, taken from
 the live site rather than from "Testimonials.dc.html" — the comp's versions are
 copy-edited, and these are attributed to named people. They live in a named
@@ -59,7 +62,7 @@ across two views — it is not hiding a second batch). Every deviation from
 verbatim is listed at the top of that file; add to that list rather than editing
 a quote silently.
 
-Rules that govern all three:
+Rules that govern all four:
 
 - **Scrape the live site, never the mirror.** The mirror was captured
   2026-07-20; it was already one post behind on the blog, and it is missing
@@ -71,29 +74,47 @@ Rules that govern all three:
   spaced-hyphen rule below governs copy *we* write when translating a comp,
   not the firm's own published pages. Our authored chrome (Key Takeaways,
   UI strings) follows the repo rule.
-- **Both scrapers rewrite every file on every run.** Hand edits to frontmatter
-  do not survive. Editorial decisions go in the script, keyed by slug.
-- **A live page's body is almost never in one container.** Practice areas split
-  across `#MainContent` plus `#ColumnContentExpandExpanded`, a "read more"
-  block Scorpion collapses — 16 of the 31 have one, and on
-  `/family-law/child-custody/` it holds 1,442 of the page's 1,832 words. The
-  About Us pages split differently again: `#MainContent` plus
-  `#ContentS3RightContent`, Scorpion's two-column wrapper, which on
-  `/about-us/choosing-a-family-law-attorney/` holds 414 of 738 words. **Always
-  enumerate the `data-content` blocks before extracting** —
+- **All three scrapers rewrite every file on every run.** Hand edits to
+  frontmatter do not survive. Editorial decisions go in the script, keyed by
+  slug. **After any blog re-scrape, run `node scripts/add-takeaways.mjs`** —
+  `keyTakeaways` is written afterwards and the scrape wipes it.
+- **Every override table in a scraper is keyed by SLUG, and in the location
+  scraper it must be the FULL slug, not the leaf.** `scrape-practice-areas.mjs`
+  keys `LABEL_FIXES` on the leaf, which is safe there because that section is
+  flat and every leaf is unique. In `scrape-locations.mjs` "child-custody" is a
+  leaf under all four locations and "divorce" under three, so a leaf-keyed
+  Pasadena repair lands on Sugar Land silently. This is the easiest way to get
+  that ingest quietly wrong.
+- **A live page's body may or may not be in one container — check, don't
+  assume.** Practice areas split across `#MainContent` plus
+  `#ColumnContentExpandExpanded`, a "read more" block Scorpion collapses: 16 of
+  the 32 have one, and on `/family-law/child-custody/` it holds 1,442 of the
+  page's 1,832 words. The About Us pages split differently again, `#MainContent`
+  plus `#ContentS3RightContent`, which on
+  `/about-us/choosing-a-family-law-attorney/` holds 414 of 738 words. Blog posts
+  and the location pages really are single-container.
+  **Always enumerate the `data-content` blocks before extracting** —
   `grep -o 'id="[A-Za-z0-9_]*"[^>]*data-content' page.html` — because taking
-  only the first halves the page while looking like it worked. Blog posts are
-  the one body that really is single-container.
+  only the first halves the page while looking like it worked.
+  **And do not trust an id for what it looks like.** The location pages carry
+  `ColumnContentExpand_1..8` ids that read exactly like the practice areas'
+  second container and are nothing of the kind: they are `<a>` and `<span>`
+  elements on the CTA phone links, holding Scorpion's `{F:P:Cookie:…}`
+  replacement tokens. Better than checking for a container you know about is
+  what `scrape-locations.mjs` does — measure the content wrapper
+  (`#ContentZone`, or `#ContentS4` on two pages) against `#MainContent` and
+  throw if words are sitting outside, which catches a shape nobody has seen.
 - **The FAQ block at the foot of an About Us page is sitewide boilerplate**, not
   page content. It is byte-identical across those pages (spousal support,
   custody) and belongs to the old site's chrome. Exclude it.
 
-**These have no comp.** Where the live site has real published prose, that
-prose is the source (it is the client's own writing and carries SEO equity) —
-otherwise they need direction, and inventing copy is not an option:
+**These have no comp**, and both were built from the live site's own published
+prose, which is the rule where it exists: it is the client's writing and it
+carries SEO equity. Where it doesn't exist, a page needs direction — inventing
+copy is not an option.
 
 - ~~Choosing a Family Law Attorney~~ — built from the live page's 738 words.
-- The service-area pages.
+- ~~The service-area pages~~ — 32 of them, ingested; see below.
 
 **The About Us group is now one page.** `/about-us/` is Papa's bio and the
 firm's story; `/about-us/papa-dieye/` and `/about-us/the-difference/` both fold
@@ -213,10 +234,17 @@ a 404.
   *and* `/old/path/`. Vercel applies `redirects` before its own trailing-slash
   normalisation, so a single form can silently never fire, which is the worst
   outcome available: it looks done and isn't.
-- **Do not add the old path to either scraper's known-routes set.** A link in
+- **Do not add the old path to any scraper's known-routes set.** A link in
   the client's own copy that still points at the old URL should be *reported*,
   so it gets rewritten to the canonical rather than quietly riding the
   redirect for the life of the site.
+- **A path the live host 301s but the sitemap does not list earns no redirect
+  from us.** The sitemap is the test for equity, not the server's behaviour.
+  The client's copy links to `/sugar-land-family-law/` and three children,
+  which dieyelaw.com redirects; none is in the sitemap, so
+  `scrape-locations.mjs` rewrites them to the canonical and reports them, and
+  `vercel.json` gains nothing. Re-open it only if Search Console shows real
+  external inbound links — then it is two lines, in both slash forms.
 - Sweep internal links in the same commit: `grep -rn "<old-path>" src/ scripts/`.
   Prose comments count — a stale path in a comment is a wrong answer to the
   next person who greps for it.
@@ -269,6 +297,69 @@ separate index at `/practice-areas/`.
 - **`title` is SEO-shaped, `navLabel` is short.** Every page has both
   ("Pearland Divorce Lawyer" vs "Divorce"). Sort and label menus on `navLabel`;
   sorting on `title` files two thirds of the section under P.
+
+### The location pages
+
+32 pages across four service areas, at the SITE ROOT, built from one route
+(`src/pages/[...slug].astro`) and the same interior template as the practice
+areas. `locations` collection, `src/content/locations/`, file path IS the route
+— no prefix, and no section-root exception.
+
+- **`locations` is the 32 pages. `firmDetails.serviceAreas` is the four nav
+  entries.** Same trap as `/family-law/` versus `/practice-areas/`; keep the
+  names apart and never call the collection `serviceAreas`.
+- **The route is a root catch-all, and that is safe *because the build is
+  static*.** `getStaticPaths` declares 32 paths and Astro emits 32 files, so a
+  route that never declares `/about-us/` cannot serve it — shadowing is not the
+  failure mode available. A path COLLISION is, and it is silent
+  (last-write-wins on the filesystem), so the route carries a `RESERVED` set
+  that throws naming the offending content file. **`/admin` is in it and is not
+  a file in `src/pages/`** — `@sanity/astro` injects it, so a guard derived by
+  reading that directory would miss it. `RESERVED` is declared *inside*
+  `getStaticPaths`: Astro builds that function into its own prerender chunk
+  where a module-scope const is not defined.
+- **The sidebar menu is scoped to ONE location.** A Sugar Land page lists Sugar
+  Land's pages and no `/family-law/` links at all. The card is still titled
+  "Practice Areas" but links to the location root, so two cards on the site
+  share a title and mean different scopes — safe only because they never appear
+  on the same page.
+- **`location` is NOT derived from the URL**, for the same reason `parent`
+  isn't on the practice areas. `/pasadena-child-support-attorney/` and
+  `/pasadena-family-law-mediation-attorney/` hang off the site root and are
+  placed in the Pasadena menu by `LOCATION_OVERRIDES`. **Their URLs do not
+  move** and no redirect is involved. On a location root, `location` points at
+  itself, so "which location am I in" is total with no branch.
+- **`parent` is set only at the third level** (`…/divorce/uncontested-divorce/`
+  → `…/divorce/`). A page one segment under the location root is a top-level
+  row of that menu, which is what lets `buildTree` be shared unchanged.
+- **The two orphans need the nav told about them.** `isActive` prefix-matches,
+  so 30 of 32 light Service Areas up for free. `activeUnder` takes a list and
+  the extra prefixes are derived from the collection, so a future stray page
+  needs no nav edit.
+- **`areaServed` is that location only**, matched out of `firmDetails` by href
+  rather than retyped, and the build fails if Sanity and the collection
+  disagree. A location root emits `LegalService`; a child emits `Service`.
+- **The FAQ extraction is heading-based, not microdata.** None of these pages
+  carries `FAQPage` markup, unlike `/family-law/mediation-vs-litigation/`. The
+  rule is in `scrape-locations.mjs`, and the run prints every lifted question
+  for audit — the region ends at the **next `h2`**, not at end of document,
+  because the Harris County root has a section after its FAQ.
+
+### The one sidebar menu, and the one HTML parser
+
+Two extractions exist so a third copy never happens. Both were proved no-ops
+before anything new used them; do the same to either again.
+
+- **`src/components/interior/TreeNav.astro`** is the expand/collapse menu, with
+  `FamilyLawNav` and `LocationNav` as thin adapters and `interior/tree.ts`
+  holding the sort and nest. Its classes still read `fl__` and its hooks still
+  read `pa-`; that is deliberate, not leftover — keeping them let the
+  extraction emit byte-identical HTML on 33 routes, so it could be *proved*
+  rather than argued. Rename only as its own provable change.
+- **`scripts/lib/html.mjs`** is the shared parsing kit. What is NOT in it —
+  `normaliseHeadings`, `stripCtas`, `rewriteLinks`, the page extractors — has
+  diverged per source for real reasons, and folding those together behind flags
+  would hide the differences the next person needs to see.
 
 ### Header: overlay vs in flow
 

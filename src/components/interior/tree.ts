@@ -9,7 +9,7 @@
 export type TreeEntry = { id: string; data: { navLabel: string; parent?: string } };
 
 /* Alphabetical, and deliberately so. The client's own order is alphabetical
-   except where pages were appended as they were written, which at 18 entries
+   except where pages were appended as they were written, which at 19 entries
    reads as a ranking rather than as a list. Sorting invents nothing; it is the
    same labels.
 

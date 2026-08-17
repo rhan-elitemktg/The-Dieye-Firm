@@ -51,7 +51,7 @@ const blog = defineCollection({
     }),
 });
 
-/* Practice areas — the 31 family-law detail pages, ingested from the live site
+/* Practice areas — the 32 family-law detail pages, ingested from the live site
    by `npm run scrape:practice-areas`. See scripts/scrape-practice-areas.mjs.
 
    The file layout IS the route: src/content/practice-areas/divorce.md becomes
@@ -77,7 +77,7 @@ const practiceAreas = defineCollection({
     title: z.string(),
 
     /* The client's own nav wording ("Child Custody", "QDROs"). Distinct from
-       `title` on all 31 pages, which is why both exist. */
+       `title` on all 32 pages, which is why both exist. */
     navLabel: z.string(),
 
     seoTitle: z.string().optional(),
@@ -88,12 +88,12 @@ const practiceAreas = defineCollection({
     subtitle: z.string().optional(),
 
     /* Top-level pages omit this. Set to the parent's slug on the 21 children,
-       leaving 10 top-level areas.
+       leaving 11 top-level areas.
 
        It is NOT derived from the URL. 13 of the 21 are nested on the live site
        too (10 under divorce, 3 under child-custody); the other 8 are
        re-parented by PARENT_OVERRIDES in the scraper to keep the sidebar menu
-       to ten rows. Those 8 keep their flat URLs, so a page's path and its
+       to 11 rows. Those 8 keep their flat URLs, so a page's path and its
        parent deliberately disagree — see the note there. */
     parent: z.string().optional(),
 
