@@ -25,6 +25,9 @@ const { phone, serviceAreas } = await getFirmDetails();
 const FAMILY_LAW_NAV: { id: string; label?: string }[] = [
   { id: "divorce" },
   { id: "child-custody" },
+  /* /family-law/ is a practice-area page like any other now, not the index —
+     the index is /practice-areas/, which this flyout's parent points at. */
+  { id: "family-law" },
   { id: "child-support" },
   { id: "domestic-violence" },
   /* Shortened from the collection's "Protective & Restraining Orders": the nav
@@ -53,6 +56,11 @@ type NavItem = {
   href?: string;
   viewAll?: { label: string; href: string };
   items?: { label: string; href: string }[];
+  /* An extra path prefix that also lights this item up. Practice Areas needs
+     it: the item points at /practice-areas/, but the 32 pages it indexes live
+     under /family-law/, and only six of them are in the flyout. Without this
+     the nav goes dark on the other twenty-six. */
+  activeUnder?: string;
 };
 
 const nav: NavItem[] = [
@@ -66,11 +74,13 @@ const nav: NavItem[] = [
     ],
   },
   {
-    /* /family-law/ is not built yet — it will become the practice-area index,
-       and it has a comp waiting. Until then this link 404s, knowingly. */
-    label: "Family Law",
-    href: "/family-law/",
-    viewAll: { label: "View All +", href: "/family-law/" },
+    /* Points at the section index, /practice-areas/. Not /family-law/ — that
+       is a practice-area page in its own right and appears in the flyout
+       below like any other. */
+    label: "Practice Areas",
+    href: "/practice-areas/",
+    activeUnder: "/family-law/",
+    viewAll: { label: "View All +", href: "/practice-areas/" },
     items: familyLawItems,
   },
   {
@@ -111,9 +121,11 @@ const isActive = (href?: string) => {
 
 const isExact = (href?: string) => Boolean(href) && normalise(href!) === currentPath;
 
-// True when the item itself or any of its children is active.
+// True when the item itself, its extra prefix, or any of its children is active.
 const isBranchActive = (item: NavItem) =>
-  isActive(item.href) || (item.items ?? []).some((sub) => isActive(sub.href));
+  isActive(item.href) ||
+  isActive(item.activeUnder) ||
+  (item.items ?? []).some((sub) => isActive(sub.href));
 ---
 
 <div class="mainnav">
@@ -814,13 +826,13 @@ const isBranchActive = (item: NavItem) =>
   }
 
   /* Never render the mobile menu on desktop */
-  @media (min-width: 1201px) {
+  @media (min-width: 1260px) {
     .mobile-menu {
       display: none;
     }
   }
 
-  /* Small Desktop — shrink so the full row still fits down to ~1200px.
+  /* Small Desktop — shrink so the full row still fits down to the collapse.
 
      The ceiling is 1520, not the usual 1439, and the reason is counter-
      intuitive: --container-pad jumps from 40px to 100px at 1440, so the
@@ -830,7 +842,7 @@ const isBranchActive = (item: NavItem) =>
      has grown enough to pay back the extra gutter (~1458). Holding the compact
      tier to 1520 covers that band with room to spare.
 
-     Same class of exception as the 1200px collapse documented in AGENTS.md,
+     Same class of exception as the 1260px collapse documented in AGENTS.md,
      and for the same reason: this row's width is driven by its contents, not
      by the layout grid. */
   @media (max-width: 1520px) {
@@ -846,10 +858,15 @@ const isBranchActive = (item: NavItem) =>
     .phonecta__num { font-size: 17px; }
   }
 
-  /* Header-specific collapse at 1200px (an intentional exception to the global
-     1000px tablet breakpoint): the nav + CTA + phone need ~1189px, so below
-     1200 we collapse to the hamburger. Mobile menu wired next. */
-  @media (max-width: 1200px) {
+  /* Header-specific collapse at 1260px (an intentional exception to the global
+     1000px tablet breakpoint): logo + nav + CTA + phone measure 1172px, which
+     needs 1252px of viewport once the 40px gutters are paid.
+
+     Was 1200px when the row measured ~1189px. It grew twice, both times
+     because a label got longer rather than because anything was added:
+     "Blog" became "Resources", and "Family Law" became "Practice Areas". If a
+     label changes again, re-measure rather than assuming this still holds. */
+  @media (max-width: 1259px) {
     .mainnav__nav,
     .mainnav__actions {
       display: none;

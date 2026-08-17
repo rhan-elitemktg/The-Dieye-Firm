@@ -1,0 +1,164 @@
+---
+// AllAreas — every practice area on the site, A to Z.
+//
+// The featured grid above shows six; this is the other twenty-six as well, so
+// the index actually indexes. It is the strongest internal-linking block on the
+// site and the only place a visitor can see the whole section at once.
+//
+// Multi-column rather than a grid, deliberately: an alphabetical list should
+// read DOWN each column (A-K | L-Q | R-Z). CSS grid flows row-major, which
+// would put B beside L beside R and make the alphabet useless. column-count
+// also balances the three columns without anyone doing arithmetic.
+
+import Eyebrow from "../Eyebrow.astro";
+import { areaHref, byLabel, type PracticeArea } from "./practiceAreas";
+
+interface Props {
+  areas: PracticeArea[];
+}
+
+/* Flat and fully alphabetical — no parent/child grouping. Someone scanning for
+   "QDROs" should not have to know it lives under Property Division. */
+const all = [...Astro.props.areas].sort(byLabel);
+---
+
+<section class="allpa section">
+  <div class="container">
+    <header class="allpa__head">
+      <Eyebrow>Full Index</Eyebrow>
+      <h2 class="allpa__title">Every practice area, <em>A to Z.</em></h2>
+    </header>
+
+    <ul class="allpa__list">
+      {
+        all.map((area) => (
+          <li>
+            <a href={areaHref(area)}>
+              <span>{area.data.navLabel}</span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M5 12h13m-5-6 6 6-6 6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Cream, so the section separates the white featured grid above from the
+     navy stats band below without another rule. */
+  .allpa {
+    background: var(--bone-100);
+  }
+
+  .allpa__head {
+    max-width: 830px;
+    margin: 0 auto 44px;
+    text-align: center;
+  }
+
+  .allpa__title {
+    margin: 16px 0 0;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.06;
+    color: var(--navy-700);
+    text-wrap: balance;
+  }
+
+  .allpa__title em {
+    font-style: italic;
+    color: var(--gold-600);
+  }
+
+  .allpa__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    column-count: 3;
+    column-gap: var(--section-gap);
+  }
+
+  /* Without this a row can be split across a column break, leaving its rule at
+     the foot of one column and its label at the head of the next. */
+  .allpa__list li {
+    break-inside: avoid;
+  }
+
+  .allpa__list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--bone-300);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--navy-700);
+    text-decoration: none;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+
+  .allpa__list a:hover {
+    color: var(--gold-600);
+  }
+
+  .allpa__list svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--gold-500);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
+  }
+
+  .allpa__list a:hover svg {
+    color: var(--gold-600);
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 1439px) {
+    .allpa__list {
+      column-gap: 56px;
+    }
+  }
+
+  /* Two columns before three get too narrow: "Protective & Restraining Orders"
+     is 31 characters and wraps badly under about 260px. */
+  @media (max-width: 1000px) {
+    .allpa__list {
+      column-count: 2;
+      column-gap: 40px;
+    }
+
+    .allpa__head {
+      margin-bottom: 32px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .allpa__list {
+      column-count: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .allpa__list svg {
+      transition: color var(--dur-base) var(--ease-out);
+    }
+
+    .allpa__list a:hover svg {
+      transform: none;
+    }
+  }
+</style>

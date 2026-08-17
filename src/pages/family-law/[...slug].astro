@@ -5,19 +5,24 @@ import Header from "../../components/header/Header.astro";
 import PracticeAreaHeader from "../../components/practice-areas/PracticeAreaHeader.astro";
 import PracticeAreaFaqs from "../../components/practice-areas/PracticeAreaFaqs.astro";
 import PracticeAreaSidebar from "../../components/practice-areas/PracticeAreaSidebar.astro";
-import { areaHref } from "../../components/practice-areas/practiceAreas";
+import { areaHref, SECTION_ROOT_ID } from "../../components/practice-areas/practiceAreas";
 import { getFirmDetails } from "../../sanity/firmDetails";
 
 /* The collection id is already the route tail — "divorce",
    "divorce/military-divorce" — because the scraper writes the files in that
-   shape. A rest param consumes both depths, so one route covers all 31 pages.
+   shape. A rest param consumes both depths, so one route covers all 32 pages.
 
-   /family-law/ itself is not in the collection and so is not generated here:
-   the index has a comp, and AGENTS.md makes a comp the source of truth
-   wherever one exists. */
+   The section root is the exception: it is a real practice-area page that
+   lives AT /family-law/, and a rest param renders the parent path when its
+   value is undefined. That is why its id ("family-law") does not match its
+   route — the only page in the section where the two differ. The practice-area
+   INDEX is a separate page at /practice-areas/, built from the comp. */
 export async function getStaticPaths() {
   const areas = await getCollection("practiceAreas");
-  return areas.map((area) => ({ params: { slug: area.id }, props: { area } }));
+  return areas.map((area) => ({
+    params: { slug: area.id === SECTION_ROOT_ID ? undefined : area.id },
+    props: { area },
+  }));
 }
 
 const { area } = Astro.props;

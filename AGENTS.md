@@ -106,9 +106,14 @@ inventing a value. The parts worth stating up front:
   `max-width: 650px`.
   *Approved exceptions, both in the header, both because that row's width is
   driven by its contents rather than by the layout grid:* it collapses to a
-  hamburger at `max-width: 1200px`, not 1000px — the 6-item nav plus CTA and
-  phone need ~1189px. And its compact tier runs to `max-width: 1520px`, not
-  1439px, for the gutter reason in Gotchas below. Don't "fix" either back.
+  hamburger at `max-width: 1259px`, not 1000px — logo + nav + CTA + phone
+  measure 1172px, which needs 1252px of viewport once the gutters are paid.
+  And its compact tier runs to `max-width: 1520px`, not 1439px, for the gutter
+  reason in Gotchas below. Don't "fix" either back.
+  **The collapse point is a measurement, not a constant.** It has moved twice,
+  both times because a nav *label* got longer rather than because anything was
+  added ("Blog" → "Resources", "Family Law" → "Practice Areas"). Re-measure
+  after any label change — `MainNav.astro` carries the working.
 - **Container**: `--container-max: 1660px`; gutter `--container-pad` is
   `clamp(20px, 4vw, 40px)`, rising to `100px` at ≥1440.
 - **Section rhythm**: `.section` = 98px block padding, easing to 72px ≤1000
@@ -149,27 +154,35 @@ the same things piecemeal and worse. `HANDOFF.md` tracks the current ranking.
 
 ### The practice-area section
 
-31 pages under `/family-law/`, built from one route and one template.
+32 pages under `/family-law/`, built from one route and one template, plus a
+separate index at `/practice-areas/`.
 
-- **The content file path IS the route.**
+- **The index is `/practice-areas/`, not `/family-law/`.** The two are
+  different things and mixing them up is the easiest mistake here.
+  `/practice-areas/` is built from the comp ("Practice Areas index.dc.html")
+  and lists the section; `/family-law/` is a scraped practice-area page in its
+  own right ("Pearland Family Lawyer") and sits in the collection like any
+  other. Nav, the sidebar card title and every top-level page's kicker point at
+  the index.
+- **The content file path IS the route**, with exactly one exception.
   `src/content/practice-areas/divorce/military-divorce.md` →
   `/family-law/divorce/military-divorce/`. The glob loader's id is already the
-  nested slug, so `[...slug].astro` consumes it whole and nothing reassembles a
-  path from parts.
+  nested slug, so `[...slug].astro` consumes it whole. The exception is the
+  section root: its id is `family-law` but it renders at `/family-law/`,
+  because stripping the section prefix leaves it with an empty slug. Both
+  `areaHref` and `getStaticPaths` special-case that id — `getStaticPaths` gives
+  it `slug: undefined`, which a rest param renders at the parent path.
 - **URLs match the live site exactly**, so this section needs no redirects —
   unlike the blog, whose Scorpion slugs were cut mid-word. Don't renumber them.
-- **`/family-law/` itself is not in the collection.** It has a comp, so it is
-  built from that, not scraped. Until it exists it 404s — knowingly, and it is
-  now the most-linked missing page on the site.
-- **The sidebar menu is the same on all 31 pages** (`FamilyLawNav.astro`): the
-  10 top-level areas, a `+` on the five with children and an arrow on the rest,
+- **The sidebar menu is the same on all 32 pages** (`FamilyLawNav.astro`): the
+  11 top-level areas, a `+` on the five with children and an arrow on the rest,
   alphabetical with the `+` rows first. The branch you are in opens by default.
   It briefly had a second state — a branch page listing only its children —
   which existed because the menu was 18 rows and too tall to show everywhere;
   the nesting below removed that reason. Don't re-add it.
 - **`parent` is NOT derived from the URL.** 13 pages are nested on the live
   site, and 8 more are re-parented by `PARENT_OVERRIDES` in the scraper so the
-  menu is 10 rows rather than 18 — Parental Rights takes the four rights pages,
+  menu is 11 rows rather than 19 — Parental Rights takes the four rights pages,
   Property Division takes Hidden Assets and QDROs, Domestic Violence takes
   Protective Orders, Divorce takes Mediation vs Litigation. Every grouping
   follows the client's own cross-linking. **Those 8 keep their flat URLs**, so

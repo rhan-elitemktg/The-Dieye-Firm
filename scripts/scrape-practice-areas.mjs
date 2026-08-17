@@ -57,11 +57,16 @@ const UA =
 
 const REFETCH = process.argv.includes("--refetch");
 
-/* The /family-law/ index is NOT ingested. It has a comp — "Practice Areas
-   index.dc.html" — and AGENTS.md makes comps the source of truth for both
-   layout and copy wherever one exists. Only the 31 detail pages come from
-   here. */
-const INDEX_PATH = "/family-law/";
+/* The section root. It IS ingested — it is a real practice-area page in its own
+   right ("Pearland Family Lawyer"), not an index. The index the comp describes
+   is a separate page at /practice-areas/, built from that comp.
+
+   It needs naming by hand because the slug derivation below strips
+   "/family-law/" off the front of the pathname, which leaves this one page
+   with an empty string. Everything downstream — areaHref, the route's
+   getStaticPaths — special-cases this same id. */
+const SECTION_ROOT = "/family-law/";
+const SECTION_ROOT_SLUG = "family-law";
 
 /* Short labels for the sidebar and nav, taken from the client's own nav
    flyout. Only entries where the flyout's wording needs typographic repair
@@ -504,14 +509,17 @@ const titleCase = (slug) =>
 async function main() {
   console.log("Enumerating the family-law section from the live sitemap…");
   const sitemap = await cachedFetch(SITEMAP);
+  /* The pattern needs a segment after "/family-law/", so the section root
+     never matches it and is added explicitly. */
   const urls = [
-    ...new Set(
-      [...sitemap.matchAll(/https:\/\/www\.dieyelaw\.com\/family-law\/[a-z0-9/-]*\//g)].map((m) => m[0])
-    ),
-  ]
-    .filter((u) => new URL(u).pathname !== INDEX_PATH)
-    .sort();
-  console.log(`  ${urls.length} detail pages (the index is comp-driven, not ingested)\n`);
+    ...new Set([
+      `${ORIGIN}${SECTION_ROOT}`,
+      ...[...sitemap.matchAll(/https:\/\/www\.dieyelaw\.com\/family-law\/[a-z0-9/-]*\//g)].map(
+        (m) => m[0]
+      ),
+    ]),
+  ].sort();
+  console.log(`  ${urls.length} pages, including the section root\n`);
 
   const livePaths = new Set(urls.map((u) => new URL(u).pathname));
 
@@ -524,7 +532,10 @@ async function main() {
       const out = [];
       for (const e of await readdir(dir, { withFileTypes: true })) {
         if (e.isDirectory()) out.push(...(await walk(path.join(dir, e.name), `${base}${e.name}/`)));
-        else if (e.name === "index.html" && base) out.push(`/family-law/${base}`);
+        /* `base` is empty for the section root, whose index.html is the
+           /family-law/ page itself — counted, not skipped, or the cross-check
+           reports it as missing from the mirror when it is right there. */
+        else if (e.name === "index.html") out.push(`/family-law/${base}`);
       }
       return out;
     };
@@ -570,7 +581,12 @@ async function main() {
     }
 
     const pathname = new URL(url).pathname;
-    const slug = pathname.replace(/^\/family-law\//, "").replace(/\/$/, "");
+    /* Stripping the section prefix leaves the root page with an empty slug, so
+       it is named explicitly. See SECTION_ROOT above. */
+    const slug =
+      pathname === SECTION_ROOT
+        ? SECTION_ROOT_SLUG
+        : pathname.replace(/^\/family-law\//, "").replace(/\/$/, "");
     const leaf = slug.split("/").pop();
     /* The URL's own nesting, unless we have re-parented this page above. */
     const parent = PARENT_OVERRIDES[slug] ?? (slug.includes("/") ? slug.split("/")[0] : null);

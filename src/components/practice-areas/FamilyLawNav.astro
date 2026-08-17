@@ -34,7 +34,10 @@ const openBranch = branchOf(current);
 const rowId = (area: PracticeArea) => `fl-${area.id.replace(/\//g, "-")}`;
 ---
 
-<SidebarCard title="Family Law" id="fl-nav" href="/family-law/">
+{/* Titled and linked for the section INDEX, /practice-areas/. Not
+    /family-law/ — that is one of the rows in the list below now, and a card
+    titled "Family Law" containing a row called "Family Law" reads as a bug. */}
+<SidebarCard title="Practice Areas" id="fl-nav" href="/practice-areas/">
   <ul class="fl">
     {
       tree.map(({ area, children }) => {
