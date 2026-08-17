@@ -149,7 +149,12 @@ the same things piecemeal and worse. `HANDOFF.md` tracks the current ranking.
    `Awards`, `Testimonials`, etc. import straight from `src/components/home/`.
    Don't rebuild an equivalent.
 3. `Contact` and `Footer` are rendered by `Layout.astro`. Never add them to a
-   page.
+   page — **including `/contact-us/`**, where the temptation is strongest. That
+   page passes `contactVariant="page"` to `Layout` instead, which forwards it
+   to `Contact`; the variant drops the head, swaps the map for a photo and
+   flattens the band. One component, one form, one place the markup lives.
+   A section that must sit *below* the consultation prompt goes in `Layout`'s
+   `after-contact` slot — the default slot renders above it.
 4. Use `src/components/Eyebrow.astro` for the gold-bird kicker. The homepage
    sections predate it and each carry their own copy; new work should not.
 5. Give `Layout` a real `title` and `description`.
@@ -339,6 +344,15 @@ The one live document today is the `firmDetails` singleton — phone, address,
 socials, service areas, footer nav. Read it through `getFirmDetails()` in
 `src/sanity/firmDetails.ts`, which memoises so a static build fetches once.
 Project ID `mj6dqs6p`, dataset `production`, both in the gitignored `.env`.
+
+**The office map is keyed on the firm's Google Business Profile CID, not on the
+address.** `address.mapEmbed` builds
+`maps.google.com/maps?cid=…&output=embed`, which Google 301s to its official
+place-embed endpoint; the pin then carries the firm's name, rating and hours
+instead of a generic red marker. An address query renders an anonymous pin, so
+don't "simplify" it back to one — the branded card is the point. Still no API
+key either way. The CID is a constant in `firmDetails.ts` alongside the other
+derivations; it should become a real field in the Sanity sweep.
 
 The Sanity **CLI is authenticated on this machine**, so `sanity documents
 create/query/validate` work directly. The `mcp.sanity.io` server shows as

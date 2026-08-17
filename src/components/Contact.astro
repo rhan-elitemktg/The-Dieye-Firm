@@ -8,27 +8,88 @@ import iconCall from "../assets/icons/contact-call.svg?raw";
 import iconMail from "../assets/icons/contact-mail.svg?raw";
 import iconOffice from "../assets/icons/contact-office.svg?raw";
 import iconHours from "../assets/icons/contact-hours.svg?raw";
+import street from "../assets/images/papa-old-town-portrait.jpg";
 import { getFirmDetails } from "../sanity/firmDetails";
+
+interface Props {
+  /* "page" is /contact-us/ itself, where this stops being the closing prompt
+     and becomes the body of the page. Three things change, all of them from
+     the Contact comp:
+
+     - The head goes. That page's own hero already says "Let's Talk" and asks
+       for the consultation, so keeping this one repeats the same two sentences
+       200px apart.
+     - The map goes, and a photo takes its place. /contact-us/ carries a much
+       larger map of its own further down (contact/FindUs.astro); two embeds of
+       the same office on one page is a wasted third-party request as well as a
+       duplicate. The photo keeps the left column tall enough to sit level with
+       the form card, which is the job the map was doing here.
+     - The band flattens to white with no padding, so it reads as continuous
+       with the hero above it rather than as a separate slab. */
+  variant?: "section" | "page";
+}
+
+const { variant = "section" } = Astro.props;
+const isPage = variant === "page";
 
 const { phone, email, address, hours } = await getFirmDetails();
 ---
 
-<section class="contact section" aria-labelledby="contact-title">
+<section
+  class:list={["contact", "section", { "contact--page": isPage }]}
+  aria-labelledby={isPage ? undefined : "contact-title"}
+  aria-label={isPage ? "Contact The Dieye Firm" : undefined}
+>
   <div class="container">
-    <header class="contact__head">
-      <p class="contact__eyebrow">
-        <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-        <span>Let's Talk</span>
-      </p>
-      <h2 class="contact__title" id="contact-title">Take the <em>First Step</em></h2>
-      <p class="contact__lead">
-        One conversation can bring clarity.<br />
-        Reach out for a free, confidential consultation. No pressure, just answers.
-      </p>
-    </header>
+    {
+      !isPage && (
+        <header class="contact__head">
+          <p class="contact__eyebrow">
+            <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+            <span>Let's Talk</span>
+          </p>
+          <h2 class="contact__title" id="contact-title">
+            Take the <em>First Step</em>
+          </h2>
+          <p class="contact__lead">
+            One conversation can bring clarity.
+            <br />
+            Reach out for a free, confidential consultation. No pressure, just answers.
+          </p>
+        </header>
+      )
+    }
 
     <div class="contact__grid">
       <div class="contact__info">
+        {
+          isPage && (
+            /* 16/9 rather than the comp's fixed 390px height: the source is
+               1376x768 (1.79:1), so this crop is a no-op at every width, where
+               a fixed height re-crops it differently in each column size. Same
+               reasoning as the practice-area cards. */
+            <Image
+              class="contact__photo"
+              src={street}
+              alt="Attorney Papa Dieye on the street in Old Town Pearland"
+              widths={[640, 900, 1376]}
+              {/* Measured, not guessed: the left column is the container less
+                  its gutters and the grid gap, halved. A round 46vw asks for
+                  the 900px file at 1440 where the 640 is the right one. */}
+              sizes="(max-width: 1000px) calc(100vw - 48px), (max-width: 1439px) calc((100vw - 120px) / 2), (max-width: 1659px) calc((100vw - 260px) / 2), 700px"
+              format="webp"
+              quality={80}
+              {/* Eager, unlike every other image this far down a page. On
+                  /contact-us/ there is no hero photo above it, so this is the
+                  LCP element at every width - 394px of it is in the initial
+                  viewport at 1920, 475px at 1000. */}
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+            />
+          )
+        }
+
         <h3 class="contact__subhead">Get In Touch</h3>
 
         <ul class="cinfo">
@@ -50,9 +111,19 @@ const { phone, email, address, hours } = await getFirmDetails();
             <span class="cinfo__icon" aria-hidden="true" set:html={iconOffice} />
             <span class="cinfo__text">
               <span class="cinfo__label">Address</span>
-              <span class="cinfo__value">
+              {/* Links out like the phone and email beside it. New tab because
+                  leaving the site mid-enquiry would lose anything already
+                  typed into the form - `noopener` since `_blank` otherwise
+                  hands Google's tab a reference back to this window. */}
+              <a
+                class="cinfo__value cinfo__link"
+                href={address.mapLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {address.street}, {address.locality}, {address.region} {address.postalCode}
-              </span>
+                <span class="visually-hidden">(opens in a new tab)</span>
+              </a>
             </span>
           </li>
           <li class="cinfo__item">
@@ -67,14 +138,19 @@ const { phone, email, address, hours } = await getFirmDetails();
         {/* Lazy so it stays off the critical path, and titled so it isn't an
             unlabelled frame in the a11y tree. It still costs a third-party
             request and cookies on every page — worth revisiting if a consent
-            banner ever lands. */}
-        <iframe
-          class="contact__map"
-          src={`https://www.google.com/maps?q=${address.mapQuery}&output=embed`}
-          title={`Map showing The Dieye Firm at ${address.street}, ${address.locality}`}
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
+            banner ever lands. Not on /contact-us/, which renders its own
+            larger map below and would otherwise load two. */}
+        {
+          !isPage && (
+            <iframe
+              class="contact__map"
+              src={address.mapEmbed}
+              title={`Map showing The Dieye Firm at ${address.street}, ${address.locality}`}
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            />
+          )
+        }
       </div>
 
       <div class="contact__card">
@@ -157,7 +233,19 @@ const { phone, email, address, hours } = await getFirmDetails();
 
 <style>
   .contact {
-    background: #eef3f5;
+    background: var(--mist-100);
+  }
+
+  /* On /contact-us/ the hero hands straight off to this grid, so the band
+     carries no tint and no padding above it — the hero's 56px below its lead
+     is the whole gap.
+
+     Only `padding-top` is zeroed. The bottom keeps `.section`'s value (and its
+     easing to 72/48) so the navy form card isn't sitting flush on the colour
+     change into FindUs, which read as a mistake rather than as a seam. */
+  .contact--page {
+    background: var(--white);
+    padding-top: 0;
   }
 
   /* ---- Head ---- */
@@ -229,6 +317,13 @@ const { phone, email, address, hours } = await getFirmDetails();
     list-style: none;
   }
 
+  /* That 24px exists to separate the cards from the map below them. On
+     /contact-us/ there is no map, so it would just be a dangling gap - visible
+     on mobile, where the form card stacks straight after. */
+  .contact--page .cinfo {
+    margin-bottom: 0;
+  }
+
   .cinfo__item {
     display: flex;
     align-items: flex-start;
@@ -277,12 +372,33 @@ const { phone, email, address, hours } = await getFirmDetails();
     color: var(--navy-700);
   }
 
+  /* Navy at rest, gold on hover — which is the way round `--gold-600` is
+     described in global.css ("text-on-light accent, hover"). It also fixes a
+     contrast problem the old order had: gold-600 on white is 3.4:1, under the
+     4.5:1 floor for 16px bold, and these three values were sitting in it
+     permanently. Navy-700 clears it comfortably, and a hover state is
+     transient and always paired with the cursor. */
   .cinfo__link {
-    color: var(--gold-600);
+    color: var(--navy-700);
+    transition: color var(--dur-base) var(--ease-out);
   }
 
   .cinfo__link:hover {
-    color: var(--navy-700);
+    color: var(--gold-600);
+  }
+
+  /* ---- Street photo (page variant only) ---- */
+  .contact__photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    /* Papa's head sits high in the frame. Only bites below 1000px, where the
+       column goes full-width and the 16/9 box finally has to crop. */
+    object-position: center 28%;
+    margin-bottom: 28px;
+    border-radius: var(--radius-md);
   }
 
   /* ---- Map ---- */
@@ -434,6 +550,13 @@ const { phone, email, address, hours } = await getFirmDetails();
     .contact__map {
       aspect-ratio: 2 / 1;
     }
+
+    /* Same ladder as the map above, and for the same reason: once the grid is
+       one column the photo spans the full container, and 16/9 of 962px is a
+       541px slab that pushes the form most of a screen further down. */
+    .contact__photo {
+      aspect-ratio: 2 / 1;
+    }
   }
 
   /* Mobile — the info cards and the paired form fields both go single-file;
@@ -454,6 +577,13 @@ const { phone, email, address, hours } = await getFirmDetails();
 
     .contact__map {
       aspect-ratio: 4 / 3;
+    }
+
+    /* Back to the taller ratio on a phone: 2/1 of a 390px column is 195px,
+       which is too short for a half-length portrait to read as one. */
+    .contact__photo {
+      aspect-ratio: 16 / 9;
+      margin-bottom: 24px;
     }
 
     .contact__card {

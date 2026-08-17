@@ -1,0 +1,65 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import ContactHero from "../components/contact/ContactHero.astro";
+import FindUs from "../components/contact/FindUs.astro";
+import { getFirmDetails } from "../sanity/firmDetails";
+
+/* The destination of the gold header CTA on every page, plus six in-body
+   links from the practice-area copy. The body of this page is the sitewide
+   Contact section in its `page` variant — Layout renders it, this file asks
+   for the variant. Nothing between the hero and FindUs, by design. */
+const firm = await getFirmDetails();
+const canonical = new URL("/contact-us/", Astro.site ?? Astro.url).href;
+
+/* ContactPage wrapping the LegalService NAP. The practice-area pages nest the
+   same provider block, but this is the page the NAP is actually about, and it
+   is the one a knowledge panel should resolve to — so it gets openingHours and
+   the geo-coded address rather than just the postal one. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  name: "Contact The Dieye Firm",
+  url: canonical,
+  mainEntity: {
+    "@type": "LegalService",
+    name: firm.firmName,
+    telephone: firm.phone.display,
+    email: firm.email.display,
+    url: new URL("/", Astro.site ?? Astro.url).href,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: firm.address.street,
+      addressLocality: firm.address.locality,
+      addressRegion: firm.address.region,
+      postalCode: firm.address.postalCode,
+      addressCountry: "US",
+    },
+    areaServed: firm.serviceAreas.map((serviceArea) => ({
+      "@type": "Place",
+      name: serviceArea.label,
+    })),
+  },
+};
+---
+
+<Layout
+  title="Contact a Pearland Family Law Attorney | The Dieye Firm"
+  description="Speak with attorney Papa Dieye about your divorce, custody or support matter. Request a free, confidential consultation at our Pearland office."
+  canonical={canonical}
+  contactVariant="page"
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* In flow. There is no hero photo to float over - the comp puts centred
+      type on white here, so `overlay` would leave the header transparent
+      against a white page. */}
+  <Header />
+
+  <ContactHero />
+
+  {/* The consultation form goes here — Layout renders it, in its `page`
+      variant. FindUs has to follow it, so it goes in the slot below. */}
+
+  <FindUs slot="after-contact" />
+</Layout>

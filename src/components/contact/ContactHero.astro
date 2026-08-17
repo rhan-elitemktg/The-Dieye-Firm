@@ -1,0 +1,83 @@
+---
+// Contact hero — centred type on white, no photo.
+//
+// The only hero on the site without a picture, and that is the comp's call
+// rather than an omission: the page's whole job is the form directly beneath
+// it, and a full-bleed band would push that below the fold. It also sidesteps
+// the crop problem the other interior heroes have (see PapaHero) entirely.
+//
+// The eyebrow reads "Contact Us", not the comp's "Get In Touch": the shared
+// Contact section immediately below opens with an h3 of exactly that phrase,
+// and the comp could not see it — the section is an opaque import there.
+
+import Eyebrow from "../Eyebrow.astro";
+---
+
+<section class="chero">
+  <div class="container chero__inner">
+    <Eyebrow eager>Contact Us</Eyebrow>
+
+    <h1 class="chero__title">Let's Talk</h1>
+
+    {/* The comp's em dash becomes a spaced hyphen, per AGENTS.md. */}
+    <p class="chero__lead">
+      One conversation can bring clarity. Reach out for a free, confidential
+      consultation - Papa reviews every inquiry personally.
+    </p>
+  </div>
+</section>
+
+<style>
+  .chero {
+    background: var(--white);
+  }
+
+  /* Asymmetric on purpose: the top is a normal section opening under the
+     header, the bottom is only the gap before the form grid, which belongs to
+     this same block of thought and shouldn't read as a separate section. */
+  .chero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding-block: var(--section-pad-y) 56px;
+    text-align: center;
+  }
+
+  .chero__title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(44px, 4.0506vw + 1.1044rem, 76px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    color: var(--navy-700);
+  }
+
+  .chero__lead {
+    max-width: 640px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 1000px) {
+    .chero__inner {
+      padding-block: 72px 44px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .chero__inner {
+      padding-block: 48px 36px;
+      gap: 14px;
+    }
+
+    .chero__lead {
+      font-size: 17px;
+      line-height: 29px;
+    }
+  }
+</style>

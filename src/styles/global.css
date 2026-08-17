@@ -41,6 +41,13 @@
   --bone-300: #e3dac8;   /* hairline / divider on bone */
   --bone-400: #cabfa6;   /* stronger divider, disabled fills */
 
+  /* ---- Cool neutral — the contact zone only ----
+     Deliberately outside the bone family: it reads as a cooler, more clerical
+     surface, which is what the consultation band and the office map want.
+     Keep its use narrow — a third page surface is the point at which the
+     palette stops looking intentional. */
+  --mist-100: #eef3f5;   /* contact band, map band */
+
   --ink-900: #161d26;    /* near-black ink */
   --ink-700: #1d2733;    /* core body ink */
   --ink-500: #475260;    /* secondary text */
