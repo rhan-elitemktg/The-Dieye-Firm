@@ -41,6 +41,21 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  decodeEntities,
+  frontmatter,
+  inlineToMd,
+  makeCachedFetch,
+  PHONE_RE,
+  sliceElement,
+  squash,
+  stripTags,
+  stripTagsSpaced,
+  titleCase,
+  toMarkdown,
+  wordCount,
+} from "./lib/html.mjs";
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = path.join(ROOT, ".pa-cache");
 const OUT_CONTENT = path.join(ROOT, "src/content/practice-areas");
@@ -131,61 +146,10 @@ const BLOG_REDIRECTS = new Map(
 
 /* ---------------------------------------------------------------- fetching */
 
-async function cachedFetch(url) {
-  const key = url.replace(ORIGIN, "").replace(/[^a-z0-9]+/gi, "_").slice(0, 180);
-  const file = path.join(CACHE, key + ".html");
-  if (!REFETCH && existsSync(file)) return readFile(file, "utf8");
-  const res = await fetch(url, { headers: { "user-agent": UA } });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url}`);
-  const body = await res.text();
-  await mkdir(CACHE, { recursive: true });
-  await writeFile(file, body);
-  await new Promise((r) => setTimeout(r, 400)); // be polite to the client's host
-  return body;
-}
-
-/* ------------------------------------------------------------ html helpers */
-
-const NAMED = {
-  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
-  rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”",
-  mdash: "—", ndash: "–", hellip: "…", eacute: "é",
-  uuml: "ü", ouml: "ö", agrave: "à", ccedil: "ç",
-  deg: "°", trade: "™", reg: "®", copy: "©",
-  bull: "•", middot: "·", frac12: "½", times: "×",
-  minus: "−", prime: "′", Prime: "″",
-};
-
-function decodeEntities(s) {
-  return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
-    .replace(/&([a-z][a-z0-9]*);/gi, (m, n) => (n in NAMED ? NAMED[n] : m));
-}
-
-const stripTags = (html) => decodeEntities(html.replace(/<[^>]*>/g, ""));
-const squash = (s) => s.replace(/\s+/g, " ").trim();
-const wordCount = (s) => squash(s).split(" ").filter(Boolean).length;
-
-/* Tags become a space rather than nothing. Only used for measuring the source,
-   where `<p>one</p><p>two</p>` must count as two words, not one — otherwise
-   the source total comes in low and coverage reads above 100%. */
-const stripTagsSpaced = (html) => decodeEntities(html.replace(/<[^>]*>/g, " "));
-
-/* Slice out an element by its opening-tag match, honouring nesting. */
-function sliceElement(html, openRe, tagName) {
-  const open = html.match(openRe);
-  if (!open) return null;
-  const start = open.index + open[0].length;
-  const re = new RegExp(`<${tagName}\\b[^>]*>|</${tagName}>`, "gi");
-  re.lastIndex = start;
-  let depth = 1, m;
-  while ((m = re.exec(html))) {
-    depth += m[0][1] === "/" ? -1 : 1;
-    if (depth === 0) return html.slice(start, m.index);
-  }
-  return null;
-}
+/* 400ms between live fetches: 31 pages off the client's own host in one run. */
+const cachedFetch = makeCachedFetch({
+  cacheDir: CACHE, origin: ORIGIN, refetch: REFETCH, ua: UA, delayMs: 400,
+});
 
 /* ------------------------------------------------------------------- FAQs */
 
@@ -360,8 +324,6 @@ function rewriteLinks(html, known, report) {
   });
 }
 
-const PHONE_RE = /\(?\d{3}\)?[\s.-]?\d{3}[-.\s]?\d{4}/;
-
 /* These pages are far heavier on calls-to-action than the blog was: a centred
    "SCHEDULE A CASE EVALUATION" button recurs every few sections, and most
    pages close on a phone-number plug. All of it goes — the number renders from
@@ -410,82 +372,6 @@ function stripCtas(html, report) {
   return out;
 }
 
-/* ----------------------------------------------------- html -> markdown */
-
-function inlineToMd(html) {
-  let s = html;
-  s = s.replace(/<br\s*\/?>/gi, "\n");
-  s = s.replace(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, txt) => {
-    const label = squash(stripTags(txt));
-    if (!label) return "";
-    return `[${label}](${decodeEntities(href)})`;
-  });
-  s = s.replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, __, t) => {
-    const inner = squash(stripTags(t));
-    return inner ? `**${inner}**` : "";
-  });
-  s = s.replace(/<(em|i)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, __, t) => {
-    const inner = squash(stripTags(t));
-    return inner ? `*${inner}*` : "";
-  });
-  s = decodeEntities(s.replace(/<[^>]*>/g, ""));
-  return squash(s);
-}
-
-function toMarkdown(html) {
-  const blocks = [];
-  const re = /<(h[2-4]|p|ul|ol)\b[^>]*>([\s\S]*?)<\/\1>/gi;
-  let m;
-  while ((m = re.exec(html))) {
-    const tag = m[1].toLowerCase();
-    const inner = m[2];
-
-    if (tag.startsWith("h")) {
-      const text = inlineToMd(inner);
-      if (text) blocks.push("#".repeat(Number(tag[1])) + " " + text);
-      continue;
-    }
-    if (tag === "p") {
-      const text = inlineToMd(inner);
-      if (text) blocks.push(text);
-      continue;
-    }
-    const items = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)]
-      .map((li) => inlineToMd(li[1]))
-      .filter(Boolean);
-    if (items.length) {
-      blocks.push(items.map((t, i) => (tag === "ol" ? `${i + 1}. ${t}` : `- ${t}`)).join("\n"));
-    }
-  }
-  return blocks.join("\n\n");
-}
-
-/* ------------------------------------------------------------------ yaml */
-
-const y = (v) => JSON.stringify(v);
-
-function frontmatter(fields) {
-  const lines = [];
-  for (const [k, v] of Object.entries(fields)) {
-    if (v === null || v === undefined || (Array.isArray(v) && !v.length)) continue;
-    if (Array.isArray(v)) {
-      lines.push(`${k}:`);
-      for (const item of v) {
-        if (item && typeof item === "object") {
-          const entries = Object.entries(item);
-          lines.push(`  - ${entries[0][0]}: ${y(entries[0][1])}`);
-          for (const [ik, iv] of entries.slice(1)) lines.push(`    ${ik}: ${y(iv)}`);
-        } else {
-          lines.push(`  - ${y(item)}`);
-        }
-      }
-    } else {
-      lines.push(`${k}: ${y(v)}`);
-    }
-  }
-  return `---\n${lines.join("\n")}\n---\n`;
-}
-
 /* --------------------------------------------------------- nav labels */
 
 /* The short label for each page, read from the client's own Family Law nav
@@ -502,9 +388,6 @@ function navLabels(html) {
   }
   return labels;
 }
-
-const titleCase = (slug) =>
-  slug.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 
 /* ------------------------------------------------------------------- main */
 
