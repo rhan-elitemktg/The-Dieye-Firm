@@ -1,0 +1,369 @@
+---
+// FeaturedAreas — the six headline practice areas, from the comp.
+//
+// Deliberately NOT shared with home/PracticeAreas.astro, which is the same six
+// on navy. That card is white-on-navy with an icon tile and a bone footer strip
+// — all of which exist to lift it off a dark band — and carries no photo. This
+// one is on white, has a photo, and runs longer copy. Sharing them would mean a
+// component with light/photo/icon/strip flags to save about fifteen lines
+// across two call sites. If you are here to merge them: don't.
+//
+// Copy is the comp's, verbatim, except that its em dashes become spaced
+// hyphens per AGENTS.md. Titles and hrefs come from the collection so they can
+// never drift from the pages they point at.
+
+import { Image } from "astro:assets";
+import Eyebrow from "../Eyebrow.astro";
+import { areaHref, type PracticeArea } from "./practiceAreas";
+
+import divorcePhoto from "../../assets/images/practice-areas/pa-divorce.jpg";
+import custodyPhoto from "../../assets/images/practice-areas/pa-child-custody.jpg";
+import familyLawPhoto from "../../assets/images/practice-areas/pa-family-law.jpg";
+import supportPhoto from "../../assets/images/practice-areas/pa-child-support.jpg";
+import propertyPhoto from "../../assets/images/practice-areas/pa-property-division.jpg";
+import modificationsPhoto from "../../assets/images/practice-areas/pa-modifications.jpg";
+
+import divorceIcon from "../../assets/icons/divorce.svg?raw";
+import custodyIcon from "../../assets/icons/child-custody.svg?raw";
+import familyLawIcon from "../../assets/icons/family-law.svg?raw";
+import supportIcon from "../../assets/icons/child-support.svg?raw";
+import propertyIcon from "../../assets/icons/property-division.svg?raw";
+import modificationsIcon from "../../assets/icons/modifications.svg?raw";
+
+interface Props {
+  areas: PracticeArea[];
+}
+
+const { areas } = Astro.props;
+
+/* Keyed on collection id, the same pattern as FAMILY_LAW_NAV in MainNav.astro:
+   the id is the contract, so a page that moves takes its card with it, and a
+   page that disappears fails the build rather than shipping a dead card. */
+const FEATURED: {
+  id: string;
+  /* Overrides the collection's navLabel where the card wants it shorter. */
+  label?: string;
+  photo: ImageMetadata;
+  icon: string;
+  text: string;
+}[] = [
+  {
+    id: "divorce",
+    photo: divorcePhoto,
+    icon: divorceIcon,
+    text: "Whether your divorce is contested or amicable, it calls for steady, strategic guidance that protects your finances, your future, and the people you love most through every stage of the process.",
+  },
+  {
+    id: "child-custody",
+    photo: custodyPhoto,
+    icon: custodyIcon,
+    text: "Custody arrangements should put your children first while protecting your role and your rights as a parent - we work to secure a plan that gives your family stability and you lasting peace of mind.",
+  },
+  {
+    id: "family-law",
+    photo: familyLawPhoto,
+    icon: familyLawIcon,
+    text: "From quiet mediation to the courtroom, every family matter is met with calm, capable counsel who stays beside you at each step and keeps your goals and your family's wellbeing at the center.",
+  },
+  {
+    id: "child-support",
+    photo: supportPhoto,
+    icon: supportIcon,
+    text: "Support orders should be fair, accurate, and rooted in the real numbers - we help you establish them correctly the first time and adjust them as your circumstances and your children's needs change.",
+  },
+  {
+    id: "property-division",
+    photo: propertyPhoto,
+    icon: propertyIcon,
+    text: "Texas community-property law calls for a clear-eyed, even-handed approach - we work to divide your assets and debts as fairly as possible while safeguarding the things that matter most to you.",
+  },
+  {
+    id: "modifications-enforcement",
+    /* The comp's card title, and shorter than the collection's "Modifications
+       & Enforcement", which wraps to two lines here and leaves this card out
+       of step with the two beside it. */
+    label: "Modifications",
+    photo: modificationsPhoto,
+    icon: modificationsIcon,
+    text: "When life changes, your custody, support, and parenting orders can change too - we petition the court to keep every order current, realistic, and aligned with what your family needs today.",
+  },
+];
+
+const cards = FEATURED.map((entry) => {
+  const area = areas.find((candidate) => candidate.id === entry.id);
+  if (!area) {
+    throw new Error(
+      `FeaturedAreas: no practice area "${entry.id}". Either the id is wrong or ` +
+        `the page is gone from the last scrape — fix FEATURED in this file.`
+    );
+  }
+  return { ...entry, label: entry.label ?? area.data.navLabel, href: areaHref(area) };
+});
+---
+
+<section class="pax section">
+  <div class="container">
+    <header class="pax__head">
+      <Eyebrow>What We Do</Eyebrow>
+      <h2 class="pax__title">Every corner of <em>Texas family law.</em></h2>
+      <p class="pax__lead">
+        Steady, experienced counsel across the matters that shape your family's
+        future.
+      </p>
+    </header>
+
+    <ul class="pax__grid">
+      {
+        cards.map((card) => (
+          <li>
+            <a class="pax-card" href={card.href}>
+              <span class="pax-card__thumb">
+                <Image
+                  src={card.photo}
+                  alt=""
+                  widths={[380, 560, 760]}
+                  sizes="(max-width: 650px) 100vw, (max-width: 1000px) 50vw, 33vw"
+                  format="webp"
+                  quality={76}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+
+              <span class="pax-card__body">
+                {/* Decorative: the h3 beside it already names the area. */}
+                <span class="pax-card__ico" aria-hidden="true" set:html={card.icon} />
+                <h3 class="pax-card__title">{card.label}</h3>
+                <p class="pax-card__text">{card.text}</p>
+                <span class="pax-card__more">
+                  Learn More
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M5 12h13m-5-6 6 6-6 6"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .pax {
+    background: var(--white);
+  }
+
+  /* ---- Head ---- */
+  .pax__head {
+    max-width: 830px;
+    margin: 0 auto 54px;
+    text-align: center;
+  }
+
+  .pax__title {
+    margin: 16px 0 0;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.06;
+    color: var(--navy-700);
+    text-wrap: balance;
+  }
+
+  /* Gold-600 on white: the core gold only reaches ~2.3:1 there, below the 3:1
+     large-text floor. */
+  .pax__title em {
+    font-style: italic;
+    color: var(--gold-600);
+  }
+
+  .pax__lead {
+    margin: 18px 0 0;
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  /* ---- Grid ---- */
+  .pax__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pax__grid > li {
+    display: flex;
+  }
+
+  /* ---- Card ---- */
+  .pax-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--white);
+    border: 1px solid var(--bone-300);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      transform var(--dur-base) var(--ease-out);
+  }
+
+  .pax-card:hover {
+    border-color: var(--gold-500);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+  }
+
+  /* A ratio rather than the comp's fixed 230px height. The sources are 760px
+     squares, so a fixed height re-crops them every time the card changes
+     width — 2.0:1 at desktop, 1.5:1 on a phone — which is how a face ends up
+     clipped at one breakpoint and not another. */
+  .pax-card__thumb {
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--bone-100);
+  }
+
+  .pax-card__thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .pax-card:hover .pax-card__thumb :global(img) {
+    transform: scale(1.05);
+  }
+
+  .pax-card__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 32px 30px 30px;
+  }
+
+  /* ---- Icon tile ---- */
+  .pax-card__ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 22px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--navy-900) 6%, transparent);
+    color: var(--navy-700);
+    transition: background-color var(--dur-base) var(--ease-out);
+  }
+
+  /* Astro's scoping never reaches set:html output, so the glyph is sized
+     through :global. */
+  .pax-card__ico :global(svg) {
+    width: 42px;
+    height: 42px;
+  }
+
+  .pax-card:hover .pax-card__ico {
+    background: color-mix(in srgb, var(--gold-500) 18%, transparent);
+  }
+
+  .pax-card__title {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.12;
+    color: var(--navy-700);
+  }
+
+  .pax-card__text {
+    margin: 14px 0 0;
+    font-size: 16px;
+    line-height: 27px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  /* margin-top: auto does the height-equalising the comp asked a min-height to
+     do, so the strips line up whatever the copy runs to. */
+  .pax-card__more {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 26px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-600);
+  }
+
+  .pax-card__more svg {
+    width: 18px;
+    height: 18px;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .pax-card:hover .pax-card__more svg {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 1439px) {
+    .pax-card__body {
+      padding: 28px 26px 26px;
+    }
+
+    .pax-card__title {
+      font-size: 27px;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .pax__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .pax__head {
+      margin-bottom: 40px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .pax__grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pax-card,
+    .pax-card__thumb :global(img),
+    .pax-card__more svg {
+      transition: none;
+    }
+
+    .pax-card:hover {
+      transform: none;
+    }
+
+    .pax-card:hover .pax-card__thumb :global(img) {
+      transform: none;
+    }
+  }
+</style>

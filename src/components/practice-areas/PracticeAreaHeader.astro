@@ -22,9 +22,13 @@ interface Props {
 
 const { area, parent } = Astro.props;
 
+/* A child names its parent; a top-level page names the section index. Not
+   "Family Law" any more — that is a sibling practice-area page now, so a
+   top-level kicker pointing there would be a link sideways, and on
+   /family-law/ itself it would be a link to the page you are already on. */
 const kicker = parent
   ? { label: parent.data.navLabel, href: areaHref(parent) }
-  : { label: "Family Law", href: "/family-law/" };
+  : { label: "Practice Areas", href: "/practice-areas/" };
 ---
 
 <header class="pah">

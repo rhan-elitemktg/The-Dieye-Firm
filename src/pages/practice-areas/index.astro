@@ -1,0 +1,66 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/header/Header.astro";
+import PracticeAreasHero from "../../components/practice-areas/PracticeAreasHero.astro";
+import FeaturedAreas from "../../components/practice-areas/FeaturedAreas.astro";
+import AllAreas from "../../components/practice-areas/AllAreas.astro";
+import ByTheNumbers from "../../components/about/ByTheNumbers.astro";
+import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
+import { areaHref, byLabel } from "../../components/practice-areas/practiceAreas";
+
+/* The index for the family-law section. It deliberately does NOT live at
+   /family-law/ — that URL is a practice-area page in its own right ("Pearland
+   Family Lawyer"), built from the client's own copy and rendered by
+   family-law/[...slug].astro. This page is built from the comp instead. */
+const areas = await getCollection("practiceAreas");
+
+const canonical = new URL("/practice-areas/", Astro.site ?? Astro.url).href;
+
+/* CollectionPage rather than another LegalService: every practice-area page
+   already nests one as the `provider` of its Service, and a 33rd copy of the
+   same NAP block on the index adds nothing. What this page can offer that they
+   can't is the map of the section, so it emits that. Built from the same
+   values as the markup, the way Faq.astro and [...slug].astro both do. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Practice Areas",
+  url: canonical,
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: areas.length,
+    itemListElement: [...areas].sort(byLabel).map((area, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: area.data.navLabel,
+      url: new URL(areaHref(area), Astro.site ?? Astro.url).href,
+    })),
+  },
+};
+---
+
+<Layout
+  title="Texas Family Law Practice Areas | The Dieye Firm"
+  description="Every family law matter The Dieye Firm handles for Pearland and Houston families - divorce, custody, support, property division, modifications and more."
+  canonical={canonical}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* In flow, not overlay. With object-fit: cover the hero photo puts Papa's
+      head high in the frame and in the right third - which is exactly where
+      the nav's gold CTA and phone block sit - so a transparent header would
+      land on him at every width. Same reason /about-us/papa-dieye/ is in
+      flow; see the note in AGENTS.md. */}
+  <Header />
+
+  <PracticeAreasHero />
+
+  <FeaturedAreas areas={areas} />
+
+  <AllAreas areas={areas} />
+
+  <ByTheNumbers />
+
+  <WhatDrivesUs />
+</Layout>

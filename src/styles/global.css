@@ -158,8 +158,9 @@
   }
 }
 
-/* Header collapses below 1200px, so the offset shrinks with it. */
-@media (max-width: 1200px) {
+/* Header collapses below 1160px, so the offset shrinks with it. Keep this
+   in step with the collapse in MainNav.astro, which carries the measurement. */
+@media (max-width: 1159px) {
   :root {
     --header-h: 116px;
   }
