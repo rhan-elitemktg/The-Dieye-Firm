@@ -1,0 +1,612 @@
+---
+// Review Wall — every client review the firm has published, as a masonry of
+// cards, opened by a video tile.
+//
+// WHERE THE COPY COMES FROM. Unlike every other interior section, these are not
+// translated from the comp. They are the clients' own words, harvested verbatim
+// from dieyelaw.com — 14 distinct reviews, which is the complete set: a sweep of
+// all 121 URLs in the live sitemap turns up no fifteenth. /testimonials/ itself
+// carries only 9 (its "1 / 2" pager splits those 9 across two views, it does not
+// hide a second batch); the other 5 are sprinkled through the practice-area and
+// About pages. AGENTS.md's "leave the client's published prose alone" governs
+// them, so the typos are theirs and are deliberately kept.
+//
+// Three deliberate, minimal exceptions, all flagged in HANDOFF.md:
+//   1. Where the live pull-quote is a whole sentence repeated verbatim from the
+//      body, that sentence is dropped from the body — the card would otherwise
+//      print it twice, once at 30px and once at 17px. Nothing is reworded, and
+//      it is only done where the sentence stands alone.
+//   2. Larry's and the "Honest, Sincere" review are truncated mid-word in the
+//      firm's own CMS ("…what he can do. H", "…Mr. Papa was always h"). Each is
+//      cut back to its last complete sentence rather than shipping the
+//      fragment. The missing tail is not recoverable from the live site.
+//   3. Cyndy's is punctuated and de-garbled, at Rhan's instruction — it is the
+//      only one edited for readability rather than for a defect in the source.
+//      See the note on the entry itself.
+//
+// The comp's "Load More Reviews" button is not built: 14 is the whole corpus and
+// all 14 are on the page, so the button would have nothing to load.
+
+import { Image } from "astro:assets";
+import Eyebrow from "../Eyebrow.astro";
+import videoPoster from "../../assets/images/ss-video-1.jpg";
+
+/* The video tile. PROVISIONAL on two counts, both Rhan's call and both to be
+   swapped before launch:
+     - The video is the firm's own "About Us" reel (the same Wistia id
+       home/About.astro already plays), standing in until a real client video
+       exists, so the open/play/teardown path can be tested now.
+     - The poster is the comp's `ss-video-1.jpg`, which is a stock portrait of
+       nobody connected to the firm. It is deliberately left un-attributed —
+       no client name under it — so the tile never claims the face is a real
+       client. Give it a name only once a real video and a real client are
+       behind it.
+   No runtime is fetched: the duration pill was dropped, and it was the only
+   thing the Wistia oembed call was for, so the build makes one less request. */
+const VIDEO = {
+  wistiaId: "z79lx3x00o",
+  label: "Video Testimonial",
+  name: "Watch their story",
+  poster: videoPoster,
+};
+
+/* Ordered as the comp orders them — column-major, so the multi-column layout
+   below reproduces the comp's three columns at desktop while still rebalancing
+   itself at two and one. `matter` is ours, not the client's: it is the practice
+   area each review names in its own text, and nothing is assigned that the
+   quote doesn't say. */
+const reviews = [
+  {
+    lead: "If I EVER need an attorney for anything else (within his line of work) I will definitely be contacting Mr. Dieye again.",
+    body: "I had a bad experience with a prior attorney who ended up dropping my divorce/custody case mid way and leaving me high and dry to figure it out for myself. I recieved Papa Dieye's (Jay) information from a family friend. Papa Jay is always on top of things and was very prompt with returning phone calls and keeping me in the loop. 2 days after I obtained his legal services we were already in court finalizing my divorce! I have already referred Papa Jay to a handful of people and if I EVER need an attorney for anything else (within his line of work) I will definitely be contacting Mr. Dieye again. Needless to say it was a very pleasant experience and Mr. Dieye is super nice.",
+    name: "Kaylyn",
+    matter: "Divorce",
+  },
+  {
+    lead: "Professional, personable, and readily available for any questions or concerns.",
+    body: "I was quite impressed and I will definitely recommend him to anyone I know!",
+    name: "Kim",
+    matter: "Family Law",
+  },
+  {
+    lead: "I can't express how grateful I am to have come across this firm.",
+    body: "A high level of care is what keeps clients coming back and making referrals. Thanks Papa!!!",
+    name: "Former Client",
+    matter: "Family Law",
+  },
+  {
+    lead: "I would definitely recommend him to friends and family.",
+    body: "He did an excellent job in my divorce. He would always get back with me when I had a question on my case.",
+    name: "Osmin",
+    matter: "Divorce",
+  },
+  {
+    lead: "He was thoughtful, listened and I truly feel had my child's best interest at heart.",
+    body: "He was easy to work with, easy to talk too and cared for the well being of my family. I would highly recommend Papa.",
+    name: "Kate",
+    matter: "Child Custody",
+  },
+  {
+    lead: "He offers only the best advise and continues to maintain high standards in representing his clients.",
+    body: "Well knowledgable of the law and proceedings in a court room, he offers only the best advise and continues to maintain high standards in representing his clients..",
+    name: "K.",
+    matter: "Family Law",
+  },
+  {
+    lead: "He is most professional in his approach and manner, I would recommend Papa to anyone.",
+    body: "I have had the pleasure of using Papa Dieye as my attorney a couple of times, he is most professional in his approach and manner, I would recommend Papa to anyone.",
+    name: "Harry",
+    matter: "Family Law",
+  },
+  {
+    lead: "I am sure that they're a lot of good lawyers out there, but it is nice to found one who can listen to you.",
+    body: "I will definitely recommend Papa Dieye, especially for the human aspect.",
+    name: "Rosy",
+    matter: "Family Law",
+  },
+  {
+    lead: "Handled 2 of my cases in a very professional way.",
+    /* The one review not left verbatim — see the note at the top of the file.
+       The original is a single unpunctuated run-on with a garbled verb
+       ("...great helped in every way possible he could and continous to has
+       handled 2 of my cases..."). Punctuated and de-garbled only; no claim
+       added, none dropped. The "2 cases, professionally" clause is gone from
+       the body because it is word-for-word the pull-quote above it. */
+    body: "My experience was great. He helped in every way possible and walked me through every step of the process. Would highly recommend.",
+    name: "Cyndy",
+    matter: "Family Law",
+  },
+  {
+    lead: "The man deals with facts and does not stand on shaky grounds.",
+    body: "His litigating skills leaves no doubts for my wife and I. He has represented us in our divorce cases and family matters with the court. The man deals with facts and does not stand on shaky grounds. Our family case trial was a real look at what he can do.",
+    name: "Larry",
+    matter: "Divorce",
+  },
+  {
+    lead: "I would highly recommend Papa Dieye to anyone.",
+    body: "He is obviously well respected amongst his peers too which was evident by the interactions I saw during the time waiting to go in front of the judge. I would highly recommend Papa Dieye to anyone (well except my ex of course!!) Thank you Papa.",
+    name: "Sam",
+    matter: "Family Law",
+  },
+  {
+    lead: "He went above and beyond the call of duty to reunite me with my kids.",
+    body: "Papa Dieye was an amazing attorney. He went above and beyond the call of duty to reunite me with my kids after [my spouse] fled the state with them. Not only did he get my kids back to me, he was able to get an order for child support.",
+    name: "Former Client",
+    matter: "Child Custody",
+  },
+  {
+    lead: "Honest, Sincere, Dedicated & Thorough",
+    body: "Mr. Papa Dieye represented me for my divorce case. He was always accessible to answer my questions and he always returned my calls. His preparation was perfect for the temporary orders hearing. Fortunately, our family got reunited.",
+    name: "Former Client",
+    matter: "Divorce",
+  },
+  {
+    lead: "When I needed a lawyer - he was the only person that I called.",
+    body: "I met Papa via a networking group, and I found him to be very personable and when I needed a lawyer - he was the only person that I called. Papa handled my divorce. I had a lot of questions and he answered them, in a very knowledgeable formation, which did not make me feel intimidated. Papa even was kind enough to give me replies to my ex-husbands questions as he lived in a different state and was not represented.",
+    name: "Sharmain",
+    matter: "Divorce",
+  },
+];
+---
+
+<section class="wall section" aria-labelledby="wall-title">
+  <div class="container">
+    <header class="wall__head">
+      <Eyebrow>In Their Words</Eyebrow>
+      {/* Not the comp's "What our clients are saying." — the hero's h1 forty
+          pixels above already reads "What our clients say.", and the two sat
+          on screen together as an obvious slip. This is the comp's own name
+          for the page (its nav labels it "Success Stories") and the phrase the
+          homepage teaser that links here is titled with, so the click-through
+          now lands on the heading it promised. */}
+      <h2 class="wall__title" id="wall-title">Success <em>stories.</em></h2>
+      {/* The comp's em dash becomes a spaced hyphen, per AGENTS.md. */}
+      <p class="wall__lead">
+        Real outcomes for real families - shared with care, never as a guarantee.
+      </p>
+    </header>
+
+    {/* Multi-column rather than the comp's three hand-packed <div> columns.
+        The cards are wildly uneven in height (Kim is three lines, Kaylyn is
+        eleven), and hand-packed columns only balance at the one width they
+        were packed for — at two columns the comp's third column drops whole
+        beneath the other two. `columns` rebalances at every width for free,
+        and it keeps the data a flat array, which is what the Sanity sweep
+        wants. Reading order stays DOM order for assistive tech. */}
+    <ul class="wall__grid">
+      <li class="wall__item">
+        <button
+          class="vtile"
+          type="button"
+          data-video-open
+          data-wistia-id={VIDEO.wistiaId}
+          data-video-title={VIDEO.name}
+          aria-label={`Play video: ${VIDEO.name}`}
+        >
+          <Image
+            class="vtile__img"
+            src={VIDEO.poster}
+            alt=""
+            widths={[400, 800]}
+            sizes="(max-width: 650px) 92vw, (max-width: 1000px) 46vw, 31vw"
+            format="webp"
+            quality={78}
+            loading="lazy"
+            decoding="async"
+          />
+          {/* Two layers, not one: a flat navy tint that colours the whole
+              frame, then a bottom gradient that buys the caption its contrast.
+              A single gradient can do one or the other well, not both. */}
+          <span class="vtile__tint" aria-hidden="true"></span>
+          <span class="vtile__scrim" aria-hidden="true"></span>
+
+          <span class="vtile__content">
+            <span class="vtile__text">
+              <span class="vtile__label">{VIDEO.label}</span>
+              <span class="vtile__name">{VIDEO.name}</span>
+            </span>
+            <span class="vtile__play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"></path>
+              </svg>
+            </span>
+          </span>
+        </button>
+      </li>
+
+      {reviews.map((review) => (
+        <li class="wall__item">
+          <figure class="rcard">
+            <p class="rcard__kicker">Testimonial</p>
+
+            <div class="rcard__stars" role="img" aria-label="Five out of five stars">
+              {[...Array(5)].map(() => (
+                <span class="rcard__star">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                </span>
+              ))}
+            </div>
+
+            <blockquote class="rcard__lead">{review.lead}</blockquote>
+            <p class="rcard__body">{review.body}</p>
+
+            <figcaption class="rcard__cite">
+              <span class="rcard__name">{review.name}</span>
+              <span class="rcard__matter">{review.matter}</span>
+            </figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .wall {
+    --wall-gap: 24px;
+    background: var(--bone-100);
+  }
+
+  /* ---- Head ---- */
+  .wall__head {
+    max-width: 820px;
+    margin: 0 auto 56px;
+    text-align: center;
+  }
+
+  .wall__title {
+    margin: 18px 0;
+    font-size: clamp(34px, 2.2785vw + 1.1994rem, 52px);
+    line-height: 1.12;
+  }
+
+  .wall__title em {
+    font-style: italic;
+    color: var(--gold-600);
+  }
+
+  .wall__lead {
+    margin: 0;
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  /* ---- Masonry ---- */
+  .wall__grid {
+    columns: 3;
+    column-gap: var(--wall-gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* A column box is not a block container for the card's shadow, so the item
+     carries the vertical rhythm and `break-inside` keeps a card whole rather
+     than letting a column boundary slice one in half. */
+  .wall__item {
+    break-inside: avoid;
+    /* Safari still honours the older property name for column breaks. */
+    -webkit-column-break-inside: avoid;
+    margin-bottom: var(--wall-gap);
+  }
+
+  /* ---- Review card ---- */
+  .rcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 48px 46px 42px;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    /* Matched to the homepage testimonial cards: lighter than --shadow-md,
+       because these sit on bone rather than white and the token's weight reads
+       heavier here than it does elsewhere. */
+    box-shadow: 0 10px 24px -14px rgba(21, 33, 46, 0.22);
+    text-align: center;
+  }
+
+  /* The inset frame from the comp. Set well in from the edge, so the corner
+     radius is nominal rather than concentric with the card's. */
+  .rcard::before {
+    content: "";
+    position: absolute;
+    inset: 16px;
+    border: 1px solid color-mix(in srgb, var(--gold-500) 30%, transparent);
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+  }
+
+  .rcard__kicker {
+    margin-bottom: 18px;
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+  }
+
+  .rcard__stars {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 26px;
+  }
+
+  .rcard__star {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1.5px solid var(--gold-500);
+    border-radius: var(--radius-pill);
+    color: var(--gold-500);
+  }
+
+  .rcard__star svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* No min-height here, unlike the homepage card: these cards are packed by
+     height rather than stretched to a row, so reserving lines would only add
+     dead space. Nothing lines up across columns for it to protect. */
+  .rcard__lead {
+    margin: 0 0 18px;
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.28;
+    letter-spacing: var(--tracking-tight);
+    color: var(--navy-700);
+    text-wrap: pretty;
+  }
+
+  /* Not clamped, unlike the homepage card. This is the page the full review
+     came here for — the homepage clamps because its cards share a row height,
+     and nothing here does. */
+  .rcard__body {
+    margin: 0 0 30px;
+    font-size: 16px;
+    line-height: 27px;
+    color: var(--ink-500);
+    text-wrap: pretty;
+  }
+
+  .rcard__cite {
+    margin-top: auto;
+  }
+
+  .rcard__cite::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: var(--rule-width);
+    margin: 0 auto 16px;
+    background: var(--gold-500);
+  }
+
+  .rcard__name {
+    display: block;
+    margin-bottom: 4px;
+    font-family: var(--font-ui);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .rcard__matter {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--ink-500);
+  }
+
+  /* ---- Video tile ---- */
+  /* A real <button>: it opens the shared modal, so it is a control rather than
+     a link, and it gets keyboard and focus behaviour for free. */
+  .vtile {
+    position: relative;
+    display: block;
+    width: 100%;
+    /* Square, by ratio rather than the comp's fixed 520px, so it holds its
+       shape at every width. The poster is 800x450 landscape, so a square tile
+       crops the sides — the subject is centred, so `object-position: center`
+       is the whole of it. */
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--navy-900);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .vtile__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  /* The brand tint. `multiply` keeps the photo's own modelling instead of
+     washing it out the way a flat alpha fill does, so the frame reads as navy
+     without going muddy. */
+  .vtile__tint {
+    position: absolute;
+    inset: 0;
+    background: var(--navy-900);
+    opacity: 0.36;
+    mix-blend-mode: multiply;
+  }
+
+  .vtile__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 36, 56, 0) 0%,
+      rgba(15, 36, 56, 0.28) 48%,
+      rgba(15, 36, 56, 0.86) 100%
+    );
+  }
+
+  /* A row, not a column: the caption holds the bottom-left and the play button
+     the bottom-right, baseline-independent, so a longer title never pushes the
+     button off its corner. */
+  .vtile__content {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 32px 30px 30px;
+  }
+
+  .vtile__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .vtile__play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: var(--radius-pill);
+    background: var(--gold-500);
+    color: var(--navy-900);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      background var(--dur-base) var(--ease-out);
+  }
+
+  .vtile__play svg {
+    width: 26px;
+    height: 26px;
+    /* The glyph's mass sits left of its box, so it needs nudging to look
+       centred in a circle. */
+    margin-left: 3px;
+  }
+
+  .vtile__label {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+  }
+
+  .vtile__name {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  .vtile:hover .vtile__img {
+    transform: scale(1.04);
+  }
+
+  .vtile:hover .vtile__play {
+    transform: scale(1.08);
+  }
+
+  .vtile:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vtile__img,
+    .vtile__play {
+      transition: none;
+    }
+
+    .vtile:hover .vtile__img,
+    .vtile:hover .vtile__play {
+      transform: none;
+    }
+  }
+
+  /* Small Desktop */
+  @media (max-width: 1439px) {
+    .rcard {
+      padding: 40px 34px 36px;
+    }
+
+    .rcard__lead {
+      font-size: 24px;
+    }
+  }
+
+  /* Tablet — two columns. */
+  @media (max-width: 1000px) {
+    .wall__head {
+      margin-bottom: 40px;
+    }
+
+    .wall__grid {
+      columns: 2;
+    }
+  }
+
+  /* Mobile — one column. */
+  @media (max-width: 650px) {
+    .wall {
+      --wall-gap: 16px;
+    }
+
+    .wall__grid {
+      columns: 1;
+    }
+
+    .rcard {
+      padding: 34px 26px 30px;
+    }
+
+    .rcard::before {
+      inset: 12px;
+    }
+
+    .rcard__lead {
+      font-size: 22px;
+    }
+
+    /* Squarer than the source but shallower than the desktop tile: at full
+       column width a 1:1 crop would throw away a third of a 16:9 frame either
+       side, and the tile would stand a whole phone-height tall. */
+    .vtile {
+      aspect-ratio: 4 / 3;
+    }
+
+    .vtile__content {
+      padding: 26px 24px 24px;
+    }
+
+    .vtile__play {
+      width: 50px;
+      height: 50px;
+    }
+  }
+</style>

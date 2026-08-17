@@ -1,0 +1,46 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import TestimonialsHero from "../components/testimonials/TestimonialsHero.astro";
+import ReviewWall from "../components/testimonials/ReviewWall.astro";
+import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
+
+const canonical = new URL("/testimonials/", Astro.site ?? Astro.url).href;
+
+/* CollectionPage, deliberately NOT Review/AggregateRating. Review markup a
+   business emits about itself is "self-serving" under Google's structured-data
+   policy and is ineligible for rich results on LocalBusiness/Organization, so
+   the stars would never render — and marking it up anyway is the kind of thing
+   that draws a manual action rather than a snippet. The star ratings on the
+   cards are honest UI; they just don't get to claim to be schema. If the firm
+   ever wants review stars in search, they come from the Google Business
+   Profile (4.7 from 104 reviews), not from here. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Client Testimonials",
+  description:
+    "Reviews of The Dieye Firm from Pearland and Houston families, in their own words.",
+  url: canonical,
+};
+---
+
+<Layout
+  title="Testimonials from Pearland and Houston Families | The Dieye Firm"
+  description="Read Pearland and Houston families' own words about attorney Papa Dieye - client reviews covering divorce, child custody, support and family law."
+  canonical={canonical}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* In flow, not overlay. The hero photo puts Papa's head at about 15% of the
+      frame and just right of centre, which is where an overlay nav's gold CTA
+      would land at every width. Same reason /practice-areas/ and
+      /about-us/papa-dieye/ are in flow; see the note in AGENTS.md. */}
+  <Header />
+
+  <TestimonialsHero />
+
+  <ReviewWall />
+
+  <WhatDrivesUs />
+</Layout>
