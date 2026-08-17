@@ -47,7 +47,19 @@ comp will ever supply them.
 - **Practice areas** — `npm run scrape:practice-areas` →
   `src/content/practice-areas/` (31, ~34,000 words).
 
-Rules that govern both:
+**Client reviews are a third body**, and the exception that isn't in a
+collection. The 14 on `/testimonials/` are the clients' own words, taken from
+the live site rather than from "Testimonials.dc.html" — the comp's versions are
+copy-edited, and these are attributed to named people. They live in a named
+array in `testimonials/ReviewWall.astro` rather than in a collection or behind a
+scraper, because 14 short quotes are not 47 long documents. **14 is the complete
+corpus**: a sweep of all 121 sitemap URLs finds no fifteenth, and
+`/testimonials/` itself carries only 9 of them (its "1 / 2" pager splits those 9
+across two views — it is not hiding a second batch). Every deviation from
+verbatim is listed at the top of that file; add to that list rather than editing
+a quote silently.
+
+Rules that govern all three:
 
 - **Scrape the live site, never the mirror.** The mirror was captured
   2026-07-20; it was already one post behind on the blog, and it is missing
