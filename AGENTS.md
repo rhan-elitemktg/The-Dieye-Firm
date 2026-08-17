@@ -73,17 +73,33 @@ Rules that govern all three:
   UI strings) follows the repo rule.
 - **Both scrapers rewrite every file on every run.** Hand edits to frontmatter
   do not survive. Editorial decisions go in the script, keyed by slug.
-- **A practice-area page's body is split across TWO containers** —
-  `#MainContent` plus `#ColumnContentExpandExpanded`, a "read more" block
-  Scorpion collapses. 16 of the 31 have one, and on `/family-law/child-custody/`
-  it holds 1,442 of the page's 1,832 words. Taking only `#MainContent` halves
-  several pages while looking like it worked. Blog posts don't have this.
+- **A live page's body is almost never in one container.** Practice areas split
+  across `#MainContent` plus `#ColumnContentExpandExpanded`, a "read more"
+  block Scorpion collapses — 16 of the 31 have one, and on
+  `/family-law/child-custody/` it holds 1,442 of the page's 1,832 words. The
+  About Us pages split differently again: `#MainContent` plus
+  `#ContentS3RightContent`, Scorpion's two-column wrapper, which on
+  `/about-us/choosing-a-family-law-attorney/` holds 414 of 738 words. **Always
+  enumerate the `data-content` blocks before extracting** —
+  `grep -o 'id="[A-Za-z0-9_]*"[^>]*data-content' page.html` — because taking
+  only the first halves the page while looking like it worked. Blog posts are
+  the one body that really is single-container.
+- **The FAQ block at the foot of an About Us page is sitewide boilerplate**, not
+  page content. It is byte-identical across those pages (spousal support,
+  custody) and belongs to the old site's chrome. Exclude it.
 
-**These have no comp** and need direction before they can be built — don't
-invent copy or fall back to the live site:
+**These have no comp.** Where the live site has real published prose, that
+prose is the source (it is the client's own writing and carries SEO equity) —
+otherwise they need direction, and inventing copy is not an option:
 
-- About Us index, Choosing a Family Law Attorney, The Difference
-- The service-area pages
+- ~~Choosing a Family Law Attorney~~ — built from the live page's 738 words.
+- The service-area pages.
+
+**The About Us group is now one page.** `/about-us/` is Papa's bio and the
+firm's story; `/about-us/papa-dieye/` and `/about-us/the-difference/` both fold
+into it and are 301s in `vercel.json`. Neither is in the nav, and the About
+flyout is down to a single child. If that child ever goes, drop `items` from
+the nav entry so it renders as a plain link rather than a one-row dropdown.
 
 These paths sit outside the repo and have moved once already. Check they exist
 before assuming.
@@ -136,7 +152,16 @@ inventing a value. The parts worth stating up front:
   three-column `repeat(3, 1fr)` gap 80px. Ease gaps to 56px ≤1439, collapse
   ≤1000. **Long-form copy never exceeds 1080px** — two of three columns.
 - **Interior page template**: main column spanning 2 of 3 columns (1080px) +
-  right sidebar (500px), main first in source order.
+  right sidebar (500px), main first in source order. **It is a component —
+  `src/components/interior/InteriorShell.astro`. Don't write the grid again.**
+  It takes no props: the sidebar is a named slot (`slot="sidebar"`), the
+  background is always white, and the prose size stays in each page's own
+  scoped `<style>` because a practice area runs 18px/30px and a post 17px/29px.
+  That per-page override works because **Astro assigns a scope hash at the
+  authoring site, not the render site** — markup written in the page keeps the
+  page's hash even when it renders inside the shell's slot, so a scoped rule
+  still reaches it. Its partner `InteriorHeader.astro` is the kicker/h1/deck
+  block, taking plain values (`title`, `kicker?: {label, href?}`, `deck?`).
 - **Type**: Source Serif 4 headings, Geist everything else, Yellowtail for the
   signature only. Section `h2` uses `clamp(34px, 2.2785vw + 1.1994rem, 52px)`.
   Body is 17px/29px; interior section copy runs 18px/30px.
@@ -177,6 +202,25 @@ the same things piecemeal and worse. `HANDOFF.md` tracks the current ranking.
    sections predate it and each carry their own copy; new work should not.
 5. Give `Layout` a real `title` and `description`.
 
+### Moving or removing a route
+
+**Any path that exists on the live site is an asset, and moving one is a 301,
+never a delete.** Enumerate from `dieyelaw.com/sitemap.xml` — if the old path
+is in there, it has equity and inbound links, and dropping it turns both into
+a 404.
+
+- The redirect goes in `vercel.json`. **Add both slash forms** — `/old/path`
+  *and* `/old/path/`. Vercel applies `redirects` before its own trailing-slash
+  normalisation, so a single form can silently never fire, which is the worst
+  outcome available: it looks done and isn't.
+- **Do not add the old path to either scraper's known-routes set.** A link in
+  the client's own copy that still points at the old URL should be *reported*,
+  so it gets rewritten to the canonical rather than quietly riding the
+  redirect for the life of the site.
+- Sweep internal links in the same commit: `grep -rn "<old-path>" src/ scripts/`.
+  Prose comments count — a stale path in a comment is a wrong answer to the
+  next person who greps for it.
+
 ### The practice-area section
 
 32 pages under `/family-law/`, built from one route and one template, plus a
@@ -205,6 +249,14 @@ separate index at `/practice-areas/`.
   It briefly had a second state — a branch page listing only its children —
   which existed because the menu was 18 rows and too tall to show everywhere;
   the nesting below removed that reason. Don't re-add it.
+  **It also renders outside the section**, on the About Us pages, whose live
+  versions carry the same cross-reference. There `current` is omitted: nothing
+  is highlighted and every branch starts collapsed, which is right for a menu
+  pointing away from the current page rather than locating you within it. Any
+  page rendering it must do **both** things the practice-area route does —
+  stamp `data-pa-boot` on `<html>` from a blocking head script *and* call
+  `initPracticeAreaNav()` — or the branches render open and the `+` buttons are
+  inert.
 - **`parent` is NOT derived from the URL.** 13 pages are nested on the live
   site, and 8 more are re-parented by `PARENT_OVERRIDES` in the scraper so the
   menu is 11 rows rather than 19 — Parental Rights takes the four rights pages,
@@ -231,7 +283,7 @@ is driven by viewport width — so making the hero taller does not move the
 subject down. When a photo puts the subject's head high in frame (the Old Town
 Pearland street shot puts it at 11%), it sits under the nav's gold CTA at
 every size, and the only fixes are a heavy upscale of the source or a
-different photo. `/about-us/papa-dieye/` uses `<Header />` for exactly this
+different photo. `/about-us/` uses `<Header />` for exactly this
 reason; both files carry a comment saying so.
 
 ---
