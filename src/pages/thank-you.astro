@@ -1,0 +1,41 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import ThankYouHead from "../components/thank-you/ThankYouHead.astro";
+import MeetTheAttorney from "../components/thank-you/MeetTheAttorney.astro";
+import Awards from "../components/home/Awards.astro";
+
+const canonical = new URL("/thank-you/", Astro.site ?? Astro.url).href;
+---
+
+{/* No JSON-LD here, deliberately. A form-confirmation page has nothing a
+    search engine should surface, which is the same reason it's noindex - and
+    structured data on a page excluded from the index is noise, not markup. */}
+<Layout
+  title="Thank You | The Dieye Firm"
+  description="Your message has reached The Dieye Firm. We will be in touch within one business day."
+  canonical={canonical}
+  contactVariant="none"
+>
+  {/* A confirmation page is a destination, never a search result: it is
+      reachable only by having just submitted the form, and indexing it puts a
+      contentless page in front of someone searching for the firm. `follow`
+      because the links out of it - Meet the Attorney, the footer - are still
+      worth crawling. */}
+  <meta name="robots" content="noindex, follow" slot="head" />
+
+  {/* In flow, not overlay: the page opens on a white confirmation block, so
+      there is no photo for the header to float over. */}
+  <Header />
+
+  <ThankYouHead />
+
+  <MeetTheAttorney />
+
+  {/* The comp closes on the trust strip, and it is doing real work here - it
+      is the reassurance that lands right after someone has committed to
+      making contact. In bone rather than its usual white: this page inverts
+      the two tones, so the strip is the ground and the block above it is the
+      band. */}
+  <Awards tone="bone" />
+</Layout>

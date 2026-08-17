@@ -1,0 +1,62 @@
+---
+// Thank You head — the confirmation itself. Centred kicker, one word.
+//
+// White band, so the header sits in flow above it rather than overlaying it.
+// This is the only h1 on the page; the band below it opens on an h2.
+
+import Eyebrow from "../Eyebrow.astro";
+---
+
+<section class="tyhead">
+  <div class="container tyhead__inner">
+    <Eyebrow eager>Message Received</Eyebrow>
+
+    <h1 class="tyhead__title">Thank You</h1>
+  </div>
+</section>
+
+<style>
+  /* White rather than the page's bone ground, so the confirmation and the
+     card below it read as one block and the awards strip beneath them - now
+     bone - closes it. The two tones are swapped relative to every other page,
+     where bone is the ground and Awards is the white band. */
+  .tyhead {
+    background: var(--white);
+  }
+
+  .tyhead__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding-block: 110px 56px;
+    text-align: center;
+  }
+
+  /* One word carrying the whole band, so it runs larger than a section h2 -
+     44px at 650 to 78px at 1440, built on the same ramp as every other
+     heading here. The comp's 88px ceiling came with its own 56px h2 scale,
+     which this repo doesn't use. */
+  .tyhead__title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(44px, 4.3038vw + 1.0019rem, 78px);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    color: var(--navy-700);
+  }
+
+  @media (max-width: 1000px) {
+    .tyhead__inner {
+      padding-block: 80px 44px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .tyhead__inner {
+      padding-block: 56px 36px;
+      gap: 14px;
+    }
+  }
+</style>

@@ -167,6 +167,12 @@ the same things piecemeal and worse. `HANDOFF.md` tracks the current ranking.
    flattens the band. One component, one form, one place the markup lives.
    A section that must sit *below* the consultation prompt goes in `Layout`'s
    `after-contact` slot — the default slot renders above it.
+   **`contactVariant="none"` drops the section**, and `/thank-you/` is the only
+   page entitled to it: the visitor has just submitted that exact form, so
+   closing with "Take the First Step" invites a duplicate enquiry and reads as
+   though the first one didn't register. Suppression is still a `Layout` prop
+   rather than a page quietly opting out, so the default stays "every page
+   closes with the prompt".
 4. Use `src/components/Eyebrow.astro` for the gold-bird kicker. The homepage
    sections predate it and each carry their own copy; new work should not.
 5. Give `Layout` a real `title` and `description`.
