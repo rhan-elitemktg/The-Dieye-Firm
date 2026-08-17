@@ -1,0 +1,107 @@
+---
+// InteriorHeader — kicker, title and deck that open an interior page.
+//
+// No hero, no breadcrumb, no featured image: the page starts directly under
+// the solid header with a gold eyebrow. Practice areas and blog posts both
+// open this way, and so does every About Us page that isn't the section index.
+//
+// The kicker doubles as the way back up — it names the section or the parent
+// page above this one, which on a practice-area child is the only place that
+// relationship is stated in the main column.
+//
+// The deck is a standfirst, not body copy. On a practice-area page it is the
+// source page's own subheading, lifted out of the body by the scraper so it
+// can be styled as part of the title block rather than read as the first
+// section heading.
+//
+// This was PracticeAreaHeader, typed to a CollectionEntry<"practiceAreas">.
+// The props are plain values now so pages outside that collection can use it;
+// the kicker derivation that used to live here moved into the practice-area
+// route, which is the only caller that needs to know about parents at all.
+
+interface Props {
+  /* The page h1. */
+  title: string;
+
+  /* The gold uppercase kicker above the title. Optional as a whole — a page
+     with nothing above it omits it — and its href is optional in turn, so a
+     kicker can be a plain label rather than a link to nowhere. An object
+     rather than two flat props because it makes "href without label"
+     unrepresentable.
+
+     A hrefless kicker is a real case, not a hypothetical: every top-level
+     practice-area page names its own branch, and the only destination that
+     label could have is the page you are already on. */
+  kicker?: { label: string; href?: string };
+
+  /* Optional standfirst under the title. */
+  deck?: string;
+}
+
+const { title, kicker, deck } = Astro.props;
+---
+
+<header class="ih">
+  {
+    kicker && (
+      <p class="ih__kicker">
+        {kicker.href ? <a href={kicker.href}>{kicker.label}</a> : kicker.label}
+      </p>
+    )
+  }
+
+  <h1 class="ih__title">{title}</h1>
+
+  {deck && <p class="ih__deck">{deck}</p>}
+</header>
+
+<style>
+  .ih__kicker {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    /* On the element, not only on the anchor, so a hrefless kicker is the same
+       gold as one that links. The 11 top-level practice-area pages have no
+       anchor at all. */
+    color: var(--gold-600);
+  }
+
+  .ih__kicker a {
+    color: var(--gold-600);
+    text-decoration: none;
+  }
+
+  .ih__kicker a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .ih__title {
+    margin: 14px 0 0;
+    font-size: clamp(34px, 2.7vw + 1rem, 60px);
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    color: var(--navy-700);
+    text-wrap: balance;
+  }
+
+  /* A standfirst, not body copy: larger than the prose that follows it and set
+     in the serif, so the eye reads it as part of the title block. */
+  .ih__deck {
+    margin: 20px 0 0;
+    max-width: 46em;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink-500);
+  }
+
+  @media (max-width: 650px) {
+    .ih__deck {
+      font-size: 19px;
+    }
+  }
+</style>
