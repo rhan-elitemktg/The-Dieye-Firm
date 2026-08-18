@@ -4,6 +4,15 @@
 
 import { Image } from "astro:assets";
 import logoDark from "../assets/images/logo-dark.png";
+/* The agency credit in the legal bar. Imported from src/assets rather than
+   referenced out of public/ so it goes through the build pipeline and gets a
+   hashed, immutable URL like every other image on the site.
+
+   NOTE there is a second, byte-identical copy at public/elite-white.svg (bar a
+   trailing newline). That one predates this and exists for the Sanity Studio's
+   branding — see src/sanity/components/EliteMark.tsx, which cites it as the
+   source it extracted the emblem from. Don't delete it assuming it's a stray. */
+import eliteLogo from "../assets/logos/elite-white.svg";
 import { getFirmDetails } from "../sanity/firmDetails";
 
 const {
@@ -69,11 +78,28 @@ const year = new Date().getFullYear();
 
     <div class="footer__bottom">
       <p class="footer__copy">&copy; {year} {firmName}. All rights reserved.</p>
-      <ul class="footer__legal">
-        {legalLinks.map((link) => (
-          <li><a href={link.href}>{link.label}</a></li>
-        ))}
-      </ul>
+      {/* Legal links and the agency credit share a right-hand cluster rather
+          than becoming two more children of the space-between row, which would
+          have pushed the legal links into the middle of the bar. */}
+      <div class="footer__end">
+        <ul class="footer__legal">
+          {legalLinks.map((link) => (
+            <li><a href={link.href}>{link.label}</a></li>
+          ))}
+        </ul>
+
+        {/* aria-label on the link, alt="" on the mark: one accessible name
+            rather than the logo and the link both announcing themselves. */}
+        <a
+          class="footer__elite"
+          href="https://www.elitelegalmarketing.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Site by Elite Legal Marketing (opens in a new tab)"
+        >
+          <img src={eliteLogo.src} alt="" width={eliteLogo.width} height={eliteLogo.height} loading="lazy" decoding="async" />
+        </a>
+      </div>
     </div>
   </div>
 </footer>
@@ -219,6 +245,33 @@ const year = new Date().getFullYear();
     list-style: none;
   }
 
+  .footer__end {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  /* The mark is 549x212, so 104px wide lands it at 40px tall - taller than the
+     13.5px legal text, which is right: it reads as a separate credit rather
+     than as one more link in the row. Dimmed so the agency's mark never
+     competes with the firm's own logo at the top of the footer. */
+  .footer__elite {
+    display: inline-flex;
+    flex: 0 0 auto;
+    opacity: 0.55;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+
+  .footer__elite:hover,
+  .footer__elite:focus-visible {
+    opacity: 1;
+  }
+
+  .footer__elite img {
+    width: 104px;
+    height: auto;
+  }
+
   /* Tablet — brand column spans the full width, links go three across. */
   @media (max-width: 1000px) {
     .footer {
@@ -273,6 +326,11 @@ const year = new Date().getFullYear();
       flex-wrap: wrap;
       justify-content: center;
       gap: 16px;
+    }
+
+    .footer__end {
+      flex-direction: column;
+      gap: 18px;
     }
   }
 </style>

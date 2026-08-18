@@ -13,9 +13,14 @@ import VideoReels from "../components/home/VideoReels.astro";
 import Community from "../components/home/Community.astro";
 import GuideRequest from "../components/home/GuideRequest.astro";
 import Blog from "../components/home/Blog.astro";
+
+/* Self-referencing canonical. The homepage is reachable as / and as the
+   destination of nothing, but it is the site's most-linked URL and was one of
+   the last two pages without one. */
+const canonical = new URL("/", Astro.site ?? Astro.url).href;
 ---
 
-<Layout title="The Dieye Firm | Pearland & Houston Family Law">
+<Layout title="The Dieye Firm | Pearland & Houston Family Law" canonical={canonical}>
   <Header overlay />
   <Hero />
   <Awards />

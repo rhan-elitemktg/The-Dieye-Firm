@@ -1,0 +1,249 @@
+---
+// Client Portal — the landing page for the "Client Portal" link that has sat in
+// the info bar on every page since the header was built, pointing at a 404.
+//
+// NO COMP, and no live page either: dieyelaw.com has never had one. Everything
+// here is authored, which is why the copy is deliberately thin — it names each
+// destination and says who it is for, and makes no claim about response times,
+// portal features or billing terms that the firm has not made itself. The three
+// destinations are the page; the words are signposting.
+//
+// The three actions were supplied by Rhan:
+//   1. The New Client Information form (PDF) — the firm's own six-page intake
+//      form, already published at dieyelaw.com/documents/Client-Intake-for-website.pdf.
+//      Ours is byte-identical and sits at the SAME path, so any existing inbound
+//      link or bookmark to that URL keeps resolving after launch.
+//   2. MyCase client login — the firm's case portal.
+//   3. MyCase payment page — the firm's hosted pay-by-card page.
+//
+// Both MyCase links leave the site, so both carry rel="noopener noreferrer" and
+// say so in their accessible names. NOTHING on this page collects a payment or
+// a credential: the buttons hand off to MyCase, which is where that belongs.
+//
+// GROUPED BY WHO IS READING. A new client needs the form before there is a case
+// to log into; an existing client needs the other two and will never need the
+// form again. Two labelled groups beat three equal buttons, because the info bar
+// link says only "Client Portal" and both audiences arrive here from it.
+//
+// The interior template, same as /privacy-policy/ — this page sits next to the
+// rest of the site rather than inventing a layout for three links.
+
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import InteriorShell from "../components/interior/InteriorShell.astro";
+import InteriorHeader from "../components/interior/InteriorHeader.astro";
+import AboutSidebar from "../components/about/AboutSidebar.astro";
+import { getFirmDetails } from "../sanity/firmDetails";
+
+const firm = await getFirmDetails();
+
+const canonical = new URL("/client-portal/", Astro.site ?? Astro.url).href;
+
+const description =
+  "Download the New Client Information form, sign in to your case, or make a payment - the three things clients of The Dieye Firm come here to do.";
+
+/* Named arrays, so the Sanity sweep is a query and a map. `external` drives the
+   target/rel pair rather than each entry repeating it, so a future link cannot
+   be added without one. `download` marks the one same-origin asset. */
+const groups = [
+  {
+    heading: "New clients",
+    blurb: `If you have not met with us yet, start here. Print the form, fill it in, and bring it to your consultation or email it back ahead of time - it covers the details we would otherwise spend your first appointment collecting.`,
+    actions: [
+      {
+        label: "Download the New Client Form",
+        note: "PDF, 6 pages",
+        href: "/documents/Client-Intake-for-website.pdf",
+        style: "btn--gold",
+        download: true,
+      },
+    ],
+  },
+  {
+    heading: "Existing clients",
+    blurb: `Your case file, documents and messages live in MyCase. Both links below open MyCase in a new tab, and you will sign in there.`,
+    actions: [
+      {
+        label: "Access Your Case",
+        note: "Sign in to MyCase",
+        href: "https://auth.mycase.com/login_sessions/new?response_type=code&client_id=tCEM8hNY7GaC2c8P&redirect_uri=https%3A%2F%2Fdieylaw.mycase.com%2Fuser_sessions%2Fo_auth_callback&login_required=true",
+        style: "btn--gold",
+        external: true,
+      },
+      {
+        label: "Pay Now",
+        note: "Secure payment through MyCase",
+        href: "https://dieyelaw.mycase.com/paypage/r2nqKsLn4tKLrBcbbySRmkrg",
+        style: "btn--outline",
+        external: true,
+      },
+    ],
+  },
+];
+
+/* WebPage, matching /privacy-policy/. Not a Service and not a LegalService:
+   this is a utility page for people who are already clients, and every
+   practice-area page already carries the firm's NAP. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Client Portal",
+  description,
+  inLanguage: "en-US",
+  publisher: { "@type": "Organization", name: firm.firmName },
+  url: canonical,
+};
+---
+
+<Layout title="Client Portal | The Dieye Firm" description={description} canonical={canonical}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  <Header />
+
+  <InteriorShell>
+    <InteriorHeader
+      title="Client Portal"
+      kicker={{ label: "Clients" }}
+      deck="Everything you need to get started with us, or to keep an existing case moving."
+    />
+
+    <div class="cp">
+      {
+        groups.map((group) => (
+          <section class="cp__group" aria-labelledby={`cp-${group.heading.replace(/\s+/g, "-").toLowerCase()}`}>
+            <h2 class="cp__heading" id={`cp-${group.heading.replace(/\s+/g, "-").toLowerCase()}`}>
+              {group.heading}
+            </h2>
+
+            <p class="cp__blurb">{group.blurb}</p>
+
+            <ul class="cp__actions">
+              {group.actions.map((action) => (
+                <li>
+                  <a
+                    class={`btn ${action.style} cp__btn`}
+                    href={action.href}
+                    download={action.download ? true : undefined}
+                    target={action.external ? "_blank" : undefined}
+                    rel={action.external ? "noopener noreferrer" : undefined}
+                    aria-label={
+                      action.external
+                        ? `${action.label} (opens in a new tab)`
+                        : `${action.label} (${action.note})`
+                    }
+                  >
+                    {action.label}
+                  </a>
+                  <span class="cp__note">{action.note}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+
+      {/* The one thing neither MyCase nor a PDF can answer. Rendered from
+          firmDetails rather than typed, like the privacy policy's closing line. */}
+      <p class="cp__help">
+        Trouble signing in, or not sure which of these you need? Call us at{" "}
+        <a href={firm.phone.href}>{firm.phone.display}</a> and we will point you the right way.
+      </p>
+    </div>
+
+    <AboutSidebar slot="sidebar" label="The Dieye Firm" />
+  </InteriorShell>
+</Layout>
+
+<style>
+  .cp {
+    margin-top: 40px;
+  }
+
+  .cp__group + .cp__group {
+    margin-top: 48px;
+    padding-top: 44px;
+    border-top: 1px solid var(--bone-300);
+  }
+
+  .cp__heading {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .cp__blurb {
+    max-width: 54ch;
+    margin: 14px 0 0;
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+  }
+
+  /* Each row is button + note. The note sits beside the button on a wide row and
+     under it once the column narrows, which is why it is a sibling rather than
+     text inside the anchor - a button whose label changes length between
+     breakpoints reflows the row it is in. */
+  .cp__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cp__actions li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+  }
+
+  .cp__btn {
+    flex: 0 0 auto;
+  }
+
+  .cp__note {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    color: var(--ink-500);
+  }
+
+  .cp__help {
+    margin: 48px 0 0;
+    padding-top: 28px;
+    border-top: 1px solid var(--bone-300);
+    font-size: 17px;
+    line-height: 29px;
+    color: var(--ink-500);
+  }
+
+  .cp__help a {
+    color: var(--navy-700);
+    font-weight: 600;
+  }
+
+  @media (max-width: 650px) {
+    .cp__heading {
+      font-size: 24px;
+    }
+
+    .cp__blurb {
+      font-size: 17px;
+      line-height: 29px;
+    }
+
+    /* Full-width buttons once the note has dropped below them anyway. */
+    .cp__actions li {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cp__btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

@@ -524,6 +524,28 @@ ul, ol { list-style-position: inside; }
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75);
 }
 
+/* Outline — the light-background counterpart to --ghost, for a SECONDARY
+   action sitting next to a --gold primary on white.
+
+   It exists because --ghost is white-on-transparent and therefore invisible on
+   white: /client-portal/ put a "Pay Now" next to an "Access Your Case" and the
+   second button disappeared entirely. Added when a consumer actually needed it,
+   the same way Awards gained `tone` for /thank-you/ — not speculatively.
+
+   Same inset-shadow trick as --ghost so padding stays identical to the solid
+   variants and a row of mixed buttons lines up. */
+.btn--outline {
+  background: transparent;
+  color: var(--navy-700);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--navy-700) 38%, transparent);
+}
+
+.btn--outline:hover {
+  background: color-mix(in srgb, var(--navy-700) 6%, transparent);
+  color: var(--navy-700);
+  box-shadow: inset 0 0 0 1px var(--navy-700);
+}
+
 /* ------------------------------------------------------------
    8. Reduced motion — calm fallback
    ------------------------------------------------------------ */

@@ -17,11 +17,19 @@ import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
    "about this firm" and "who is Papa Dieye". It leads on his name because that
    is the distinctive half: "About The Dieye Firm" would only repeat the suffix
    the whole site already carries. */
+
+const canonical = new URL("/about-us/", Astro.site ?? Astro.url).href;
+
+/* The canonical entity page for Papa Dieye, and the destination of the two
+   /about-us/ redirects (papa-dieye, the-difference), so the self-referencing
+   canonical is doing real work: it tells Google which of the three URLs is the
+   one. It was the last built page without one. */
 ---
 
 <Layout
   title="About Papa Dieye, Pearland Family Law Attorney | The Dieye Firm"
   description="Meet Papa Dieye, founding attorney of The Dieye Firm, and the people-first approach behind more than seventeen years of guiding Pearland and Houston families."
+  canonical={canonical}
 >
   {/* Not `overlay`. The Old Town Pearland hero photo puts Papa's head 11% down
       the frame, which lands it under the nav's gold CTA if the header floats

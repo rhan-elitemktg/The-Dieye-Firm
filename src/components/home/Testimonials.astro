@@ -5,45 +5,60 @@
 import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 
-/* PLACEHOLDER COPY — replace with real, attributable client reviews before
-   launch (see the note in the component's README/handoff). */
+/* THE HOMEPAGE'S SIX, SELECTED FROM THE REAL FOURTEEN.
+   
+   This array used to hold six INVENTED reviews attributed to invented people
+   (Danielle, Marcus, Renee, Anthony, Simone, Curtis), carrying its own
+   "replace before launch" note. They rendered on / and /about-us/, the two
+   highest-traffic pages, while the firm's 14 real published reviews sat unused
+   in the testimonials component. A law firm attributing a fabricated quote to a
+   named client is a Texas Bar advertising problem before it is a content
+   problem, so they are gone rather than rewritten.
+
+   Selected BY (name, matter) rather than by index, and `pick` throws on a miss,
+   so a reordering or a re-word in reviews.ts fails the build instead of quietly
+   changing which reviews the homepage shows.
+
+   CHOSEN ON THREE CRITERIA, in this order:
+
+     1. The lead must not repeat inside the body. Six of the fourteen quote
+        their own pull-quote back in the body text - the wall tolerates that
+        because exception 1 in reviews.ts only drops a repeated sentence where
+        it STANDS ALONE, and in those six it is embedded mid-sentence where
+        cutting it would mangle the client's grammar. On a masonry wall it
+        passes; on three side-by-side cards, reading the same sentence at 30px
+        and again at 17px is the first thing the eye catches. Eight qualify.
+     2. A spread of matters.
+     3. Bodies that fill a card without dwarfing their neighbours - the corpus
+        runs from 11 to 127 words and the row takes its height from the tallest.
+
+   Kim is deliberately NOT here: home/About.astro uses her quote, and both
+   sections render on the homepage, so picking her would print the same review
+   twice on one page.
+
+   There is no Child Support review because no real review names child support.
+   The matter is simply absent rather than filled with something that doesn't
+   say it. */
+import { reviews, type Review } from "../testimonials/reviews";
+
+const pick = (name: string, matter: string): Review => {
+  const found = reviews.find((r) => r.name === name && r.matter === matter);
+  if (!found) {
+    throw new Error(
+      `home/Testimonials: no review matching ${name} / ${matter}. ` +
+        `Check src/components/testimonials/reviews.ts - the homepage selects by name and matter.`
+    );
+  }
+  return found;
+};
+
 const testimonials = [
-  {
-    lead: "From our very first conversation, Papa made me feel like a person, not a case number.",
-    body: "He took the time to really understand what mattered most to me and my children, explained every option in plain language, and never once made me feel rushed or judged. When things got difficult he stayed calm and steady, and he was always honest with me, even when the answer wasn't the one I wanted to hear.",
-    name: "Danielle",
-    matter: "Child Custody",
-  },
-  {
-    lead: "I walked in completely overwhelmed and, honestly, a little afraid of what was ahead of me.",
-    body: "Papa guided me through the whole process one step at a time and answered every question I had, no matter how small it seemed. He was patient, respectful, and upfront about what to expect without ever overpromising me anything. Having someone this experienced and this steady in my corner changed everything.",
-    name: "Marcus",
-    matter: "Divorce",
-  },
-  {
-    lead: "After speaking with a few other firms, the difference at The Dieye Firm was immediate.",
-    body: "Papa listened carefully before he advised, remembered the small details about my family, and made a complicated, stressful situation feel genuinely manageable. He was fair, transparent about every fee, and worked hard to keep things as calm and respectful as possible throughout the entire matter.",
-    name: "Renee",
-    matter: "Family Law",
-  },
-  {
-    lead: "He never once made me feel like my case was too small to matter.",
-    body: "I came in worried that a modification wasn't worth anyone's time, and Papa treated it with the same care he would have given anything else. He explained exactly what the court would look for, prepared me properly, and kept me updated at every stage without me ever having to chase him for an answer.",
-    name: "Anthony",
-    matter: "Modifications",
-  },
-  {
-    lead: "What I remember most is how much calmer I felt walking out of that first meeting.",
-    body: "Papa was direct about the parts that would be hard and just as direct about what we could realistically achieve. That honesty made it possible for me to make good decisions instead of fearful ones, and it is the reason I have recommended him to two friends since.",
-    name: "Simone",
-    matter: "Property Division",
-  },
-  {
-    lead: "Seventeen years of experience shows the moment he starts talking about your case.",
-    body: "He anticipated issues I would never have thought of and had a plan for each of them. Through it all he stayed patient with me and my family, returned every call, and made sure I understood what was happening and why before anything was filed.",
-    name: "Curtis",
-    matter: "Child Support",
-  },
+  pick("Kate", "Child Custody"),
+  pick("Former Client", "Divorce"),
+  pick("Cyndy", "Family Law"),
+  pick("Sharmain", "Divorce"),
+  pick("Osmin", "Divorce"),
+  pick("Former Client", "Family Law"),
 ];
 ---
 
