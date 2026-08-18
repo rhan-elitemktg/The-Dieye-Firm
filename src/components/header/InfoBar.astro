@@ -6,7 +6,10 @@ import { getFirmDetails } from "../../sanity/firmDetails";
 // line and the EN/FR/ES language switcher are deferred).
 
 const { socials, email } = await getFirmDetails();
-const portalHref = "/client-portal";
+/* Trailing slash to match the built route and every other internal href on the
+   site. Without it the link still resolves - Vercel normalises - but it does so
+   via a redirect, and the link sweep reports it as a separate path. */
+const portalHref = "/client-portal/";
 
 ---
 

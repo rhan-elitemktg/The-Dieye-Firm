@@ -4,9 +4,15 @@ Marketing site for a Pearland / Houston family law firm. Astro 7 + Sanity
 (embedded Studio at `/admin`) + React islands, deployed on Vercel.
 
 The homepage, the blog, the 32 practice-area pages and the 32 location pages
-are built, along with `/video-center/` and `/faq/`. What's left is the three
-footer pages that still 404 — `/privacy-policy/`, `/disclaimer/` and
-`/sitemap/` — plus wiring the lead form to an endpoint.
+are built, along with `/video-center/`, `/faq/` and `/privacy-policy/`. What's
+left is `/sitemap/`, the last footer link that still 404s, plus wiring the lead
+form to an endpoint.
+
+**`/disclaimer/` is not a page we owe.** It never existed on dieyelaw.com — the
+live footer links only `/privacy-policy/` — so the link was ours, pointing at
+nothing. It was dropped from `firmDetails.legalLinks` on 2026-08-18 at Rhan's
+direction rather than filled with invented legal text. If the firm ever supplies
+real disclaimer copy, the link comes back with the page, not before it.
 
 **The nav array at the top of `src/components/header/MainNav.astro` is not the
 page map.** Both its flyouts are curated shortlists — five practice areas of
@@ -415,6 +421,18 @@ reason; both files carry a comment saying so.
   `document.querySelector` would leave the second form dead — it navigates on
   submit and loses the enquiry. `scripts/checks/blog-forms.js` guards all of
   this.
+- **A running dev server NEVER sees a Sanity content edit.** `getFirmDetails()`
+  memoises into a module-level promise — deliberately, so a static build queries
+  the singleton once rather than once per component — and nothing invalidates
+  that cache for the life of the process. HMR still picks up *code* changes, so
+  the server looks live and current while quietly serving the document it
+  fetched at boot. Every symptom points at the edit having failed: the Studio
+  shows the new value, `sanity documents query` shows the new value, `dist/`
+  shows the new value, and the page in the browser does not. **After any change
+  to `firmDetails` — phone, address, footer nav, legal links, service areas —
+  restart the dev server**, and check `dist/` rather than `:4321` when
+  confirming one landed. Bit us twice in one session on the same document.
+
 - **A dev server started before an edit can serve new markup with stale scoped
   CSS.** Half the rules apply and the rest silently don't. If a component looks
   unstyled but its HTML is clearly current, `astro dev stop && astro dev

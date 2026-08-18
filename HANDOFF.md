@@ -242,57 +242,61 @@ against a `dist/` snapshot built from `HEAD` with the branch's work stashed.
    and confirms inline, so `/thank-you/` is unreachable.
 2. **`/thank-you/` says nothing about what happens next** — no response time, no
    "call us if it's urgent". The wording is a commitment on the firm's behalf.
-3. **Send the firm `docs/live-site-corrections.md`.** Now **three** errors in
-   their own published copy, all fixed on the new site and all still live:
-   **"Pasadena, CA" on a Texas page**, the "Lawyer" singular-for-plural typo in
-   **13 places** across twelve pages, and the **`/faq/` question whose answer
-   answers a different question**.
-4. **Should the homepage keep its `FAQPage` JSON-LD now that `/faq/` exists?**
+3. **Should the homepage keep its `FAQPage` JSON-LD now that `/faq/` exists?**
    Google prefers the markup on a page whose primary content is the FAQ. One
    line either way; not changed unilaterally because it alters a shipped page's
    structured data.
-5. **The nine questions are not headings.** They are `<summary>` text, so a
+4. **The nine questions are not headings.** They are `<summary>` text, so a
    screen-reader user navigating by heading skips all nine. `<details>` is
    natively keyboard-operable and announced with its expanded state, so this is
    an affordance rather than a WCAG failure — but on a page that is *nothing but*
    questions it is worth having. The fix is an `h2` or `h3` inside each
    `<summary>`, and it would change the homepage too, which is why it is here
    rather than done.
-6. **`VideoObject` markup needs data only the firm has** — an upload date and a
+5. **`VideoObject` markup needs data only the firm has** — an upload date and a
    one-line description per video, and ideally a real frame from each as the
    thumbnail.
-7. **The `/testimonials/` video tile is still a placeholder.** Labelled "Video
+6. **The `/testimonials/` video tile is still a placeholder.** Labelled "Video
    Testimonial" / "Watch their story" over a stock-photo poster of a man
    unconnected to the firm, playing the firm's own About Us video. The poster
    question was closed on 2026-08-18; the label question was not.
-8. **Authored strings with no comp behind them** — now including **`/faq/`'s
+7. **Authored strings with no comp behind them** — now including **`/faq/`'s
    kicker ("Common Questions"), deck, page title and meta description**, plus
    `/video-center/`'s kicker and deck, and the title and meta description on
    `/thank-you/`, `/testimonials/`, `/contact-us/`,
    `/about-us/choosing-a-family-law-attorney/`, and the A–Z section head on
    `/practice-areas/`.
-9. **26 of the 32 practice-area pages and 26 of the 32 location pages close with
+8. **26 of the 32 practice-area pages and 26 of the 32 location pages close with
    a "come talk to us" section.** Kept deliberately — six end on real content
    that must survive. Trivial to strip later, impossible to recover if dropped.
-10. **FAQ answers flatten to one paragraph** in `PracticeAreaFaqs`, which
+9. **FAQ answers flatten to one paragraph** in `PracticeAreaFaqs`, which
     renders `<p>{answer}</p>` — 14 pages, ~37 answers. **This does not affect
     `/faq/`**: all nine of its answers are single paragraphs at source. Fixing it
     changes a component 64 routes render.
-11. **The source FAQ headings on the practice-area pages are more specific than
+10. **The source FAQ headings on the practice-area pages are more specific than
     the rendered one.** Five say "Frequently Asked Questions About Divorce in
     Harris County". A `faqsHeading` field would fix it.
-12. **`modifications-enforcement` is 290 words**, the thinnest practice area and
+11. **`modifications-enforcement` is 290 words**, the thinnest practice area and
     the only one where the sidebar overhangs the article.
-13. **The August blog post is categorised by us, not the client**
+12. **The August blog post is categorised by us, not the client**
     (`child-custody` via `CATEGORY_OVERRIDES`) and still has no artwork.
-14. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
+13. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
     (2025-01) and `understanding-child-custody-laws-in-pearland-texas` (2026-07).
 
 **Closed at Rhan's direction on 2026-08-18**, and deliberately no longer
 tracked: the stock-photo testimonial poster, the two CMS-truncated reviews,
-attorney review of the Key Takeaways, and confirming the "500+ Families Helped" /
-"5.0 Stars" / "17+ Years" claims. Recorded so a later session reopens them by
+attorney review of the Key Takeaways, confirming the "500+ Families Helped" /
+"5.0 Stars" / "17+ Years" claims, and **sending the firm
+`docs/live-site-corrections.md`**. Recorded so a later session reopens them by
 decision rather than by rediscovery.
+
+**On that last one:** all three corrections are applied on the new site and
+verified in the repo, so nothing here is outstanding as work. What was being
+tracked was telling the firm so their live pages get fixed too — Rhan's call,
+and not ours to chase. **`docs/live-site-corrections.md` stays**, because
+`AGENTS.md` points at it as the place to log any further departure from the
+client's published prose. Do not delete the file; just don't re-raise sending
+it.
 
 ---
 

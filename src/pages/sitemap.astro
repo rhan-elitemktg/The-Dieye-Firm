@@ -1,0 +1,281 @@
+---
+// Site Map — the HTML index behind the footer's "Site Map" link, which has
+// pointed at a 404 since the footer was built.
+//
+// NOT sitemap.xml. This is the human one; the machine one does not exist yet
+// (there is no @astrojs/sitemap integration in astro.config.mjs) and is a
+// separate job. Named `sitemap.astro` because the footer link says /sitemap/;
+// note the live site's own HTML index is at /site-map/ instead, which is a URL
+// we do not currently serve or redirect. See HANDOFF.md.
+//
+// EVERY ENTRY IS DERIVED, none typed. The three collections supply 80 of the
+// rows, so a new practice area, location page or post appears here the moment
+// it is scraped, and a removed one disappears. Only the top-level pages are a
+// literal list, because they are literal files in src/pages/ with no collection
+// behind them — and `npm run build` will fail on a typo in one via the link
+// sweep long before a visitor sees it.
+//
+// The interior template, exactly as /privacy-policy/ uses it (Rhan's call).
+
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import InteriorShell from "../components/interior/InteriorShell.astro";
+import InteriorHeader from "../components/interior/InteriorHeader.astro";
+import AboutSidebar from "../components/about/AboutSidebar.astro";
+import { areaHref, buildTree, byLabel } from "../components/practice-areas/practiceAreas";
+import { locationHref, pagesIn, rootOf } from "../components/locations/locations";
+import { formatDate } from "../components/blog/blog";
+import { getFirmDetails } from "../sanity/firmDetails";
+
+const firm = await getFirmDetails();
+
+const canonical = new URL("/sitemap/", Astro.site ?? Astro.url).href;
+
+const description =
+  "Every page on The Dieye Firm's website - practice areas, service areas, blog posts and everything in between, in one list.";
+
+/* The only hand-written list on the page: the standalone pages in src/pages/.
+   Kept as a named array for the Sanity sweep, same as everywhere else. */
+const mainPages = [
+  { label: "Home", href: "/" },
+  { label: "About Papa Dieye", href: "/about-us/" },
+  { label: "Choosing a Family Law Attorney", href: "/about-us/choosing-a-family-law-attorney/" },
+  { label: "Practice Areas", href: "/practice-areas/" },
+  { label: "Success Stories", href: "/testimonials/" },
+  { label: "Video Center", href: "/video-center/" },
+  { label: "Blog", href: "/blog/" },
+  { label: "FAQs", href: "/faq/" },
+  { label: "Contact Us", href: "/contact-us/" },
+  { label: "Client Portal", href: "/client-portal/" },
+  { label: "Privacy Policy", href: "/privacy-policy/" },
+];
+
+/* --- Practice areas: the same 11 branches the sidebar menu shows, in the same
+       order, because both go through buildTree/byLabel. --- */
+const areas = await getCollection("practiceAreas");
+const areaTree = buildTree(areas);
+
+/* --- Locations: grouped under their four roots, in firmDetails' own order so
+       the sitemap agrees with the Service Areas flyout rather than with
+       alphabetical chance. --- */
+const locationPages = await getCollection("locations");
+const locationGroups = firm.serviceAreas.map((area) => {
+  /* firmDetails stores the root's href ("/sugar-land-family-law-attorney/");
+     the collection is keyed on the bare id. */
+  const rootId = area.href.replace(/^\/|\/$/g, "");
+  const root = locationPages.find((p) => p.id === rootId);
+  if (!root) throw new Error(`firmDetails serviceArea "${area.href}" matches no locations entry.`);
+  return {
+    label: area.navLabel,
+    href: locationHref(root),
+    children: buildTree(pagesIn(locationPages, root.data.location).filter((p) => p.id !== rootId)),
+  };
+});
+
+/* --- Blog: newest first, matching the index. --- */
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const total =
+  mainPages.length +
+  areas.length +
+  locationPages.length +
+  posts.length;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Site Map",
+  description,
+  inLanguage: "en-US",
+  publisher: { "@type": "Organization", name: firm.firmName },
+  url: canonical,
+};
+---
+
+<Layout title="Site Map | The Dieye Firm" description={description} canonical={canonical}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  <Header />
+
+  <InteriorShell>
+    <InteriorHeader
+      title="Site Map"
+      kicker={{ label: "Legal" }}
+      deck={`Every page on this site - ${total} of them - in one list.`}
+    />
+
+    <div class="sm">
+      <section class="sm__group" aria-labelledby="sm-main">
+        <h2 class="sm__heading" id="sm-main">Main Pages</h2>
+        <ul class="sm__list">
+          {mainPages.map((page) => (
+            <li><a href={page.href}>{page.label}</a></li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="sm__group" aria-labelledby="sm-practice">
+        <h2 class="sm__heading" id="sm-practice">
+          <a href="/practice-areas/">Practice Areas</a>
+        </h2>
+        <ul class="sm__list">
+          {areaTree.map((branch) => (
+            <li>
+              <a href={areaHref(branch.item)}>{branch.item.data.navLabel}</a>
+              {branch.children.length > 0 && (
+                <ul class="sm__sub">
+                  {branch.children.sort(byLabel).map((child) => (
+                    <li><a href={areaHref(child)}>{child.data.navLabel}</a></li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="sm__group" aria-labelledby="sm-areas">
+        <h2 class="sm__heading" id="sm-areas">Service Areas</h2>
+        <ul class="sm__list">
+          {locationGroups.map((group) => (
+            <li>
+              <a href={group.href}>{group.label}</a>
+              {group.children.length > 0 && (
+                <ul class="sm__sub">
+                  {group.children.map((branch) => (
+                    <li>
+                      <a href={locationHref(branch.item)}>{branch.item.data.navLabel}</a>
+                      {branch.children.length > 0 && (
+                        <ul class="sm__sub">
+                          {branch.children.sort(byLabel).map((child) => (
+                            <li><a href={locationHref(child)}>{child.data.navLabel}</a></li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="sm__group" aria-labelledby="sm-blog">
+        <h2 class="sm__heading" id="sm-blog"><a href="/blog/">Blog</a></h2>
+        <ul class="sm__list sm__list--posts">
+          {posts.map((post) => (
+            <li>
+              <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+              {/* timeZone: "UTC" lives inside formatDate - a bare date string
+                  otherwise renders one day early. See AGENTS.md. */}
+              <span class="sm__date">{formatDate(post.data.date)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+
+    <AboutSidebar slot="sidebar" label="The Dieye Firm" />
+  </InteriorShell>
+</Layout>
+
+<style>
+  .sm {
+    margin-top: 40px;
+  }
+
+  .sm__group + .sm__group {
+    margin-top: 44px;
+    padding-top: 40px;
+    border-top: 1px solid var(--bone-300);
+  }
+
+  .sm__heading {
+    margin: 0 0 20px;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--navy-700);
+  }
+
+  .sm__heading a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .sm__heading a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* Two columns of top-level rows on a wide main column; the nested lists stay
+     inside whichever column their parent lands in, which is why this is columns
+     rather than a grid - a grid would break a branch across the gutter. */
+  .sm__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    columns: 2;
+    column-gap: 48px;
+  }
+
+  .sm__list > li {
+    /* Keeps a branch and its children together in one column. */
+    break-inside: avoid;
+    margin-bottom: 14px;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  .sm__list a {
+    color: var(--navy-700);
+    text-decoration: none;
+  }
+
+  .sm__list a:hover {
+    color: var(--gold-600);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .sm__sub {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    list-style: none;
+    border-left: 2px solid var(--bone-300);
+  }
+
+  .sm__sub li {
+    margin-bottom: 7px;
+    font-size: 16px;
+  }
+
+  .sm__sub a {
+    color: var(--ink-500);
+  }
+
+  /* Post titles run long enough that two columns would wrap most of them. */
+  .sm__list--posts {
+    columns: 1;
+  }
+
+  .sm__date {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 13.5px;
+    color: var(--ink-500);
+  }
+
+  @media (max-width: 650px) {
+    .sm__list {
+      columns: 1;
+    }
+
+    .sm__heading {
+      font-size: 23px;
+    }
+  }
+</style>
