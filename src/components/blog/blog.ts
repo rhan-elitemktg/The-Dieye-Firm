@@ -71,11 +71,18 @@ export const byNewest = (a: Post, b: Post) => b.data.date.getTime() - a.data.dat
    a category filter is applied — so it must never also appear in the grid.
    Both halves come from here so they can't disagree.
 
-   `posts` is expected sorted by newest; the flag wins over recency, and an
-   archive with no flag set falls back to the newest post. */
+   NO POST FLAGGED MEANS NO PANEL. This used to fall back to the newest post,
+   which was harmless while `featured` lived in frontmatter and was always set:
+   the archive simply always had a panel. Once an editor could clear the flag it
+   became a trap — turning the feature off promoted a different post into the
+   panel instead of removing it, so there was no way to switch the panel off at
+   all, and the post that surfaced was one nobody had chosen.
+
+   The index already renders the panel conditionally, so an empty result just
+   drops the section and the grid shows every post. */
 export function splitFeatured(posts: Post[]): { featured?: Post; rest: Post[] } {
-  const featured = posts.find((p) => p.data.featured) ?? posts[0];
-  return { featured, rest: posts.filter((p) => p.id !== featured?.id) };
+  const featured = posts.find((p) => p.data.featured);
+  return { featured, rest: featured ? posts.filter((p) => p.id !== featured.id) : posts };
 }
 
 /* Related posts: same category first, then backfilled by recency so the slot
