@@ -1,7 +1,7 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { schemaTypes } from "./src/sanity/schemaTypes";
-import { structure } from "./src/sanity/structure";
+import { structure, SINGLETONS } from "./src/sanity/structure";
 import { eliteTheme } from "./src/sanity/theme";
 import { EliteMark } from "./src/sanity/components/EliteMark";
 
@@ -30,5 +30,22 @@ export default defineConfig({
   plugins: [structureTool({ structure })],
   schema: {
     types: schemaTypes,
+  },
+  document: {
+    /* Keep singletons out of the global "＋ Create" menu.
+     *
+     * A singleton is only a singleton because structure.ts pins one document id
+     * for it; nothing in the schema stops an editor creating a second. A second
+     * Home Page would be unreachable from the sidebar — every row there opens
+     * the pinned id — so it would sit in the dataset looking like real work that
+     * had simply failed to appear on the site.
+     *
+     * The filter is scoped to `creationContext.type === "global"`, so it only
+     * touches the top-level Create menu and leaves reference fields and array
+     * inserts alone. */
+    newDocumentOptions: (prev, { creationContext }) =>
+      creationContext.type === "global"
+        ? prev.filter((item) => !SINGLETONS.includes(item.templateId ?? ""))
+        : prev,
   },
 });

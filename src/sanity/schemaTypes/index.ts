@@ -3,6 +3,8 @@ import { firmDetails } from "./firmDetails";
 import { navLink } from "./navLink";
 import { seo } from "./seo";
 import { blockContent } from "./blockContent";
+import { homePage } from "./homePage";
+import { testimonial } from "./testimonial";
 
 /* Grouped the way the Studio sidebar groups them (see src/sanity/structure.ts),
    so a new type has an obvious place to go. Anything added here that is NOT
@@ -11,7 +13,9 @@ import { blockContent } from "./blockContent";
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
   firmDetails,
+  homePage,
   // Documents
+  testimonial,
   // Objects
   navLink,
   seo,

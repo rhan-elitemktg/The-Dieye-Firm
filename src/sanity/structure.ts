@@ -1,30 +1,114 @@
 import type { StructureResolver } from "sanity/structure";
-/* @sanity/icons v5 dropped the barrel export — the root entry only ships `Icon`
-   and `icons`, so every glyph comes from its own subpath. */
-import { HomeIcon } from "@sanity/icons/Home";
+import { icons } from "@sanity/icons";
+import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
 
-/* Documents that exist exactly once. Pinning the document ID here is what makes
-   a type a singleton — there is no schema option for it. They are also filtered
-   out of the generic type list below, so an editor can't create a second one. */
-export const SINGLETONS = ["firmDetails"];
+/* The Studio sidebar.
+ *
+ * Three folders — Pages, Collections, Site Settings — so it reads as a site map
+ * rather than an alphabetical dump of document types. An editor looking for the
+ * homepage looks under Pages; an editor adding a review looks under Collections.
+ *
+ * ── Icons ────────────────────────────────────────────────────────────────────
+ * `@sanity/icons` v5 removed the NAMED root exports (`import { HomeIcon } from
+ * "@sanity/icons"` gives you `undefined`), but the `icons` MAP is still there
+ * and is the ergonomic choice for a file that needs two dozen glyphs. Schema
+ * files, which need one each, use the per-icon subpath instead
+ * (`@sanity/icons/Home`). Both are correct; don't unify them.
+ *
+ * No two rows share an icon, and no sidebar row shares an icon with a document
+ * type — a duplicate makes two different things look like the same thing at a
+ * glance, which is most of what an icon is for.
+ *
+ * ── Growth ───────────────────────────────────────────────────────────────────
+ * This file is extended by every phase of the Sanity migration as its types
+ * land, so the sidebar is never out of step with the schema. The catch-all at
+ * the bottom is the safety net: a type nobody placed shows up at the root rather
+ * than being silently unreachable.
+ */
 
-export const structure: StructureResolver = (S) =>
+/* Types with exactly one document, pinned by fixed id below. Pinning the id is
+   what makes a type a singleton — Sanity has no schema option for it. This list
+   also drives the "＋ Create" filter in sanity.config.ts, so none can be
+   duplicated into an orphan the sidebar can't reach. */
+export const SINGLETONS = ["firmDetails", "homePage"];
+
+/* Repeatable types with a curated list below. Kept beside SINGLETONS so the
+   catch-all knows what has already been placed. */
+const COLLECTIONS = ["testimonial"];
+
+/* Everything placed explicitly. Anything NOT here falls through to the
+   catch-all. */
+const PLACED = [...SINGLETONS, ...COLLECTIONS];
+
+/** A pinned singleton: one sidebar row opening one fixed document. */
+const page = (
+  S: Parameters<StructureResolver>[0],
+  id: string,
+  title: string,
+  icon: (typeof icons)[keyof typeof icons],
+) =>
+  S.listItem()
+    .title(title)
+    .icon(icon)
+    .child(S.document().schemaType(id).documentId(id).title(title));
+
+export const structure: StructureResolver = (S, context) =>
   S.list()
     .title("Website Content")
     .items([
+      // ── Pages ───────────────────────────────────────────────────────────────
+      // One row per page of the site, in roughly the order the nav lists them.
       S.listItem()
-        .title("Firm Details")
-        .icon(HomeIcon)
+        .title("Pages")
+        .icon(icons["master-detail"])
         .child(
-          S.document()
-            .schemaType("firmDetails")
-            .documentId("firmDetails")
-            .title("Firm Details")
+          S.list()
+            .title("Pages")
+            .items([page(S, "homePage", "Home Page", icons.home)]),
         ),
 
-      S.divider(),
+      // ── Collections ─────────────────────────────────────────────────────────
+      // The repeatable records: reviews, practice areas, blog posts. Drag to
+      // reorder where the order is what the site renders.
+      S.listItem()
+        .title("Collections")
+        .icon(icons.stack)
+        .child(
+          S.list()
+            .title("Collections")
+            .items([
+              /* Drag-ordered: /testimonials/ renders the wall in this order, and
+                 as a plain list the sequence would be one no editor could reach. */
+              orderableDocumentListDeskItem({
+                type: "testimonial",
+                title: "Testimonials",
+                icon: icons.blockquote,
+                S,
+                context,
+              }),
+            ]),
+        ),
 
+      // ── Site Settings ───────────────────────────────────────────────────────
+      // Site-wide configuration, kept away from page content.
+      S.listItem()
+        .title("Site Settings")
+        .icon(icons.controls)
+        .child(
+          S.list()
+            .title("Site Settings")
+            .items([
+              page(S, "firmDetails", "Firm Details", icons.cog),
+              /* Global SEO Settings lands here as a FOLDER when the SEO layer
+                 does — sitewide defaults alongside the editor-managed redirect
+                 list. Reserved as a folder from the start because adding one
+                 later moves the singleton's Studio URL. */
+            ]),
+        ),
+
+      // Safety net: surface any document type not placed above, so a newly added
+      // type is never silently orphaned.
       ...S.documentTypeListItems().filter(
-        (listItem) => !SINGLETONS.includes(listItem.getId() as string)
+        (li) => !PLACED.includes(li.getId() as string),
       ),
     ]);

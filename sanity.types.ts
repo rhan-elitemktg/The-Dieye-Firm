@@ -56,6 +56,38 @@ export type Seo = {
   };
 };
 
+export type NavLink = {
+  _type: "navLink";
+  label: string;
+  href: string;
+};
+
+export type TestimonialReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "testimonial";
+};
+
+export type HomePage = {
+  _id: string;
+  _type: "homePage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  about?: {
+    pullQuote: TestimonialReference;
+  };
+  testimonials?: {
+    picks: Array<
+      {
+        _key: string;
+      } & TestimonialReference
+    >;
+  };
+  seo?: Seo;
+};
+
 export type SanityImageCrop = {
   _type: "sanity.imageCrop";
   top: number;
@@ -72,10 +104,17 @@ export type SanityImageHotspot = {
   width: number;
 };
 
-export type NavLink = {
-  _type: "navLink";
-  label: string;
-  href: string;
+export type Testimonial = {
+  _id: string;
+  _type: "testimonial";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  orderRank?: string;
+  lead: string;
+  body: string;
+  name: string;
+  matter: string;
 };
 
 export type FirmDetails = {
@@ -235,9 +274,12 @@ export type AllSanitySchemaTypes =
   | BlockContent
   | SanityImageAssetReference
   | Seo
+  | NavLink
+  | TestimonialReference
+  | HomePage
   | SanityImageCrop
   | SanityImageHotspot
-  | NavLink
+  | Testimonial
   | FirmDetails
   | SanityImagePaletteSwatch
   | SanityImagePalette
@@ -308,10 +350,49 @@ export type FIRM_DETAILS_QUERY_RESULT =
     }
   | null;
 
+// Source: src/sanity/testimonials.ts
+// Variable: TESTIMONIALS_ALL_QUERY
+// Query: *[_type == "testimonial"] | order(orderRank) {    _id, lead, body, name, matter  }
+export type TESTIMONIALS_ALL_QUERY_RESULT = Array<{
+  _id: string;
+  lead: string;
+  body: string;
+  name: string;
+  matter: string;
+}>;
+
+// Source: src/sanity/testimonials.ts
+// Variable: TESTIMONIALS_HOME_QUERY
+// Query: *[_id == "homePage"][0]{    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }  }
+export type TESTIMONIALS_HOME_QUERY_RESULT =
+  | {
+      pullQuote: null;
+      picks: null;
+    }
+  | {
+      pullQuote: {
+        _id: string;
+        lead: string;
+        body: string;
+        name: string;
+        matter: string;
+      } | null;
+      picks: Array<{
+        _id: string;
+        lead: string;
+        body: string;
+        name: string;
+        matter: string;
+      }> | null;
+    }
+  | null;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
+    '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0]{\n    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },\n    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_HOME_QUERY_RESULT;
   }
 }

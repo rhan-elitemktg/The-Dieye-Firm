@@ -6,7 +6,7 @@ import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import videoPoster from "../../assets/images/video-poster-pearland.jpg";
 import headshot from "../../assets/images/papa-headshot.jpg";
-import { reviews } from "../testimonials/reviews";
+import { getHomeTestimonials } from "../../sanity/testimonials";
 
 /* The pull-quote in the aside. It used to be an INVENTED review attributed to
    "Danielle R. / Divorce & Custody" - hand-written markup, carrying no
@@ -17,12 +17,7 @@ import { reviews } from "../testimonials/reviews";
    Kim's is the shortest of the fourteen that still reads as a complete thought,
    which is what this slot needs: the aside is one column beside two of copy, so
    a 50-word quote pushes the video tile off the fold. */
-const quote = reviews.find((r) => r.name === "Kim" && r.matter === "Family Law");
-if (!quote) {
-  throw new Error(
-    'home/About: no review matching Kim / Family Law. See src/components/testimonials/reviews.ts.'
-  );
-}
+const { pullQuote: quote } = await getHomeTestimonials();
 
 const WISTIA_ID = "xnom95l12h";
 
