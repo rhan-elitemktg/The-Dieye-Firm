@@ -39,7 +39,7 @@
   const aboutTrigger = document.querySelector(".video-card[data-video-open]");
   aboutTrigger.click();
   await wait(120);
-  results.about = { expected: "z79lx3x00o", ...state() };
+  results.about = { expected: "xnom95l12h", ...state() };
 
   // Escape closes, focus returns to the trigger
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
@@ -81,7 +81,7 @@
 
   check("one modal on page", results.modalsOnPage === 1);
   check("no iframes before click", results.iframesBeforeAnyClick === 0);
-  check("about plays z79lx3x00o", results.about.videoId === "z79lx3x00o");
+  check("about plays xnom95l12h", results.about.videoId === "xnom95l12h");
   check("about is 16:9", Math.abs(parseFloat(results.about.aspect) - 16 / 9) < 0.01);
   check("about labelled", results.about.ariaLabel === "Meet Papa Dieye");
   check("escape closes", !results.afterEscape.open);
@@ -89,7 +89,7 @@
   check("escape unlocks scroll", !results.afterEscape.scrollLocked);
   check("escape restores focus", results.afterEscape.focusReturnedToTrigger);
   check("reel plays its own id", results.reel.videoId === results.reel.expected);
-  check("reel is NOT the about video", results.reel.videoId !== "z79lx3x00o");
+  check("reel is NOT the about video", results.reel.videoId !== "xnom95l12h");
   check("reel is 9:16", Math.abs(parseFloat(results.reel.aspect) - 9 / 16) < 0.01);
   check("backdrop closes", !results.afterBackdrop.open);
   check("backdrop restores focus", results.afterBackdrop.focusReturnedToTrigger);

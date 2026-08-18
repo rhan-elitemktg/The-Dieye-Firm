@@ -33,7 +33,7 @@ export async function getStaticPaths() {
      there — it fails at build time with "RESERVED is not defined". */
   const RESERVED = new Set([
     "about-us", "admin", "blog", "contact-us", "family-law",
-    "practice-areas", "testimonials", "thank-you",
+    "practice-areas", "testimonials", "thank-you", "video-center",
   ]);
 
   const pages = await getCollection("locations");

@@ -8,14 +8,18 @@ import Eyebrow from "../Eyebrow.astro";
 interface Props {
   title: string;
   intro: string;
+  /* Optional so /blog/ is untouched. /video-center/ borrows this header and
+     only needs a different kicker; if a third page ever wants it, it graduates
+     to interior/PageHeader.astro. */
+  eyebrow?: string;
 }
 
-const { title, intro } = Astro.props;
+const { title, intro, eyebrow = "News & Insights" } = Astro.props;
 ---
 
 <header class="bh">
   <div class="container bh__inner">
-    <Eyebrow eager>News &amp; Insights</Eyebrow>
+    <Eyebrow eager>{eyebrow}</Eyebrow>
     <h1 class="bh__title">{title}</h1>
     <p class="bh__intro">{intro}</p>
   </div>

@@ -6,30 +6,24 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-17, on the `location_pages` branch._
+_Last rewritten: 2026-08-18, on the `video_center` branch._
 
 ---
 
 ## Start here
 
-**The service areas are built.** 32 location pages across four areas, ingested
-from the live site. That was the largest unbuilt thing and the last group with
-dangling nav links — every Service Areas link now resolves, and so do the four
-in-copy links to `/harris-county-family-law-attorney/…` that had been 404ing
-inside shipped practice-area and blog content.
+**`/video-center/` is built.** Nine videos in one 3-across grid, on the branch
+and **not committed**. It was item 1 on the list below; the homepage's
+`/videos/` link is fixed in the same change, so two of the seven dangling
+routes are gone.
 
 **What's left, in the order Rhan set on 2026-08-18:**
 
-1. **`/video-center/`** — 4 pages on the live site. Third-party embeds go behind
-   a click-to-load facade with their metadata fetched at build time, per
-   `AGENTS.md`; the office map is the last holdout of that rule, so don't add a
-   second one.
-2. **`/faq/`** — a real section of the live site with the client's own prose,
-   so the same rule that governed the other three ingests applies. Finishes the
+1. **`/faq/`** — a real section of the live site with the client's own prose,
+   so the same rule that governed the four ingests applies. Finishes the
    Resources flyout.
-3. **`/privacy-policy/`, `/disclaimer/` and `/sitemap/`** — the three footer
-   links that still 404. `/videos/` on the homepage is a fourth and is almost
-   certainly meant to be `/video-center/`; fold that one-line fix in with (1).
+2. **`/privacy-policy/`, `/disclaimer/` and `/sitemap/`** — the three footer
+   links that still 404.
 
 **Still unscheduled, and still the only thing between the site and a real
 enquiry: the lead form has no endpoint.** `lead-form.ts` cancels submission and
@@ -40,226 +34,204 @@ where leads go before it can be built.
 
 ## Where we are
 
-**The location-pages work is merged.** PR #27 took `location_pages` into
-`master` — the nine commits below are all on `origin/master` now.
+Branch `video_center`, cut from `master`. **Everything below is uncommitted.**
+Build passes at **90 pages** (was 89).
 
-Working directly on `master` since then, at Rhan's call rather than by
-convention: one commit on top of the merge, for the scraper regex fix and the
-client corrections note.
+| | |
+|---|---|
+| New | `src/pages/video-center.astro` |
+| New | `src/components/video-center/VideoGrid.astro`, `VideoTile.astro` |
+| New | `scripts/checks/video-center.js` |
+| Changed | `src/components/blog/BlogHeader.astro` — optional `eyebrow` prop |
+| Changed | `src/components/home/VideoReels.astro` — CTA `/videos/` → `/video-center/` |
+| Changed | `src/pages/[...slug].astro` — `"video-center"` added to `RESERVED` |
+| Changed | `vercel.json` — 8 redirects (4 paths × both slash forms) |
 
-Build passes at **89 pages** (was 57).
-
-The merged commits are individually revertable and each carries its own proof:
-
-1. `Extract the sidebar tree menu out of FamilyLawNav`
-2. `Lift the shared scraper machinery into scripts/lib/html.mjs`
-3. `Ingest the 32 location pages` — content only, build still 57
-4. `Render the 32 location pages` — build 57 → 89
-5. `Record the new rules in AGENTS.md, rewrite HANDOFF`
-6. `Move the FAQs into the shared full-width band` — **reverted by 7**
-7. `Revert "Move the FAQs into the shared full-width band"`
-8. `Record why the FAQ band was reverted`
-9. `Note the branch is pushed, and correct the commit list`
-
-**6 and 7 cancel out and were deliberately left in history** rather than reset
-away: the band is one `git revert` from coming back if the mobile ordering
-problem in *Decisions* is ever solved, and the proof work in its message is
-worth keeping.
-
-Commits 1 and 2 were shared infrastructure with no content in them and both
-were proven no-ops. The question of splitting them into their own PR is moot
-now — they went in with the rest.
+The `master` work before this branch is all pushed; PR #27 took `location_pages`
+in, plus one commit on top for the scraper regex fix.
 
 ---
 
 ## What landed this session
 
-### 1. The location pages — 32 of them, ~41,400 source words
+### The video centre — nine videos, no new assets, no new JavaScript
 
-Four service areas: Harris County (5), League City (5), Pasadena (7), Sugar
-Land (15). One route at `src/pages/[...slug].astro`, the same interior template
-as the practice areas, and a `locations` collection whose file path is the
-route.
+The page is a header, a grid and `WhatDrivesUs`. The heavy lifting was already
+in the repo: `VideoModal.astro` is a shared click-to-load Wistia modal rendered
+once from `Layout`, and any element opts in with four `data-*` attributes. The
+new page therefore **ships no script of its own**, and the office map is still
+the only embed without a facade.
 
-**The sidebar menu is scoped to one location** — the thing Rhan asked for. A
-Sugar Land page lists Sugar Land's 14 pages and zero `/family-law/` links.
+Runtimes come from Wistia's oEmbed at build time, the same try/catch shape as
+`VideoReels.astro`, so an outage costs the duration pills and not the build.
 
-### 2. Two extractions, both proved before anything used them
+**`xnom95l12h` replaced `z79lx3x00o` everywhere**, at Rhan's direction: the
+firm shot a new About Us video, so the old one is gone from the video centre,
+the **homepage About card** and the **`/testimonials/` video tile**, and the
+hardcoded id in `scripts/checks/video-modal.js` moved with it. A grep for
+`z79lx3x00o` across `src/` and `scripts/` now returns nothing. The new cut is
+1:44 where the old was 1:55, so the About card's aria-label runtime changed
+too — it is fetched at build time and needed no edit.
 
-`TreeNav` (the expand/collapse menu) and `scripts/lib/html.mjs` (the shared
-parsing kit). Each would otherwise have been hand-copied a second and third
-time. See **Verified** below.
+**"About The Dieye Firm" leads the grid**, also Rhan's call. Only the two
+VIDEOS swapped; the two POSTERS stayed where they were, because moving them
+would have put the storefront pair in positions 2 and 8 — the same column at
+3-up — for no gain. Poster order is geometry, video order is editorial, and
+they are allowed to disagree.
 
-### 3. `AreasWeServe` marks the current location
-
-Optional `current` prop; that row renders as text rather than a link. Additive,
-so the 33 routes that pass nothing are unchanged.
-
-### 4. The nav learned about the two Pasadena orphans
-
-`activeUnder` takes a list now, and the extra prefixes are **derived from the
-collection** rather than typed out, so a future stray page needs no nav edit.
+**The ten ids Rhan supplied contain a duplicate** — `e15abitkx1` is listed
+twice — so the page has **nine** videos. Six of them are the vertical shorts
+already on the homepage; three are the studio pieces from the live
+`/video-center/`.
 
 ---
 
 ## Decisions made — don't relitigate
 
-- **No `/service-areas/` index.** Rhan's call. The flyout parent pointed at the
-  first area as a workaround for a 404; that workaround is simply correct now.
-  An index would be a brand-new URL with no equity, no comp and copy that would
-  have to be written. **The location root's hrefless kicker is the one line
-  that changes** if it is ever built.
-- **The sidebar card stays titled "Practice Areas"**, scoped silently, linking
-  to the location root. Rhan's call over naming it after the city. Two cards on
-  the site therefore share a title and mean different scopes; safe only because
-  they never appear on the same page.
-- **The FAQs were lifted into `faqs` frontmatter**, heading-based, so they
-  render as real markup with real `FAQPage` JSON-LD. 29 of 32 pages, 135
-  questions, 100% ending in "?". Every question is printed in the run for audit.
-- **No redirect for `/sugar-land-family-law/`**, and this is a change from the
-  plan. It is **not in the sitemap**, which is `AGENTS.md`'s test for equity —
-  the live host happening to 301 it is not the same thing. The scraper rewrites
-  those links to canonical and reports them. Two lines to add later if Search
-  Console shows real external inbound links.
-- **`/pasadena-family-law-attorney/pasadena-divorce-attorney/` keeps its
-  redundant path.** It *is* in the sitemap, so it is an asset; normalising it
-  would be a 301 for no gain. Only the label is shortened, to "Divorce".
-- **`location` is a real frontmatter field, not derived from the URL.** Same
-  rule and same reason as `parent` on the practice areas: deriving works for 30
-  and needs a special case for the 2 Pasadena orphans, which puts the truth in
-  two places.
-- **The root catch-all route is safe because the build is static.** Astro emits
-  only what `getStaticPaths` declares, so shadowing is not the failure mode
-  available. A silent path *collision* is, and `RESERVED` turns it into a build
-  error. `/admin` is in that list and is not a file in `src/pages/`.
-- **`TreeNav` keeps the `fl__` class names and the `pa-` hooks.** They read
-  "family law" / "practice area" and the machinery is section-neutral now, but
-  keeping them made the extraction emit byte-identical HTML, so it could be
-  proved rather than argued. Renaming is a separate provable change.
-- **`normaliseHeadings`, `stripCtas`, `rewriteLinks` and the page extractors
-  stayed OUT of the shared lib.** They look shared and have all diverged for
-  real reasons — the blog promotes bold paragraphs to headings because one 2022
-  post has no outline; these pages walk six trailing paragraphs, not three.
-  Folding them behind flags would hide the differences.
-- **13 editorial deviations**, keyed by slug in `scrape-locations.mjs` and
-  listed in its header: "Pasadena, CA" on a Texas page, one phone number
-  mid-sentence in an FAQ answer, and eleven places where "Lawyer" carries a
-  plural verb or stands with no article. The test is narrow and deliberate —
-  grammatical breakage, never voice. Plenty that merely reads oddly was left
-  alone. The run **throws if a declared fix stops matching**, so a client edit
-  surfaces rather than the deviation lapsing.
-- **The FAQ stays a block at the foot of the article's left column, NOT a
-  full-width band below `InteriorShell`.** Tried and reverted. Full width reads
-  better on desktop, but `InteriorShell` collapses to one column at 1000px, so
-  the sidebar — and the case-evaluation form in it — stacks below the article,
-  and a band below the shell then lands *after the form*: article → form → FAQ.
-  Measured at 430: with the band the form sat at y=6.0k and the questions at
-  y=7.3k; as a block the questions come first, at y=6.0k with the form at 7.3k.
-  A page's own questions belong to reading it, before the conversion prompt.
-  **Anyone retrying this has to solve the mobile order first** — the band would
-  need to move into the shell's main column at narrow widths, or the sidebar
-  would need to reorder, and neither is free.
-- **The "come talk to us" closers were kept**, on 26 of the 32. They are `h2`
-  sections rather than CTA paragraphs, which is the same call already made for
-  the practice areas.
+- **One 3-across grid, every card 16:9, every poster `object-fit: cover`.**
+  Rhan's call over the two alternatives he was shown: two bands (16:9 then
+  9:16), or one 16:9 grid with the portrait posters contained over a blurred
+  copy of themselves. The video's own shape survives where it matters — each
+  tile passes its true `data-video-aspect`, so a short opens 9:16 in the modal
+  and a studio piece opens 16:9. The card's shape and the video's shape
+  disagree on purpose, and `scripts/checks/video-center.js` guards that.
+- **Posters are photographs already in `src/assets/images/`.** No new assets and
+  no Wistia thumbnails. `btxq2ysibw`'s still is Papa mid-sentence and
+  `e15abitkx1` is a whiteboard explainer whose still is a near-blank white frame
+  reading "BILLING".
+- **The poster ORDER is load-bearing and is commented as such in the
+  component.** Nine distinct files but only six distinct shoots, so three
+  shoots appear twice and the pairs have to stay apart at three column counts
+  (3-up, 2-up, and one column where DOM order *is* visual order). Positions 4
+  and 9 are the only pairing that separates at all three, and they go to the
+  tan-jacket pair — `papa-tan-wide` and `papa-hero-b` are two crops of one
+  frame and the only pair that reads as a mistake. **They were consecutive on
+  mobile in the first build; that is what the order exists to fix.** Anyone
+  reordering this grid has to re-check 430 as well as 1600.
+- **The custody short sits fifth, not fourth**, so it keeps `comm-n1` — the
+  community day with families and children. Wanting both that pairing and that
+  poster order is the only reason the video order differs from the live site's.
+- **Two labels, not per-video categories.** "The Firm" for the three studio
+  pieces, "Quick Answer" for the six shorts. Real categories would have put
+  "Divorce" on five of nine.
+- **The three studio titles are the live site's labels**, not Wistia's:
+  "Choosing An Attorney", not "How to Find Family Law Lawyer Houston Texas".
+  The equity is on the live page. The six shorts keep the curated titles
+  `VideoReels.astro` already set, for the reason stated there.
+- **`CollectionPage` JSON-LD, not `VideoObject`.** `VideoObject` wants an
+  `uploadDate` and a real per-video description, neither of which exists, and
+  the `thumbnailUrl` it would declare is one of our own photographs rather than
+  a frame from the video. Same reasoning as `testimonials.astro`. See *Waiting
+  on Rhan*.
+- **No per-video detail pages.** The three live ones carry a video and nothing
+  else — no description, no transcript — so there is nothing to build them from.
+  All four live child URLs 301 to `/video-center/` instead.
+- **No content collection and no scraper.** Nine hand-curated entries with
+  authored titles are a named array in component frontmatter, which is what the
+  Sanity sweep wants.
+- **`BlogHeader` gained an optional `eyebrow` prop rather than being cloned or
+  moved.** `/blog/` passes nothing and is a proven no-op (below). If a third
+  page ever wants it, it graduates to `interior/PageHeader.astro`; two does not
+  justify the move.
 
 ---
 
 ## Verified
 
-**The `TreeNav` extraction is a no-op**, measured against a `dist/` snapshot
-taken before the edit — wider than the 33 routes that render the menu:
+All measured against a static server of `dist/` on a spare port, not the dev
+server, and diffed against a `dist/` snapshot taken before the first edit.
 
-- HTML, **all 57 built pages: 0 differ** after normalising scope hashes.
-- CSS declarations, whole build: **2105 / 2105 identical**, none added or lost.
-
-**The `scripts/lib/html.mjs` extraction is a byte-level no-op**: both existing
-scrapers re-run off their caches, `git diff src/content/` **empty**. (After
-re-running `add-takeaways.mjs` — a blog re-scrape wipes `keyTakeaways`, which
-is pre-existing and now called out in `AGENTS.md`.)
-
-**The location pages**, all measured against a static server of `dist/` rather
-than the dev server:
-
-- Build **89 pages**. The 57 pre-existing differ only by the intended
-  `class="aws__row"`; CSS loses exactly the 3 renamed selectors and gains their
-  replacements plus `.is-current`, `.loc__body`, `.ls`.
-- **Every internal href in all 89 pages resolves to a built file**, leaving only
-  the pre-existing danglers listed below.
-- **Menu scope: 0 `/family-law/` links** on a location page; the practice-area
-  menu still 32 links headed by `/practice-areas/`.
-- Sidebar state: root 12 rows / 0 open / 0 active · grandchild 12 / 1 / 1 ·
-  Pasadena orphan 4 / 0 / 1. Toggles all bound, `data-pa-boot` present.
-- **No overflow, no duplicate ids, no orphaned labels** on 6 routes ×
-  1920 / 1441 / 1440 / 1000 / 768 / 650 / 430.
-- `blog-forms.js` **19/19** on a location page and on the practice-area control.
-- JSON-LD correct and branching: `LegalService` on a root, `Service` on a child,
-  `areaServed` naming that one place. Canonicals and titles correct.
-- Zero console errors, zero broken images.
-- **Nav row still 694px at 1600**, so the 1160px collapse measurement is
-  untouched. All 32 location pages light up "Service Areas", including the two
-  orphans; no regression on About / Practice Areas / Blog.
-
-**Scraper run:** coverage 83–98% on all 32 · phone numbers remaining: none ·
-Scorpion template tokens: none · link targets outside the route map: none ·
-container shapes `ContentZone` ×30, `ContentS4` ×2 · root-level `-attorney`
-paths no location claimed: none · all 13 copy fixes matched.
+- Build **90 pages**. **Of the 89 pre-existing pages, exactly one body
+  changed** — the homepage, and only its reels CTA href.
+- **CSS rule sets identical**: `/blog/` 394 / 394, `/` 722 / 722, comparing
+  every rule from every inline `<style>` and every linked stylesheet with
+  `@media` context flattened in. Astro moved `BlogHeader`'s rules from a bundle
+  into an inline block and re-hashed the page's CSS chunk, so the files differ
+  and **the rules do not**.
+- `scripts/checks/video-center.js`: **60 / 60**. Nine unique ids, six declared
+  9/16 and three 16/9, each tile opening its own id with its own aspect
+  reaching `--video-ar`, dialog labelled, scroll locked, exactly one iframe per
+  open, and teardown plus focus restore on all three close paths.
+- **No Wistia iframe before any click.**
+- No horizontal overflow at **1920 / 1441 / 1440 / 1000 / 768 / 650 / 430**;
+  columns ramp 3 / 3 / 3 / 2 / 2 / 1 / 1; no duplicate ids, no orphaned labels.
+- Zero console errors, zero broken images (15 images).
+- **No poster is upscaled** — every `srcset` candidate is at or below its
+  source width.
+- 31 internal hrefs on the page; 5 unresolved, all pre-existing and listed
+  below. `/videos/` is gone from the entire build.
+- Font swap: the only reflow is the known `WhatDrivesUs` one.
 
 ---
 
 ## Things that would surprise you
 
+- **`scripts/checks/video-modal.js` fails one assertion, and did before this
+  branch.** Its "no iframes before click" counts *every* iframe, and the
+  sitewide Contact section carries the Google map — so it reports 16 / 1 on the
+  homepage in both the baseline and the current build. The new
+  `video-center.js` states the invariant as "no **Wistia** iframe before click"
+  and separately asserts the map is the only pre-click frame, so the two facts
+  stay apart. Fixing `video-modal.js` is a one-line change nobody has made;
+  leave it failing rather than making it pass without deciding.
+- **`scripts/checks/blog-forms.js` does not apply to this page.** It asserts
+  *two* lead forms and errors with "expected 2 lead forms, found 1" — on
+  `/testimonials/` too, as a control. It is a check for the two-form page shapes
+  (blog posts, practice areas, locations), not for every page rendering
+  `Contact`.
+- **`npx serve -s dist` silently serves the homepage for `/video-center/`.**
+  The `-s` flag rewrites to `index.html`, so a probe reports the wrong page's
+  DOM while `curl` returns 200 and looks fine. Cost twenty minutes once. Use
+  `python3 -m http.server` from inside `dist/`.
+- **`npm run shot --out <name>` writes to the repo root, not `.screenshots/`.**
+  Pass a path (`.screenshots/foo.png`) or clean up after.
+- **`e15abitkx1` is a whiteboard-animation explainer**, not a talking head. Its
+  Wistia still is a line-drawn cartoon and the word BILLING on white. The other
+  eight are Papa on camera.
+- **The photo library has far fewer photographs than files.** Nine landscape
+  frames are wide enough for a 460px card, but they come from six shoots:
+  `papa-tan-wide` / `papa-hero-b` are one frame twice, `papa-storefront` /
+  `hero-practice` are one shoot mirrored, and `papa-old-town-portrait` /
+  `video-poster-pearland` / `papa-old-town-pearland.png` are three crops of one
+  street shot. `ss-video-1.jpg` is a stock portrait of an unrelated man.
+- **A card title cannot cause layout shift here.** `.vc-tile__content` is
+  absolutely positioned against the bottom of a fixed 16:9 frame, so a title
+  going two lines to three grows upward over the photo and moves nothing.
+- **`video-poster-pearland.jpg` is 960×407**, so a 16:9 cover crop leaves only
+  723px of width and it would upscale on a desktop card. It is therefore not
+  used on `/video-center/` at all, only on the homepage About card where it is
+  laid out differently.
 - **`ColumnContentExpand_1..8` on a location page is not a container.** Those
   ids sit on `<a>` and `<span>` elements inside the CTA phone links, carrying
-  Scorpion's `{F:P:Cookie:…}` replacement tokens. They read exactly like the
-  practice areas' second container and are nothing of the kind — a guard
-  written against them is inert. `scrape-locations.mjs` measures the content
-  wrapper against `#MainContent` instead, which catches a shape nobody has seen.
+  Scorpion's `{F:P:Cookie:…}` replacement tokens. `scrape-locations.mjs`
+  measures the content wrapper against `#MainContent` instead.
 - **Alignment is not the CTA signature; `txt-hlt` is.** 62 of the 65 phone-plug
-  paragraphs are centred, one is `text-align:right` — and matching on alignment
-  left that one mid-body complete with a raw template token in its href. But a
-  rule keyed on the `tel:` link alone is too broad: it also takes two real FAQ
-  answers. `class="txt-hlt"` OR centred takes exactly the 63 that are chrome.
-- **Coverage that excludes the FAQ reads like data loss.** Lifting ~24 FAQs into
-  frontmatter dropped the first run's numbers to 39–68% while nothing was
-  actually lost. The FAQ words come out of the same `#MainContent` the source
-  total is measured on, so they belong in the numerator.
+  paragraphs are centred and one is `text-align:right`. `class="txt-hlt"` OR
+  centred takes exactly the 63 that are chrome.
+- **Coverage that excludes the FAQ reads like data loss.** The FAQ words come
+  out of the same `#MainContent` the source total is measured on, so they belong
+  in the numerator.
 - **`RESERVED` at module scope fails.** Astro builds `getStaticPaths` into its
-  own prerender chunk, where a module-level const is not defined — it throws
-  "RESERVED is not defined" at build time. Declare it inside the function.
-- **`#ContentS4` is a `<section>`, not a `<div>`.** A wrapper check that assumes
-  `<div>` finds nothing on the two Harris County pages that use it.
+  own prerender chunk, where a module-level const is not defined. Declare it
+  inside the function. **Any new root-level page must be added to it** —
+  `/video-center/` was.
+- **`#ContentS4` is a `<section>`, not a `<div>`.**
 - **A dev server started before `content.config.ts` changed cannot serve a new
-  collection** — every new route 404s until it restarts. Serving `dist/` on
-  another port is the better move anyway, and is what `AGENTS.md` already
-  recommends for scoped-CSS staleness.
-- **The interior `h1` reflows on font swap**, ~58px at 1440. It is **not new** —
-  `/family-law/divorce/` and `/about-us/choosing-a-family-law-attorney/` do the
-  same. Same class as the `WhatDrivesUs` issue below; the location pages inherit
-  it rather than introduce it.
-- **Scorpion's phone links carry TWO href-like attributes**, and a greedy
-  regex takes the wrong one. `<a href="tel:(832) 299-1990"
-  data-replace-href="tel:{F:Tel:Cookie:…}">` — the second is a call-tracking
-  template swapped in at runtime, and `[^>]*href="` matches the LAST one, so
-  `inlineToMd` was writing the token into the markdown. Fixed by requiring
-  whitespace before `href` and making the prefix lazy. **Nothing ever shipped
-  with it** (those blocks are stripped as CTAs) and **the live site is fine** —
-  an earlier note here claimed the token was rendering on dieyelaw.com and that
-  was wrong; it is invisible to visitors and normal Scorpion markup.
-- **`sed -E` on macOS does not support `\b`.** A normalisation using it fails
-  silently and every route "differs". Cost half an hour once; don't repeat it.
-- **`zsh` does not word-split unquoted variables.** `cmd $routes` passes one
-  giant argument. Use an array.
-- **`/family-law/` is a content page and `/practice-areas/` is the index.** The
-  reverse is the intuitive guess and it is wrong. `locations` versus
-  `firmDetails.serviceAreas` is the same trap: 32 pages versus 4 nav entries.
+  collection.** Serving `dist/` on another port is the better move anyway.
+- **The interior `h1` reflows on font swap**, ~58px at 1440, sitewide.
+- **Scorpion's phone links carry TWO href-like attributes**, and a greedy regex
+  takes the wrong one. Fixed; nothing ever shipped with it and the live site is
+  fine.
+- **`sed -E` on macOS does not support `\b`.**
+- **`zsh` does not word-split unquoted variables.** Use an array.
+- **`/family-law/` is a content page and `/practice-areas/` is the index.**
+  `locations` versus `firmDetails.serviceAreas` is the same trap.
 - **`npm run shot` and `npm run probe` force lazy images to load**, so a probe
   reports every image as `loading="eager"`. Check `dist/` for the truth.
-- **`npm run shot` names its file by selector and width**, so two shots of the
-  same selector overwrite each other. Pass `--out`.
 - **The headless lib drops CDP events**, so there is no console-error check in
   `scripts/checks/`. Inject a collector via
-  `Page.addScriptToEvaluateOnNewDocument` before `goto`.
+  `Page.addScriptToEvaluateOnNewDocument` before `goto` — that is how this
+  session's zero-errors result was measured.
 - **`CLAUDE.md` is a symlink to `AGENTS.md`.** Edit `AGENTS.md`.
 - **Rhan runs the dev server from his IDE.** Check 4321 before starting a second.
 
@@ -268,50 +240,48 @@ paths no location claimed: none · all 13 copy fixes matched.
 ## Waiting on Rhan
 
 1. **The lead form still has no endpoint.** `lead-form.ts` cancels submission
-   and confirms inline, so `/thank-you/` is unreachable. When it lands, the
-   form action points there.
+   and confirms inline, so `/thank-you/` is unreachable.
 2. **`/thank-you/` says nothing about what happens next** — no response time,
    no "call us if it's urgent". The wording is a commitment on the firm's
    behalf.
-3. **Send the firm `docs/live-site-corrections.md`.** Two errors in their own
-   published copy, both already fixed on the new site and both still live on
-   dieyelaw.com: **"Pasadena, CA" on a Texas page**, and the "Lawyer"
-   singular-for-plural typo in **13 places** across twelve pages, three of them
-   in meta descriptions. The doc is written for the firm to act on directly —
-   every entry is their sentence with the minimum change marked.
-4. **Authored strings with no comp behind them** — page title and meta
-   description on `/thank-you/`, `/testimonials/`, `/contact-us/`,
-   `/about-us/choosing-a-family-law-attorney/`, and the A–Z section head on
-   `/practice-areas/`.
-5. **26 of the 32 practice-area pages and 26 of the 32 location pages close with
-   a "come talk to us" section**, on top of the sidebar form and the sitewide
-   Contact section. Kept deliberately, because on the practice areas it is
-   **not** a blanket strip — six end on real content that must survive:
-   Commonly Asked Questions · Frequently Asked Questions · How Mediation Can
-   Save Time and Reduce Costs · How a Divorce Modification Is Filed in Texas ·
-   Parental Rights Cases in Harris County Family Court · Visitation Rights for
-   Unmarried Parents in Pearland. Trivial to strip later, impossible to recover
-   if dropped now.
-6. **FAQ answers flatten to one paragraph.** `PracticeAreaFaqs` renders
+3. **`VideoObject` markup needs data only the firm has** — an upload date and a
+   one-line description per video, and ideally a real frame from each as the
+   thumbnail. With those, `/video-center/` becomes eligible for video rich
+   results; without them the markup would be guesswork.
+4. **The `/testimonials/` video tile is still a placeholder, and the new video
+   makes the mismatch plainer.** It is labelled "Video Testimonial" /
+   "Watch their story" over a stock-photo poster of a man unconnected to the
+   firm, and it plays the firm's own About Us video. A real client video, or
+   dropping the tile, is the fix; the poster question was closed on 2026-08-18
+   but the label question was not.
+5. **Send the firm `docs/live-site-corrections.md`.** Two errors in their own
+   published copy, both already fixed on the new site and both still live:
+   **"Pasadena, CA" on a Texas page**, and the "Lawyer" singular-for-plural typo
+   in **13 places** across twelve pages, three of them in meta descriptions.
+6. **Authored strings with no comp behind them** — now including
+   **`/video-center/`'s kicker ("Watch & Learn"), deck and meta description**,
+   plus the page title and meta description on `/thank-you/`, `/testimonials/`,
+   `/contact-us/`, `/about-us/choosing-a-family-law-attorney/`, and the A–Z
+   section head on `/practice-areas/`.
+7. **26 of the 32 practice-area pages and 26 of the 32 location pages close with
+   a "come talk to us" section.** Kept deliberately — six end on real content
+   that must survive. Trivial to strip later, impossible to recover if dropped.
+8. **FAQ answers flatten to one paragraph.** `PracticeAreaFaqs` renders
    `<p>{answer}</p>`, so a multi-paragraph source answer joins with a space —
-   14 pages, ~37 answers, all listed in the scraper run. Fixable, but it means
-   changing a component 64 routes render, so it was kept out of this branch.
-7. **The source FAQ headings are more specific than the rendered one.** Five
-   pages say "Frequently Asked Questions About Divorce in Harris County" and
-   render the component's generic title. A `faqsHeading` field would fix it.
-8. **`modifications-enforcement` is 290 words**, the thinnest practice area and
-    the only one where the sidebar overhangs the article.
-9. **The August blog post is categorised by us, not the client**
+   14 pages, ~37 answers. Fixing it changes a component 64 routes render.
+9. **The source FAQ headings are more specific than the rendered one.** Five
+   pages say "Frequently Asked Questions About Divorce in Harris County". A
+   `faqsHeading` field would fix it.
+10. **`modifications-enforcement` is 290 words**, the thinnest practice area and
+   the only one where the sidebar overhangs the article.
+11. **The August blog post is categorised by us, not the client**
     (`child-custody` via `CATEGORY_OVERRIDES`) and still has no artwork.
-10. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
-    (2025-01) and `understanding-child-custody-laws-in-pearland-texas`
-    (2026-07).
-11. **Should commits 1–2 be their own PR?** They are shared infrastructure,
-    proven no-ops, with no content in them. See *Where we are*.
+12. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
+    (2025-01) and `understanding-child-custody-laws-in-pearland-texas` (2026-07).
 
-**Closed at Rhan's direction on 2026-08-18**, and deliberately no longer tracked
-here: the stock-photo testimonial poster, the two CMS-truncated reviews, attorney
-review of the Key Takeaways, and confirming the "500+ Families Helped" /
+**Closed at Rhan's direction on 2026-08-18**, and deliberately no longer
+tracked: the stock-photo testimonial poster, the two CMS-truncated reviews,
+attorney review of the Key Takeaways, and confirming the "500+ Families Helped" /
 "5.0 Stars" / "17+ Years" claims. Recorded so a later session reopens them by
 decision rather than by rediscovery.
 
@@ -320,70 +290,63 @@ decision rather than by rediscovery.
 ## Known issues
 
 - **`WhatDrivesUs` reflows on font swap.** "Direct, Personal Attention" goes
-  from one line to two when the real face loads, a 30px shift, on five pages.
-  A CLS hit worth fixing before launch. The interior `h1` reflow noted above is
-  the same class of problem and is sitewide, not specific to any one page.
+  from one line to two when the real face loads, a 30px shift — **now on six
+  pages**, `/video-center/` being the sixth. A CLS hit worth fixing before
+  launch. The interior `h1` reflow is the same class of problem and is sitewide.
+- **`scripts/checks/video-modal.js` reports 16 / 1.** Pre-existing; see *Things
+  that would surprise you*.
 - **`/about-us/` passes no `canonical`.** It and `/` are the only two built
   pages that don't. One-line fix.
-- **`/about-us/` and `/blog/` carry no JSON-LD at all.** Only `/thank-you/`'s
-  absence was deliberate. `/about-us/` is now the canonical entity page for
-  Papa Dieye and has no `Person`/`Attorney` markup — worth adding.
+- **`/about-us/` and `/blog/` carry no JSON-LD at all.** `/about-us/` is the
+  canonical entity page for Papa Dieye and has no `Person`/`Attorney` markup.
 - **The `/practice-areas/` hero is 1247×741**, so it upscales about 1.5× across
   a full-bleed band at 1920. Rhan chose the image knowing this.
 - **The office map is a bare Google embed**, on `/contact-us/` and on every
-  content page via the shared section. It sets third-party cookies everywhere.
-  `AGENTS.md` wants embeds behind a click-to-load facade; this one predates that
-  rule and is the last holdout.
-- **No location page carries an image.** The 32 are text and chrome only. Fine
-  for now — no comp exists and no artwork was supplied — but a location landing
-  page with a photo of the courthouse or the city would not go amiss.
+  content page via the shared section. It sets third-party cookies everywhere
+  and is the last holdout of the click-to-load rule. `/video-center/`
+  deliberately did not add a second one.
+- **No location page carries an image.** The 32 are text and chrome only.
 
 ---
 
 ## Carry into the Sanity pass
 
+**The nine videos want a `video` document type** — `wistiaId`, `title`, `label`,
+`poster`, `aspect`, and eventually `uploadDate` and `description` so the
+`VideoObject` markup above becomes possible. They are already a flat array of
+plain objects at the top of `VideoGrid.astro`. **The poster ORDER carries a
+design constraint that a CMS sort will lose**, so whatever models this needs an
+explicit order field and the comment in that file needs to travel with it.
+`home/VideoReels.astro` holds six of the same videos with different titles and
+portrait posters; both should read one collection.
+
 **`InteriorShell`, `InteriorHeader` and `TreeNav` are the interior template.**
-Anything modelled later that renders long-form copy with a rail should use them
-rather than growing a third grid or a third menu.
+Anything modelled later that renders long-form copy with a rail should use them.
 
 **The `locations` collection wants a `locationPage` document type.** `location`
-and `parent` both become references — each already stores the target's id
-rather than a path, so the migration is a query and a map. The four
-`firmDetails.serviceAreas` entries should become references to the four root
-documents rather than free-text hrefs, which would also remove the
-trailing-slash fragility that `AreasWeServe` and the route's `areaServed`
-lookup both normalise around today.
+and `parent` both become references. The four `firmDetails.serviceAreas` entries
+should become references to the four root documents.
 
 **The 14 reviews want a `testimonial` document type** — `lead`, `body`, `name`,
-`matter`, and an optional video reference so the tile stops being a hardcoded
-constant. Already a flat array of plain objects in `ReviewWall.astro`. `matter`
-is our categorisation, not the client's, and should become a reference to the
-practice-area document.
+`matter`, and an optional video reference. `matter` is our categorisation and
+should become a reference to the practice-area document.
 
 **`/about-us/choosing-a-family-law-attorney/`'s copy is already Sanity-shaped**
-— a named `sections` array of `{heading, paragraphs[]}`. It wants to become a
-Portable Text body with the headings as real blocks; the four deviations at the
-top of the file are the editorial record that should travel with it. The 13
-deviations in `scrape-locations.mjs` are the same kind of record.
+— a named `sections` array of `{heading, paragraphs[]}`. The four deviations at
+the top of the file are the editorial record that should travel with it.
 
 **The Google Maps CID is a constant in `firmDetails.ts`**, not a field on the
-singleton. It should become one, so a second office or a re-verified listing
-doesn't need a deploy.
+singleton. It should become one.
 
-**"Updated on" instead of "Posted on"** for blog posts, once editors can revise
-one: an optional `updated` field, the card picking its label from it, and
-`dateModified` in the `BlogPosting` JSON-LD. `AuthorCard` already takes an
-optional date, so that switch is half-built. Both dates need `timeZone: "UTC"`.
+**"Updated on" instead of "Posted on"** for blog posts: an optional `updated`
+field, the card picking its label from it, and `dateModified` in the
+`BlogPosting` JSON-LD. Both dates need `timeZone: "UTC"`.
 
-**All three collections are already the shape Sanity needs.** `practiceArea`
-wants `title` / `navLabel` / `subtitle` / `parent` / `faqs`, with parent/child
-as a reference rather than a path. **Categories are still derived from posts**,
-not modelled — `allCategories()` reads them off the archive and
-`categoryLabel()`'s map is the seed data for a `category` type.
+**All three collections are already the shape Sanity needs.** Categories are
+still derived from posts, not modelled.
 
-**`/contact-us/` reads everything factual from `firmDetails`** — phone, email,
-address, hours, the map embed and link, the service areas in its JSON-LD. No
-hardcoded NAP, so it needs no work in the sweep.
+**`/contact-us/` reads everything factual from `firmDetails`**, so it needs no
+work in the sweep.
 
 ---
 
@@ -393,11 +356,19 @@ hardcoded NAP, so it needs no work in the sweep.
 |---|---|---|
 | `/about-us/papa-dieye` + `/` | `/about-us/` | Bio moved up; live stub had no content |
 | `/about-us/the-difference` + `/` | `/about-us/` | Folded into the bio page |
+| `/video-center/the-dieye-firm` + `/` | `/video-center/` | Category page folded into the index |
+| 3 × `/video-center/the-dieye-firm/<video>` + `/` | `/video-center/` | Detail pages folded in; no copy existed to keep them |
 | 16 × `/blog/<year>/<month>/<truncated-slug>` | `/blog/<full-slug>/` | Scorpion cut slugs mid-word |
 
+All four video-center children are in `dieyelaw.com/sitemap.xml`, which is
+`AGENTS.md`'s test for equity. **Both slash forms are present for each**, since
+Vercel applies `redirects` before its own trailing-slash normalisation and a
+single form can silently never fire. Note the 16 blog rules carry only one form
+each — pre-existing, and worth a look if any of them ever misses.
+
 **Practice areas and location pages need none** — both sections' URLs match the
-live site exactly. `/sugar-land-family-law/*` is deliberately absent; see
-*Decisions*.
+live site exactly. `/sugar-land-family-law/*` is deliberately absent: it is not
+in the sitemap.
 
 ---
 
@@ -406,19 +377,13 @@ live site exactly. `/sugar-land-family-law/*` is deliberately absent; see
 | Link | Lives in | Lands with |
 |---|---|---|
 | `/faq/` | Resources flyout + footer | an FAQ page |
-| `/video-center/` | Resources flyout + footer | a video page |
 | `/client-portal` | Info bar | a third-party portal, or removal |
 | `/privacy-policy/` | Footer | a privacy page |
 | `/disclaimer/` | Footer | a disclaimer page |
 | `/sitemap/` | Footer | an HTML sitemap, or point it at `/sitemap.xml` |
-| `/videos/` | Homepage | almost certainly meant to be `/video-center/` |
 
-The last four were always there and were not in this table before; a
-whole-build sweep of every internal href found them. **Nothing else in the
-build dangles** — all 32 Service Areas links and the four in-copy
-`/harris-county-family-law-attorney/…` links now resolve.
-
-Nothing links to `/thank-you/` yet, and that is correct — it is a form
-destination, not a nav item.
+**`/video-center/` and `/videos/` are off this list**, and nothing else in the
+build dangles. Nothing links to `/thank-you/` yet, and that is correct — it is a
+form destination, not a nav item.
 
 All three scrapers print their own dangling list on every run.
