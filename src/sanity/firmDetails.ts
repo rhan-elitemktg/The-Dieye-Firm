@@ -79,12 +79,27 @@ export type FirmDetails = {
   legalLinks: NavLink[];
 };
 
-/* One fetch per build, not one per component. Five components read this
-   document; without the cache a static build would query Sanity five times for
-   every page that renders the header and footer. */
+/* One fetch per build, not one per component. Fifteen call sites read this
+   document; without the cache a static build would query Sanity many times over
+   for every page that renders the header and footer.
+ *
+ * The PROD guard is load-bearing and was added after this cost two sessions.
+ * Nothing invalidates a module-level promise for the life of the process, so a
+ * dev server that started before a Studio edit serves the document it fetched at
+ * boot — forever. HMR still picks up code changes, so the server looks live and
+ * current while quietly serving stale content, and every symptom points at the
+ * edit having failed: the Studio shows the new value, the CLI shows the new
+ * value, dist/ shows the new value, and localhost:4321 does not.
+ *
+ * Caching the PROMISE rather than the value is the other half of it: components
+ * render concurrently, so caching the resolved value would let several fetches
+ * start before any of them returned.
+ *
+ * Every fetch helper added in the Sanity migration takes this same shape. */
 let cached: Promise<FirmDetails> | undefined;
 
 export function getFirmDetails(): Promise<FirmDetails> {
+  if (!import.meta.env.PROD) return fetchFirmDetails();
   cached ??= fetchFirmDetails();
   return cached;
 }
