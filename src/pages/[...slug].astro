@@ -4,7 +4,7 @@ import Layout from "../layouts/Layout.astro";
 import Header from "../components/header/Header.astro";
 import InteriorShell from "../components/interior/InteriorShell.astro";
 import InteriorHeader from "../components/interior/InteriorHeader.astro";
-import PracticeAreaFaqs from "../components/practice-areas/PracticeAreaFaqs.astro";
+import FaqSection from "../components/interior/FaqSection.astro";
 import LocationSidebar from "../components/locations/LocationSidebar.astro";
 import { locationHref, rootOf } from "../components/locations/locations";
 import { getFirmDetails } from "../sanity/firmDetails";
@@ -174,10 +174,15 @@ const schema =
       <Content />
     </div>
 
-    <PracticeAreaFaqs faqs={page.data.faqs} name="loc-faq" />
-
     <LocationSidebar slot="sidebar" pages={pages} current={page} root={root} />
   </InteriorShell>
+
+  {/* Full width, below the article rather than tucked under the prose in
+      the left column: these are the page's own questions and they read as a
+      section of the site, not a footnote to the copy. The band is the
+      homepage's, shared. It renders in Layout's default slot, which is ABOVE
+      the Contact prompt — so the page ends questions, then invitation. */}
+  {page.data.faqs.length > 0 && <FaqSection faqs={page.data.faqs} name="loc-faq" />}
 
   {/* Bound here, once for the document, the same split Layout uses for
       lead-form.ts — the sidebar component stays pure markup. */}

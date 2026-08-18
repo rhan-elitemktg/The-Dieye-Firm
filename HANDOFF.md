@@ -30,17 +30,19 @@ inside shipped practice-area and blog content.
 
 ## Where we are
 
-Branch `location_pages`, cut from `master` at `e71bff2` (PR #26 merged). Four
+Branch `location_pages`, cut from `master` at `e71bff2` (PR #26 merged). Six
 commits, nothing uncommitted. **Not pushed; no PR open.**
 
 Build passes at **89 pages** (was 57).
 
-The four commits are individually revertable and each carries its own proof:
+The commits are individually revertable and each carries its own proof:
 
 1. `Extract the sidebar tree menu out of FamilyLawNav`
 2. `Lift the shared scraper machinery into scripts/lib/html.mjs`
 3. `Ingest the 32 location pages` — content only, build still 57
 4. `Render the 32 location pages` — build 57 → 89
+5. `Record the new rules in AGENTS.md, rewrite HANDOFF`
+6. `Move the FAQs into the shared full-width band`
 
 Commits 1 and 2 are shared infrastructure with no content in them and both are
 proven no-ops. **They would make a clean separate PR against `master`**, with
@@ -67,12 +69,19 @@ Sugar Land page lists Sugar Land's 14 pages and zero `/family-law/` links.
 parsing kit). Each would otherwise have been hand-copied a second and third
 time. See **Verified** below.
 
-### 3. `AreasWeServe` marks the current location
+### 3. The FAQs moved out of the column into a full-width band
+
+Rhan's call, and it is a better read: the homepage's `.faq .section` is now
+`interior/FaqSection.astro`, shared by the homepage, the practice areas and the
+location pages, and it renders below `InteriorShell` rather than tucked under
+the prose in the left column. `PracticeAreaFaqs` is gone.
+
+### 4. `AreasWeServe` marks the current location
 
 Optional `current` prop; that row renders as text rather than a link. Additive,
 so the 33 routes that pass nothing are unchanged.
 
-### 4. The nav learned about the two Pasadena orphans
+### 5. The nav learned about the two Pasadena orphans
 
 `activeUnder` takes a list now, and the extra prefixes are **derived from the
 collection** rather than typed out, so a future stray page needs no nav edit.
@@ -125,6 +134,16 @@ collection** rather than typed out, so a future stray page needs no nav edit.
   grammatical breakage, never voice. Plenty that merely reads oddly was left
   alone. The run **throws if a declared fix stops matching**, so a client edit
   surfaces rather than the deviation lapsing.
+- **The FAQ band keeps the homepage's generic heading** — "Answers to the Most
+  Commonly *Asked Questions*" — rather than the client's more specific one
+  ("Frequently Asked Questions About Divorce in Harris County"). Nothing is
+  invented that way, and the source headings are still recorded in the scraper
+  run. A `faqsHeading` field is the fix; see *Waiting on Rhan*.
+- **The band's background stays white**, unlike the homepage where it follows a
+  navy section. Interior pages are white too, so the seam has no colour change —
+  but the shift from left-aligned prose to a centred eyebrow and headline, with
+  ~196px of section padding between, does the separating. Checked visually
+  before deciding against a tint.
 - **The "come talk to us" closers were kept**, on 26 of the 32. They are `h2`
   sections rather than CTA paragraphs, which is the same call already made for
   the practice areas.
@@ -203,6 +222,15 @@ paths no location claimed: none · all 13 copy fixes matched.
   `/family-law/divorce/` and `/about-us/choosing-a-family-law-attorney/` do the
   same. Same class as the `WhatDrivesUs` issue below; the location pages inherit
   it rather than introduce it.
+- **Deleting a component changes every page that imported its route.** Dropping
+  `PracticeAreaFaqs` and adding `FaqSection` rewrote the inline `<style>` block
+  on 65 pages, including ones with no FAQ at all and the homepage — Vite inlines
+  a route's CSS whether or not the component renders anything. The declaration
+  comparison is what shows it is a swap and not a regression: **16 `.pfaq__*`
+  rules removed, 0 added.** The cost is real but small: **+517 to +1070 bytes
+  gzipped per page**, because the band's CSS is larger than the block's and is
+  inlined per page rather than shared. `build.inlineStylesheets` is the lever if
+  that ever matters; it is a build-wide tradeoff and was left alone.
 - **`sed -E` on macOS does not support `\b`.** A normalisation using it fails
   silently and every route "differs". Cost half an hour once; don't repeat it.
 - **`zsh` does not word-split unquoted variables.** `cmd $routes` passes one
@@ -258,23 +286,29 @@ paths no location claimed: none · all 13 copy fixes matched.
    Parental Rights Cases in Harris County Family Court · Visitation Rights for
    Unmarried Parents in Pearland. Trivial to strip later, impossible to recover
    if dropped now.
-8. **FAQ answers flatten to one paragraph.** `PracticeAreaFaqs` renders
+8. **FAQ answers flatten to one paragraph.** `FaqSection` renders
    `<p>{answer}</p>`, so a multi-paragraph source answer joins with a space —
    14 pages, ~37 answers, all listed in the scraper run. Fixable, but it means
-   changing a component 64 routes render, so it was kept out of this branch.
+   changing a component 65 routes render, so it was kept out of this branch.
 9. **The source FAQ headings are more specific than the rendered one.** Five
    pages say "Frequently Asked Questions About Divorce in Harris County" and
-   render the component's generic title. A `faqsHeading` field would fix it.
-10. **`modifications-enforcement` is 290 words**, the thinnest practice area and
+   render the shared band's generic title. A `faqsHeading` field on the
+   collection would fix it — the scraper already extracts and prints the source
+   heading, so it is a schema field and one conditional, not new work.
+10. **The FAQ band adds a fourth CTA to an interior page.** Sidebar form, the
+   page's own "come talk to us" closer, the band's "Have another question?" ask
+   card, then the sitewide Contact prompt. It is the homepage section reused
+   verbatim, which is what was asked for, but worth a look before launch.
+11. **`modifications-enforcement` is 290 words**, the thinnest practice area and
     the only one where the sidebar overhangs the article.
-11. **Key Takeaways still need attorney review before launch** —
+12. **Key Takeaways still need attorney review before launch** —
     `scripts/add-takeaways.mjs`.
-12. **The August blog post is categorised by us, not the client**
+13. **The August blog post is categorised by us, not the client**
     (`child-custody` via `CATEGORY_OVERRIDES`) and still has no artwork.
-13. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
+14. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
     (2025-01) and `understanding-child-custody-laws-in-pearland-texas`
     (2026-07).
-14. **Should commits 1–2 be their own PR?** They are shared infrastructure,
+15. **Should commits 1–2 be their own PR?** They are shared infrastructure,
     proven no-ops, with no content in them. See *Where we are*.
 
 ---

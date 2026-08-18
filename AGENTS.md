@@ -356,6 +356,16 @@ before anything new used them; do the same to either again.
   read `pa-`; that is deliberate, not leftover — keeping them let the
   extraction emit byte-identical HTML on 33 routes, so it could be *proved*
   rather than argued. Rename only as its own provable change.
+- **`src/components/interior/FaqSection.astro`** is the FAQ band, shared by the
+  homepage, the practice areas and the location pages. It renders **full width
+  BELOW `InteriorShell`**, in `Layout`'s default slot — which puts it above the
+  Contact prompt, so a page ends on questions and then the invitation. It is
+  not a block inside the article's left column; it was, and a page's own
+  questions read as a section of the site rather than a footnote to the copy.
+  Render it only when there are questions: `{faqs.length > 0 && <FaqSection …/>}`.
+  All three callers pass the same `{question, answer}` shape, which is what both
+  content collections store, and each passes a distinct `name` so the exclusive
+  accordion group and the heading id stay scoped.
 - **`scripts/lib/html.mjs`** is the shared parsing kit. What is NOT in it —
   `normaliseHeadings`, `stripCtas`, `rewriteLinks`, the page extractors — has
   diverged per source for real reasons, and folding those together behind flags

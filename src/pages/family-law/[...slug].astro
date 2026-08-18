@@ -4,7 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import InteriorShell from "../../components/interior/InteriorShell.astro";
 import InteriorHeader from "../../components/interior/InteriorHeader.astro";
-import PracticeAreaFaqs from "../../components/practice-areas/PracticeAreaFaqs.astro";
+import FaqSection from "../../components/interior/FaqSection.astro";
 import PracticeAreaSidebar from "../../components/practice-areas/PracticeAreaSidebar.astro";
 import { areaHref, SECTION_ROOT_ID } from "../../components/practice-areas/practiceAreas";
 import { getFirmDetails } from "../../sanity/firmDetails";
@@ -114,10 +114,15 @@ const schema = {
       <Content />
     </div>
 
-    <PracticeAreaFaqs faqs={area.data.faqs} />
-
     <PracticeAreaSidebar slot="sidebar" areas={areas} current={area} />
   </InteriorShell>
+
+  {/* Full width, below the article rather than tucked under the prose in
+      the left column: these are the page's own questions and they read as a
+      section of the site, not a footnote to the copy. The band is the
+      homepage's, shared. It renders in Layout's default slot, which is ABOVE
+      the Contact prompt — so the page ends questions, then invitation. */}
+  {area.data.faqs.length > 0 && <FaqSection faqs={area.data.faqs} name="pa-faq" />}
 
   {/* Nothing closes the page below the grid yet — the related-posts band that
       the blog template ends on was removed, and its replacement is still to
