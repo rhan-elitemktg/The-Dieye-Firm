@@ -3,12 +3,33 @@
 //
 // Built on native <details name="faq">, which gives exclusive open/close
 // behaviour, keyboard support, and find-in-page for free. No JS at all.
+//
+// Two pages render this. The homepage gets the six condensed answers below;
+// /faq/ passes the nine the client publishes, in their own words, and drops
+// the section head because that page already opened with its own h1. Props
+// rather than a clone or a move to a shared directory, exactly as BlogHeader
+// took `eyebrow`: if a third page ever wants it, it graduates.
 
 import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import headshot from "../../assets/images/papa-headshot.jpg";
 
-const faqs = [
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
+interface Props {
+  /* Defaults to the homepage's six, so <Faq /> is unchanged. */
+  items?: FaqItem[];
+  /* The eyebrow + h2 above the list. /faq/ passes false: its own page header
+     is already a kicker and a heading, and a second pair reads as a stutter. */
+  head?: boolean;
+}
+
+/* Condensed by us from the client's published answers — the full versions run
+   to 136 words and a homepage section cannot carry them. /faq/ has those. */
+const HOME_FAQS: FaqItem[] = [
   {
     q: "What is the difference between a contested and an uncontested case?",
     a: "A contested case means the spouses can't agree on one or more issues, which may require document exchanges, hearings, and mediation before it's finalized. An uncontested case means you've agreed on everything, from property to children's issues, and is usually resolved quickly.",
@@ -35,12 +56,14 @@ const faqs = [
   },
 ];
 
+const { items = HOME_FAQS, head = true } = Astro.props;
+
 /* FAQPage structured data, generated from the same source as the markup so
    the two can't drift apart. */
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: faqs.map((item) => ({
+  mainEntity: items.map((item) => ({
     "@type": "Question",
     name: item.q,
     acceptedAnswer: { "@type": "Answer", text: item.a },
@@ -48,20 +71,26 @@ const faqSchema = {
 };
 ---
 
-<section class="faq section" aria-labelledby="faq-title">
+<section
+  class:list={["faq", "section", { "faq--flush": !head }]}
+  aria-labelledby={head ? "faq-title" : undefined}
+  aria-label={head ? undefined : "Frequently asked questions"}
+>
   <div class="container">
-    <header class="faq__head">
-      <p class="faq__eyebrow">
-        <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-        <span>Frequently Asked Questions</span>
-      </p>
-      <h2 class="faq__title" id="faq-title">
-        Answers to the Most Commonly <em>Asked Questions</em>
-      </h2>
-    </header>
+    {head && (
+      <header class="faq__head">
+        <p class="faq__eyebrow">
+          <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
+          <span>Frequently Asked Questions</span>
+        </p>
+        <h2 class="faq__title" id="faq-title">
+          Answers to the Most Commonly <em>Asked Questions</em>
+        </h2>
+      </header>
+    )}
 
     <ul class="faq__list">
-      {faqs.map((item, i) => (
+      {items.map((item, i) => (
         <li>
           <details class="faq__item" name="faq" open={i === 0}>
             <summary class="faq__q">
@@ -116,6 +145,13 @@ const faqSchema = {
     /* Lets the open/close transition interpolate to `auto` height. Scoped
        here rather than on :root so it only affects this accordion. */
     interpolate-size: allow-keywords;
+  }
+
+  /* Without the section head, the page header directly above already carries
+     the leading space. 8px matches VideoGrid, so /faq/ and /video-center/ open
+     on the same rhythm under an identical BlogHeader. */
+  .faq--flush {
+    padding-block-start: 8px;
   }
 
   /* ---- Head ---- */
@@ -300,6 +336,10 @@ const faqSchema = {
 
   /* Mobile */
   @media (max-width: 650px) {
+    .faq--flush {
+      padding-block-start: 4px;
+    }
+
     .faq__eyebrow {
       font-size: 13px;
       letter-spacing: 0.14em;
