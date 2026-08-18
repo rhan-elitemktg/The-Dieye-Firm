@@ -1,16 +1,16 @@
 # Corrections for dieyelaw.com
 
-Two errors found in the firm's own published copy while ingesting it for the
-new site. **Both are already corrected on the new site**; this list is so the
-current site can be fixed too, since it will stay live until launch and these
-pages carry search traffic today.
+Three errors found in the firm's own published copy while ingesting it for the
+new site. **All three are already corrected on the new site**; this list is so
+the current site can be fixed too, since it will stay live until launch and
+these pages carry search traffic today.
 
 Every correction below is the client's own sentence with the minimum change
 made. Nothing has been rewritten for style — voice, sentence length and word
 choice are untouched.
 
-_Compiled 2026-08-18 from a full sweep of the 32 service-area pages and
-`/about-us/choosing-a-family-law-attorney/`._
+_Compiled 2026-08-18 from a full sweep of the 32 service-area pages,
+`/about-us/choosing-a-family-law-attorney/` and `/faq/`._
 
 ---
 
@@ -59,6 +59,50 @@ descriptions, which is what shows in Google results.
 | `/sugar-land-family-law-attorney/child-support/` | As experienced **child support Lawyer in Sugar Land**… | **child support lawyers in Sugar Land** |
 | `/about-us/choosing-a-family-law-attorney/` | interview **a few Lawyer you like** | **a few lawyers you like** |
 | `/about-us/choosing-a-family-law-attorney/` | **Many Lawyer will offer** a free consultation | **Many lawyers will offer** |
+
+---
+
+## 3. An FAQ answer that answers a different question
+
+**`/faq/`**, second question in the list.
+
+The question reads:
+
+> What factors does the court look at in determining the division of assets?
+
+Its answer opens:
+
+> Not necessarily. The property will be divided in a way that is fair and
+> equitable, which does not necessarily mean a 50/50 split. **All the factors
+> mentioned above are considered** to determine how the property will be
+> divided. …
+
+Two things are wrong, and they have the same cause — this answer was written
+for a different question and moved without its heading.
+
+1. **"Not necessarily" answers nothing that was asked.** It is replying to a
+   yes/no question about a 50/50 split, and no such question appears on the
+   page. A visitor reads a question about *factors* and gets a flat denial.
+2. **"All the factors mentioned above" refers to nothing.** No factors are
+   mentioned above it. This is the second item in the list, and the first is
+   about contested versus uncontested cases.
+
+The smallest fix is to change the question to the one the answer is already
+giving, and drop the orphaned sentence:
+
+> **Is marital property always divided 50/50?**
+>
+> Not necessarily. The property will be divided in a way that is fair and
+> equitable, which does not necessarily mean a 50/50 split. Usually, courts
+> will divide property in a way that is close to the 50/50 mark, but often one
+> spouse will receive slightly more. Splits of 45-55 are very common, while it
+> would be highly unusual for a court to divide an estate in a more lopsided
+> way, such as 30-70.
+
+Nothing else in the answer is touched. This is what the new site ships.
+
+If the firm would rather keep the original question, it needs a new answer
+listing the factors — which is a writing job for the attorney, not an edit.
 
 ---
 

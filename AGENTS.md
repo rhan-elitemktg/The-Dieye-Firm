@@ -4,8 +4,9 @@ Marketing site for a Pearland / Houston family law firm. Astro 7 + Sanity
 (embedded Studio at `/admin`) + React islands, deployed on Vercel.
 
 The homepage, the blog, the 32 practice-area pages and the 32 location pages
-are built. What's left is `/faq/` and `/video-center/`, plus wiring the lead
-form to an endpoint.
+are built, along with `/video-center/` and `/faq/`. What's left is the three
+footer pages that still 404 — `/privacy-policy/`, `/disclaimer/` and
+`/sitemap/` — plus wiring the lead form to an endpoint.
 
 **The nav array at the top of `src/components/header/MainNav.astro` is not the
 page map.** Both its flyouts are curated shortlists — five practice areas of
@@ -62,7 +63,19 @@ across two views — it is not hiding a second batch). Every deviation from
 verbatim is listed at the top of that file; add to that list rather than editing
 a quote silently.
 
-Rules that govern all four:
+**The nine FAQ answers are a fifth body, and the two sets are meant to
+disagree.** `/faq/` carries the client's own published answers verbatim; the
+homepage's `Faq.astro` carries six of the same nine **condensed by us**,
+because the full answers run to 136 words and a homepage section cannot hold
+them. Both are named arrays — the homepage's in the component, `/faq/`'s in the
+page — and `<Faq items head>` renders both. **Do not "fix" the divergence by
+unifying them**: it is what keeps the two pages from being duplicates of each
+other, and the long versions are the ones with the equity. One answer departs
+from the live page and says so on the item itself; log any further departure in
+`docs/live-site-corrections.md` the same way, rather than editing a client
+sentence silently.
+
+Rules that govern all five:
 
 - **Scrape the live site, never the mirror.** The mirror was captured
   2026-07-20; it was already one post behind on the blog, and it is missing
