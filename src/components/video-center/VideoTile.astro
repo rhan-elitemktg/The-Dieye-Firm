@@ -1,0 +1,257 @@
+---
+// VideoTile — one card in the video centre grid. A button, not a link: it
+// opens the shared VideoModal (rendered once from Layout.astro) via the four
+// data-* attributes below, so this component ships no script of its own and
+// Wistia loads nothing until the visitor clicks.
+//
+// Built from `.vtile` in testimonials/ReviewWall.astro (poster, navy multiply
+// tint, bottom scrim, caption left / gold badge right) with the duration pill
+// from `.reel` in home/VideoReels.astro.
+
+import { Image } from "astro:assets";
+
+interface Props {
+  id: string;
+  title: string;
+  label: string;
+  poster: ImageMetadata;
+  /* The VIDEO's shape, not the card's. Every card is 16:9; this rides through
+     to the modal so a vertical short opens 9:16 rather than letterboxed. */
+  aspect: "16/9" | "9/16";
+  runtime?: string | null;
+}
+
+const { id, title, label, poster, aspect, runtime = null } = Astro.props;
+
+const playLabel = runtime ? `Play video: ${title} (${runtime})` : `Play video: ${title}`;
+---
+
+<button
+  class="vc-tile"
+  type="button"
+  aria-label={playLabel}
+  data-video-open
+  data-wistia-id={id}
+  data-video-title={title}
+  data-video-aspect={aspect}
+>
+  <Image
+    class="vc-tile__img"
+    src={poster}
+    alt=""
+    widths={[460, 700, 920]}
+    sizes="(max-width: 650px) 92vw, (max-width: 1000px) 46vw, 31vw"
+    format="webp"
+    quality={78}
+    loading="lazy"
+    decoding="async"
+  />
+  {/* Two layers, not one: a flat navy tint that colours the whole frame, then
+      a bottom gradient that buys the caption its contrast. A single gradient
+      does one or the other well, not both. */}
+  <span class="vc-tile__tint" aria-hidden="true"></span>
+  <span class="vc-tile__scrim" aria-hidden="true"></span>
+
+  {runtime && <span class="vc-tile__duration">{runtime}</span>}
+
+  <span class="vc-tile__content">
+    <span class="vc-tile__text">
+      <span class="vc-tile__label">{label}</span>
+      <span class="vc-tile__name">{title}</span>
+    </span>
+    <span class="vc-tile__play" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+    </span>
+  </span>
+</button>
+
+<style>
+  .vc-tile {
+    position: relative;
+    display: block;
+    width: 100%;
+    /* Every card is 16:9 whatever the video's own shape, so the grid keeps a
+       single baseline and no poster is letterboxed. */
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--navy-900);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      transform var(--dur-slow) var(--ease-out),
+      box-shadow var(--dur-slow) var(--ease-out);
+  }
+
+  .vc-tile__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  /* `multiply` keeps the photo's own modelling instead of washing it out the
+     way a flat alpha fill does, so the frame reads navy without going muddy. */
+  .vc-tile__tint {
+    position: absolute;
+    inset: 0;
+    background: var(--navy-900);
+    opacity: 0.36;
+    mix-blend-mode: multiply;
+  }
+
+  .vc-tile__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 36, 56, 0) 0%,
+      rgba(15, 36, 56, 0.28) 48%,
+      rgba(15, 36, 56, 0.86) 100%
+    );
+  }
+
+  /* Top corner, not bottom: the caption and the badge already own the lower
+     edge across the card's full width. */
+  .vc-tile__duration {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 5px 10px;
+    border-radius: var(--radius-pill);
+    background: rgba(15, 36, 56, 0.72);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+
+  /* A row, not a column: the caption holds the bottom-left and the play button
+     the bottom-right, so a three-line title never pushes the badge off its
+     corner. */
+  .vc-tile__content {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 26px 24px;
+  }
+
+  .vc-tile__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .vc-tile__label {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+  }
+
+  /* Smaller than the testimonial tile's 26px: these are sentences rather than
+     names, and they share the row with the badge. */
+  .vc-tile__name {
+    font-family: var(--font-serif);
+    font-size: clamp(19px, 0.396vw + 1.0266rem, 23px);
+    font-weight: 600;
+    line-height: 1.22;
+    letter-spacing: var(--tracking-tight);
+    text-wrap: pretty;
+    color: #fff;
+  }
+
+  .vc-tile__play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: var(--radius-pill);
+    background: var(--gold-500);
+    color: var(--navy-900);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      background var(--dur-base) var(--ease-out);
+  }
+
+  .vc-tile__play svg {
+    width: 26px;
+    height: 26px;
+    /* The glyph's mass sits left of its box, so it needs nudging to look
+       centred in a circle. */
+    margin-left: 3px;
+  }
+
+  .vc-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 44px -24px rgba(15, 36, 56, 0.55);
+  }
+
+  .vc-tile:hover .vc-tile__img {
+    transform: scale(1.04);
+  }
+
+  .vc-tile:hover .vc-tile__play {
+    background: color-mix(in srgb, var(--gold-500) 86%, #fff);
+    transform: scale(1.08);
+  }
+
+  .vc-tile:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vc-tile,
+    .vc-tile__img,
+    .vc-tile__play {
+      transition: none;
+    }
+
+    .vc-tile:hover,
+    .vc-tile:hover .vc-tile__img,
+    .vc-tile:hover .vc-tile__play {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .vc-tile__content {
+      padding: 24px 20px 20px;
+    }
+
+    .vc-tile__play {
+      width: 50px;
+      height: 50px;
+    }
+
+    .vc-tile__play svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .vc-tile__duration {
+      top: 10px;
+      right: 10px;
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+  }
+</style>

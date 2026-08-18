@@ -1,0 +1,50 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import BlogHeader from "../components/blog/BlogHeader.astro";
+import VideoGrid from "../components/video-center/VideoGrid.astro";
+import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
+
+/* "Video Center" is the live site's own h1, so it keeps it. The kicker and the
+   deck are authored — there is no comp for this page, and the live one carries
+   no intro copy. Spaced hyphen rather than an em dash, per AGENTS.md, because
+   this is copy we wrote. */
+const title = "Video Center";
+const intro =
+  "Straight answers on divorce, custody, and what to expect in a Texas courtroom - from Papa Dieye himself.";
+
+const canonical = new URL("/video-center/", Astro.site ?? Astro.url).href;
+
+/* CollectionPage rather than a list of VideoObject. VideoObject wants an
+   uploadDate and a real per-video description, neither of which exists for
+   these nine, and the thumbnailUrl it would declare is one of our own
+   photographs rather than a frame from the video. Same reasoning as the note
+   in testimonials.astro: honest UI now, schema when the data supports it. */
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Video Center",
+  description:
+    "Short videos from attorney Papa Dieye on Texas divorce, child custody and choosing a family law attorney.",
+  url: canonical,
+};
+---
+
+<Layout
+  title="Video Center | The Dieye Firm"
+  description="Watch attorney Papa Dieye explain Texas divorce, child custody and how to choose a family law attorney - short videos for Pearland and Houston families."
+  canonical={canonical}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* In flow, not overlay: the page opens on white type with no hero photo,
+      exactly as the blog index does, so a transparent header would sit on
+      white. */}
+  <Header />
+
+  <BlogHeader title={title} intro={intro} eyebrow="Watch & Learn" />
+
+  <VideoGrid />
+
+  <WhatDrivesUs />
+</Layout>
