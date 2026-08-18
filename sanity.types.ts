@@ -34,12 +34,6 @@ export type BlockContent = Array<{
   _key: string;
 }>;
 
-export type FormField = {
-  _type: "formField";
-  label: string;
-  placeholder?: string;
-};
-
 export type SanityImageAssetReference = {
   _ref: string;
   _type: "reference";
@@ -189,20 +183,9 @@ export type ConsultForm = {
     headingAccent?: string;
     leadLines: Array<string>;
   };
-  details?: {
-    callLabel: string;
-    emailLabel: string;
-    addressLabel: string;
-    hoursLabel: string;
-  };
   form?: {
     cardTitle: string;
     cardIntro: string;
-    firstName: FormField;
-    lastName: FormField;
-    email: FormField;
-    phone: FormField;
-    message: FormField;
     submitLabel: string;
     privacyNote: string;
   };
@@ -396,7 +379,6 @@ export type Geopoint = {
 
 export type AllSanitySchemaTypes =
   | BlockContent
-  | FormField
   | SanityImageAssetReference
   | Seo
   | NavLink
@@ -450,6 +432,30 @@ export type BLOG_POSTS_ALL_QUERY_RESULT = Array<{
   noIndex: boolean | null;
   _updatedAt: string;
 }>;
+
+// Source: src/sanity/consultForm.ts
+// Variable: CONSULT_FORM_QUERY
+// Query: *[_id == "consultForm"][0]{    header{ eyebrow, headingLead, headingAccent, leadLines },    form{ cardTitle, cardIntro, submitLabel, privacyNote }  }
+export type CONSULT_FORM_QUERY_RESULT =
+  | {
+      header: null;
+      form: null;
+    }
+  | {
+      header: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        leadLines: Array<string>;
+      } | null;
+      form: {
+        cardTitle: string;
+        cardIntro: string;
+        submitLabel: string;
+        privacyNote: string;
+      } | null;
+    }
+  | null;
 
 // Source: src/sanity/firmDetails.ts
 // Variable: FIRM_DETAILS_QUERY
@@ -605,6 +611,7 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
+    '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;

@@ -14,7 +14,25 @@
  * .baseline/. If the two match on all 80, the conversion provably preserves
  * every heading, paragraph, list item, link and bold run on the site.
  *
- * ---- this file is also the renderer's specification -------------------------
+ * ---- WHAT THIS PROVES, AND WHAT IT DOES NOT --------------------------------
+ *
+ * It proves the CONVERSION is lossless: every heading, paragraph, list item,
+ * link and bold run in the markdown survives into Portable Text, because the
+ * blocks can be rendered back into the exact HTML Astro produced.
+ *
+ * It does NOT prove astro-portabletext renders those blocks the same way. The
+ * renderer below is an independent implementation, which is what makes it
+ * evidence rather than a tautology — but the two can legitimately disagree on
+ * details the data doesn't fix. One real example: a span carrying BOTH a bold
+ * decorator and a link. This file emits `<strong><a>…</a></strong>`, matching
+ * markdown; astro-portabletext emits `<a><strong>…</strong></a>`. Same data,
+ * same appearance, inverted nesting — and it occurs three times, on one page.
+ *
+ * That gap is covered by the other half of the pair: `npm run diff:baseline`
+ * compares the BUILT site against the pre-migration build, so a rendering
+ * difference shows up there. Neither check is sufficient alone.
+ *
+ * ---- this file is also a specification for the renderer ---------------------
  *
  * `renderBlocks()` below emits exactly the markup satteri emits, heading ids
  * included. The Astro Portable Text components must produce the same thing, so

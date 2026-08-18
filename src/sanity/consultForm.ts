@@ -12,22 +12,9 @@ import { defineQuery } from "groq";
 const CONSULT_FORM_QUERY = defineQuery(`
   *[_id == "consultForm"][0]{
     header{ eyebrow, headingLead, headingAccent, leadLines },
-    details{ callLabel, emailLabel, addressLabel, hoursLabel },
-    form{
-      cardTitle,
-      cardIntro,
-      firstName{ label, placeholder },
-      lastName{ label, placeholder },
-      email{ label, placeholder },
-      phone{ label, placeholder },
-      message{ label, placeholder },
-      submitLabel,
-      privacyNote
-    }
+    form{ cardTitle, cardIntro, submitLabel, privacyNote }
   }
 `);
-
-export type FormFieldCopy = { label: string; placeholder?: string };
 
 export type ConsultForm = {
   header: {
@@ -36,20 +23,9 @@ export type ConsultForm = {
     headingAccent?: string;
     leadLines: string[];
   };
-  details: {
-    callLabel: string;
-    emailLabel: string;
-    addressLabel: string;
-    hoursLabel: string;
-  };
   form: {
     cardTitle: string;
     cardIntro: string;
-    firstName: FormFieldCopy;
-    lastName: FormFieldCopy;
-    email: FormFieldCopy;
-    phone: FormFieldCopy;
-    message: FormFieldCopy;
     submitLabel: string;
     privacyNote: string;
   };

@@ -101,21 +101,21 @@ const copy = await getConsultForm();
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconCall} />
             <span class="cinfo__text">
-              <span class="cinfo__label">{copy.details.callLabel}</span>
+              <span class="cinfo__label">Call us</span>
               <a class="cinfo__value cinfo__link" href={phone.href}>{phone.display}</a>
             </span>
           </li>
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconMail} />
             <span class="cinfo__text">
-              <span class="cinfo__label">{copy.details.emailLabel}</span>
+              <span class="cinfo__label">Email us</span>
               <a class="cinfo__value cinfo__link" href={email.href}>{email.display}</a>
             </span>
           </li>
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconOffice} />
             <span class="cinfo__text">
-              <span class="cinfo__label">{copy.details.addressLabel}</span>
+              <span class="cinfo__label">Address</span>
               {/* Links out like the phone and email beside it. New tab because
                   leaving the site mid-enquiry would lose anything already
                   typed into the form - `noopener` since `_blank` otherwise
@@ -134,7 +134,7 @@ const copy = await getConsultForm();
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconHours} />
             <span class="cinfo__text">
-              <span class="cinfo__label">{copy.details.hoursLabel}</span>
+              <span class="cinfo__label">Business Hours</span>
               <span class="cinfo__value">{hours.days}:<br />{hours.time}</span>
             </span>
           </li>
@@ -168,24 +168,24 @@ const copy = await getConsultForm();
         <form class="cform" data-lead-form novalidate>
           <div class="cform__row">
             <p class="cform__field">
-              <label for="c-first">{copy.form.firstName.label}</label>
-              <input id="c-first" name="firstName" type="text" autocomplete="given-name" placeholder={copy.form.firstName.placeholder} />
+              <label for="c-first">First name</label>
+              <input id="c-first" name="firstName" type="text" autocomplete="given-name" placeholder="First" />
             </p>
             <p class="cform__field">
-              <label for="c-last">{copy.form.lastName.label}</label>
-              <input id="c-last" name="lastName" type="text" autocomplete="family-name" placeholder={copy.form.lastName.placeholder} />
+              <label for="c-last">Last name</label>
+              <input id="c-last" name="lastName" type="text" autocomplete="family-name" placeholder="Last" />
             </p>
           </div>
 
           <div class="cform__row">
             <p class="cform__field">
-              <label for="c-email">{copy.form.email.label} <span class="cform__req" aria-hidden="true">*</span></label>
+              <label for="c-email">Email <span class="cform__req" aria-hidden="true">*</span></label>
               <input
                 id="c-email"
                 name="email"
                 type="email"
                 autocomplete="email"
-                placeholder={copy.form.email.placeholder}
+                placeholder="you@email.com"
                 required
                 aria-required="true"
                 pattern="[^@\s]+@[^@\s]+\.[A-Za-z]{2,}"
@@ -193,14 +193,14 @@ const copy = await getConsultForm();
               />
             </p>
             <p class="cform__field">
-              <label for="c-phone">{copy.form.phone.label}</label>
+              <label for="c-phone">Phone</label>
               <input
                 id="c-phone"
                 name="phone"
                 type="tel"
                 inputmode="tel"
                 autocomplete="tel"
-                placeholder={copy.form.phone.placeholder}
+                placeholder="(___) ___-____"
                 pattern="\(\d{3}\) \d{3}-\d{4}"
                 maxlength="14"
                 title="Enter a 10-digit US phone number"
@@ -210,8 +210,8 @@ const copy = await getConsultForm();
           </div>
 
           <p class="cform__field">
-            <label for="c-message">{copy.form.message.label}</label>
-            <textarea id="c-message" name="message" rows="4" placeholder={copy.form.message.placeholder}></textarea>
+            <label for="c-message">How can we help?</label>
+            <textarea id="c-message" name="message" rows="4" placeholder="Tell us a little about your situation..."></textarea>
           </p>
 
           <button class="btn btn--gold cform__submit" type="submit">{copy.form.submitLabel}</button>

@@ -5,6 +5,10 @@
  * Every string below is transcribed from src/components/Contact.astro as it
  * rendered before this ran, so the section comes out byte-identical on all 93
  * pages that carry it.
+ *
+ * Field labels, placeholders and the contact-detail captions are deliberately
+ * absent: they stay in the component as input affordances. See the note on the
+ * schema type.
  */
 
 import { getCliClient } from "sanity/cli";
@@ -28,24 +32,10 @@ async function run() {
         "Reach out for a free, confidential consultation. No pressure, just answers.",
       ],
     },
-    details: {
-      callLabel: "Call us",
-      emailLabel: "Email us",
-      addressLabel: "Address",
-      hoursLabel: "Business Hours",
-    },
     form: {
       cardTitle: "Request a Free Consultation",
       cardIntro:
         "When you choose to work with The Dieye Firm, you are choosing to work with a divorce and family law attorney who will aggressively protect your rights and best interests.",
-      firstName: { label: "First name", placeholder: "First" },
-      lastName: { label: "Last name", placeholder: "Last" },
-      email: { label: "Email", placeholder: "you@email.com" },
-      phone: { label: "Phone", placeholder: "(___) ___-____" },
-      message: {
-        label: "How can we help?",
-        placeholder: "Tell us a little about your situation...",
-      },
       submitLabel: "Submit Request",
       privacyNote: "Everything you share is private and confidential.",
     },

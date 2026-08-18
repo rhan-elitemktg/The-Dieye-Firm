@@ -16,6 +16,18 @@ import { EnvelopeIcon } from "@sanity/icons/Envelope";
  * the component, not different content. One record, one form, one place the
  * words live.
  *
+ * ═══ What is deliberately NOT here ═══
+ *
+ * The field labels, the placeholders and the four contact-detail captions
+ * ("Call us", "Address") stay in Contact.astro. They are input affordances, not
+ * the firm's voice — the same class as "Read More" or "Load More Posts" — and
+ * modelling them put fourteen boxes in front of an editor that nobody will ever
+ * open. What is here is what the firm actually SAYS: the heading, the lead, the
+ * form's own title and intro, the button, and the reassurance line.
+ *
+ * The phone number, email and address themselves have always come from
+ * Site Settings → Firm Details, so they are never typed twice.
+ *
  * ═══ The heading is three strings, not rich text ═══
  *
  * It renders as `Take the <em>First Step</em>`, and that <em> is styled by a
@@ -71,40 +83,6 @@ export const consultForm = defineType({
       ],
     }),
     defineField({
-      name: "details",
-      title: "Contact details",
-      type: "object",
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        defineField({
-          name: "callLabel",
-          title: "Phone label",
-          type: "string",
-          description:
-            "The number itself comes from Site Settings → Firm Details, so it is never typed twice.",
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: "emailLabel",
-          title: "Email label",
-          type: "string",
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: "addressLabel",
-          title: "Address label",
-          type: "string",
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: "hoursLabel",
-          title: "Hours label",
-          type: "string",
-          validation: (rule) => rule.required(),
-        }),
-      ],
-    }),
-    defineField({
       name: "form",
       title: "The form",
       type: "object",
@@ -123,11 +101,6 @@ export const consultForm = defineType({
           rows: 3,
           validation: (rule) => rule.required(),
         }),
-        defineField({ name: "firstName", title: "First name", type: "formField", validation: (r) => r.required() }),
-        defineField({ name: "lastName", title: "Last name", type: "formField", validation: (r) => r.required() }),
-        defineField({ name: "email", title: "Email", type: "formField", validation: (r) => r.required() }),
-        defineField({ name: "phone", title: "Phone", type: "formField", validation: (r) => r.required() }),
-        defineField({ name: "message", title: "Message", type: "formField", validation: (r) => r.required() }),
         defineField({
           name: "submitLabel",
           title: "Button",
