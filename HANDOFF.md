@@ -30,8 +30,9 @@ inside shipped practice-area and blog content.
 
 ## Where we are
 
-Branch `location_pages`, cut from `master` at `e71bff2` (PR #26 merged). Seven
-commits, nothing uncommitted. **Not pushed; no PR open.**
+Branch `location_pages`, cut from `master` at `e71bff2` (PR #26 merged). Eight
+commits, nothing uncommitted. **Pushed to `origin/location_pages`.** Whether a
+PR is open was not checked — the `gh` CLI is not installed on this machine.
 
 Build passes at **89 pages** (was 57).
 
@@ -44,6 +45,7 @@ The commits are individually revertable and each carries its own proof:
 5. `Record the new rules in AGENTS.md, rewrite HANDOFF`
 6. `Move the FAQs into the shared full-width band` — **reverted by 7**
 7. `Revert "Move the FAQs into the shared full-width band"`
+8. `Record why the FAQ band was reverted`
 
 **6 and 7 cancel out and were deliberately left in history** rather than reset
 away: the band is one `git revert` from coming back if the mobile ordering below
