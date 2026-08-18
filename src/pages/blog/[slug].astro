@@ -1,5 +1,8 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getBlogPosts } from "../../sanity/blogPosts";
+import { urlFor } from "../../sanity/image";
+import ProseBody from "../../components/prose/ProseBody.astro";
+import { toPlainText } from "../../lib/portableText";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import InteriorShell from "../../components/interior/InteriorShell.astro";
@@ -17,24 +20,29 @@ import {
 } from "../../components/blog/blog";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  const posts = await getBlogPosts();
   return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
 
-const all = (await getCollection("blog")).sort(byNewest);
+const all = (await getBlogPosts()).sort(byNewest);
 /* The sidebar lists five titles, the closing band shows three cards. Both come
    from the same ranking so the band is always a subset of the list. */
 const sidebarRelated = relatedPosts(post, all, 5);
 const related = sidebarRelated.slice(0, 3);
 const categories = allCategories(all);
-const minutes = readingTime(post.body ?? "");
+/* Reading time is computed from the article's WORDS. It used to be computed
+   from the raw markdown, which counted every "##" and "-" as a word and so ran
+   two posts a minute long. */
+const minutes = readingTime(toPlainText(post.body));
 
 const canonical = new URL(postHref(post), Astro.site ?? Astro.url).href;
+/* Already absolute — Sanity's CDN serves it — so unlike the old local asset
+   path this needs no resolving against the site origin. 1200x630 is the card
+   size every platform crops toward. */
 const ogImage = post.data.image
-  ? new URL(post.data.image.src, Astro.site ?? Astro.url).href
+  ? urlFor(post.data.image).width(1200).height(630).fit("crop").auto("format").url()
   : undefined;
 
 /* Built from the same values as the markup so the two can't drift — the same
@@ -75,7 +83,7 @@ const schema = {
         scoped and still reaches this div: slotted markup carries the hash of
         the component that wrote it, not of the one that renders it. */}
     <div class="prose post__body">
-      <Content />
+      <ProseBody value={post.body} />
     </div>
 
     <PostSidebar

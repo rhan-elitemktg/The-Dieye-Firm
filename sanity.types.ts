@@ -62,6 +62,56 @@ export type NavLink = {
   href: string;
 };
 
+export type BlogPost = {
+  _id: string;
+  _type: "blogPost";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  slug: Slug;
+  date: string;
+  author: string;
+  categories?: Array<
+    "divorce" | "child-custody" | "child-support" | "domestic-violence"
+  >;
+  featured?: boolean;
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  keyTakeaways?: Array<string>;
+  body: BlockContent;
+  legacyPath?: string;
+  seo?: Seo;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+};
+
+export type Slug = {
+  _type: "slug";
+  current: string;
+  source?: string;
+};
+
 export type LocationPageReference = {
   _ref: string;
   _type: "reference";
@@ -90,12 +140,6 @@ export type LocationPage = {
   }>;
   legacyPath?: string;
   seo?: Seo;
-};
-
-export type Slug = {
-  _type: "slug";
-  current: string;
-  source?: string;
 };
 
 export type PracticeAreaReference = {
@@ -151,22 +195,6 @@ export type HomePage = {
     >;
   };
   seo?: Seo;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x: number;
-  y: number;
-  height: number;
-  width: number;
 };
 
 export type Testimonial = {
@@ -334,15 +362,16 @@ export type AllSanitySchemaTypes =
   | SanityImageAssetReference
   | Seo
   | NavLink
+  | BlogPost
+  | SanityImageCrop
+  | SanityImageHotspot
+  | Slug
   | LocationPageReference
   | LocationPage
-  | Slug
   | PracticeAreaReference
   | PracticeArea
   | TestimonialReference
   | HomePage
-  | SanityImageCrop
-  | SanityImageHotspot
   | Testimonial
   | FirmDetails
   | SanityImagePaletteSwatch
@@ -353,6 +382,35 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint;
+
+// Source: src/sanity/blogPosts.ts
+// Variable: BLOG_POSTS_ALL_QUERY
+// Query: *[_type == "blogPost"]{    "id": slug.current,    "data": {      title,      date,      author,      "categories": coalesce(categories, []),      featured,      "keyTakeaways": coalesce(keyTakeaways, []),      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "imageAlt": coalesce(image.alt, ""),      "image": image{        asset,        "dimensions": asset->metadata.dimensions      }    },    body,    "noIndex": seo.noIndex,    _updatedAt  }
+export type BLOG_POSTS_ALL_QUERY_RESULT = Array<{
+  id: string;
+  data: {
+    title: string;
+    date: string;
+    author: string;
+    categories:
+      | Array<never>
+      | Array<
+          "child-custody" | "child-support" | "divorce" | "domestic-violence"
+        >;
+    featured: boolean | null;
+    keyTakeaways: Array<string> | Array<never>;
+    description: string | null;
+    seoTitle: string | null;
+    imageAlt: string | "";
+    image: {
+      asset: SanityImageAssetReference | null;
+      dimensions: SanityImageDimensions | null;
+    } | null;
+  };
+  body: BlockContent;
+  noIndex: boolean | null;
+  _updatedAt: string;
+}>;
 
 // Source: src/sanity/firmDetails.ts
 // Variable: FIRM_DETAILS_QUERY
@@ -507,6 +565,7 @@ export type TESTIMONIALS_HOME_QUERY_RESULT =
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;

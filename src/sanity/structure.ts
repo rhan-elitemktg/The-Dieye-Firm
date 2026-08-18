@@ -34,7 +34,7 @@ export const SINGLETONS = ["firmDetails", "homePage"];
 
 /* Repeatable types with a curated list below. Kept beside SINGLETONS so the
    catch-all knows what has already been placed. */
-const COLLECTIONS = ["practiceArea", "locationPage", "testimonial"];
+const COLLECTIONS = ["blogPost", "practiceArea", "locationPage", "testimonial"];
 
 /* Everything placed explicitly. Anything NOT here falls through to the
    catch-all. */
@@ -77,6 +77,11 @@ export const structure: StructureResolver = (S, context) =>
           S.list()
             .title("Collections")
             .items([
+              /* Ordered by date, newest first — the archive orders itself, so a
+                 drag handle would set an order nothing reads. */
+              S.documentTypeListItem("blogPost")
+                .title("Blog Posts")
+                .icon(icons["document-text"]),
               /* Not drag-ordered: the sidebar menu sorts alphabetically on the
                  short name, with parent rows first, so a manual order would have
                  nowhere to show up. */

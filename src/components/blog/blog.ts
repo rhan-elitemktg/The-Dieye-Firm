@@ -1,11 +1,15 @@
-import type { CollectionEntry } from "astro:content";
+import type { Post } from "../../sanity/blogPosts";
 
-export type Post = CollectionEntry<"blog">;
+export type { Post };
 
 /* The four categories the archive actually uses. Display labels live here
-   rather than being derived from the slug so "child-custody" doesn't render as
-   "Child custody", and so a future Sanity `category` document has an obvious
-   home to migrate into. */
+   rather than in Sanity, deliberately: the slugs are baked into the index's
+   client-side filter, into the CSS FilterBoot generates per slug, and into each
+   card's `data-cats` attribute, so making them documents would ripple through
+   eight components for four labels that derive cleanly from their slug anyway.
+   The schema constrains which four an editor can pick; the fallback below
+   title-cases anything new, so adding a fifth works without a code change.
+   Promote to a `blogCategory` document if one ever needs renaming. */
 const LABELS: Record<string, string> = {
   divorce: "Divorce",
   "child-custody": "Child Custody",

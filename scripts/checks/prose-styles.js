@@ -48,12 +48,19 @@
   check("body h2 present", ".prose h2", "display", "block");
   check("body link underline", ".prose a", "text-decoration-line", "underline");
 
-  const failures = expect.filter((e) => !e.pass);
+  /* An absent element is NOT a failure: only one practice area carries FAQs, so
+     `.pfaq__a p` legitimately does not exist on most pages. It is reported
+     separately rather than folded into either bucket, so "3 passed" on a page
+     that should have had six is still visible. */
+  const applicable = expect.filter((e) => e.found);
+  const failures = applicable.filter((e) => !e.pass);
+  const absent = expect.filter((e) => !e.found);
   return {
     url: location.pathname,
-    passed: expect.length - failures.length,
+    passed: applicable.length - failures.length,
     failed: failures.length,
-    failures: failures.map((f) => `${f.label}: ${f.found ? `${f.prop} ${f.got} (want ${f.want})` : "NOT FOUND"}`),
+    notApplicable: absent.map((e) => e.label),
+    failures: failures.map((f) => `${f.label}: ${f.prop} is ${f.got}, want ${f.want}`),
     detail: expect,
   };
 })();

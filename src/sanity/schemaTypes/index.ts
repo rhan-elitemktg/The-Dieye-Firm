@@ -7,6 +7,7 @@ import { homePage } from "./homePage";
 import { testimonial } from "./testimonial";
 import { practiceArea } from "./practiceArea";
 import { locationPage } from "./locationPage";
+import { blogPost } from "./blogPost";
 
 /* Grouped the way the Studio sidebar groups them (see src/sanity/structure.ts),
    so a new type has an obvious place to go. Anything added here that is NOT
@@ -19,6 +20,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Documents
   practiceArea,
   locationPage,
+  blogPost,
   testimonial,
   // Objects
   navLink,
