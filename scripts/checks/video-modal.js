@@ -33,7 +33,21 @@
   results.modalsOnPage = document.querySelectorAll("[data-video-modal]").length;
 
   // --- before any click: zero Wistia requests (click-to-load facade) ---
-  results.iframesBeforeAnyClick = document.querySelectorAll("iframe").length;
+  /* Stated as "no WISTIA iframe", not "no iframes at all". The homepage renders
+     the sitewide Contact section, whose Google map is a bare iframe — the one
+     embed predating the click-to-load rule, tracked in HANDOFF as a known
+     holdout. The stricter form counted the map and so reported 16/1 on every
+     run, in the baseline as much as in any branch, which is a check that cries
+     wolf rather than one that guards anything. video-center.js has stated it
+     this way since it was written; this brings the two into line and asserts
+     the map separately, so the holdout stays visible instead of being hidden by
+     a looser assertion. */
+  results.wistiaIframesBeforeAnyClick = [...document.querySelectorAll("iframe")].filter(
+    (f) => (f.getAttribute("src") || "").includes("wistia")
+  ).length;
+  results.mapIframesBeforeAnyClick = [...document.querySelectorAll("iframe")].filter((f) =>
+    (f.getAttribute("src") || "").includes("google.com/maps")
+  ).length;
 
   // --- 1. About trigger -> 16:9, About's id ---
   const aboutTrigger = document.querySelector(".video-card[data-video-open]");
@@ -80,7 +94,8 @@
   const check = (name, pass) => (pass ? ok : fail).push(name);
 
   check("one modal on page", results.modalsOnPage === 1);
-  check("no iframes before click", results.iframesBeforeAnyClick === 0);
+  check("no wistia iframe before click", results.wistiaIframesBeforeAnyClick === 0);
+  check("the map is the only pre-click frame", results.mapIframesBeforeAnyClick === 1);
   check("about plays xnom95l12h", results.about.videoId === "xnom95l12h");
   check("about is 16:9", Math.abs(parseFloat(results.about.aspect) - 16 / 9) < 0.01);
   check("about labelled", results.about.ariaLabel === "Meet Papa Dieye");

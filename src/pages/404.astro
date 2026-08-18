@@ -1,0 +1,129 @@
+---
+// 404 — served by Vercel for any path that isn't a built page.
+//
+// There wasn't one, so a mistyped or retired URL got Vercel's own black-and-
+// white default: no header, no phone number, no way back. On a site whose whole
+// job is turning a search result into a phone call, that is a dead end at the
+// exact moment someone is trying to reach the firm.
+//
+// It carries the real header and the sitewide Contact section, so the two things
+// a lost visitor needs - the phone number and a route back into the site - are
+// both here without this page inventing any chrome of its own.
+//
+// It is NOT in the sitemap and deliberately carries noindex: a 404 that gets
+// indexed is a soft-404, which is worse than no page at all. Vercel serves this
+// with a real 404 status for unmatched routes on a static build.
+//
+// No canonical, on purpose. A canonical on an error page tells Google the URL is
+// legitimate and should be indexed under that address, which is the opposite of
+// what noindex is saying two lines above.
+
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import InteriorShell from "../components/interior/InteriorShell.astro";
+import InteriorHeader from "../components/interior/InteriorHeader.astro";
+import AboutSidebar from "../components/about/AboutSidebar.astro";
+import { getFirmDetails } from "../sanity/firmDetails";
+
+const firm = await getFirmDetails();
+
+/* The four a lost visitor is most likely to have been looking for, plus the one
+   page that lists everything else. Kept as a named array for the Sanity sweep. */
+const routes = [
+  { label: "Practice Areas", href: "/practice-areas/", note: "All 32 areas of family law we handle" },
+  { label: "Service Areas", href: "/harris-county-family-law-attorney/", note: "Harris County, League City, Sugar Land and Pasadena" },
+  { label: "Blog", href: "/blog/", note: "Articles on divorce, custody and support in Texas" },
+  { label: "FAQs", href: "/faq/", note: "The questions we are asked most often" },
+  { label: "Site Map", href: "/sitemap/", note: "Every page on this site, in one list" },
+];
+---
+
+<Layout
+  title="Page Not Found | The Dieye Firm"
+  description="That page could not be found. Browse our practice areas, service areas or blog, or call The Dieye Firm directly."
+>
+  <meta name="robots" content="noindex, follow" slot="head" />
+
+  <Header />
+
+  <InteriorShell>
+    <InteriorHeader
+      title="We couldn't find that page"
+      kicker={{ label: "404" }}
+      deck="The link may be out of date, or the address may have a typo in it. Here is the way back."
+    />
+
+    <div class="nf">
+      <ul class="nf__routes">
+        {
+          routes.map((route) => (
+            <li>
+              <a class="nf__link" href={route.href}>{route.label}</a>
+              <span class="nf__note">{route.note}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="nf__call">
+        If you would rather just speak to someone, call us at{" "}
+        <a href={firm.phone.href}>{firm.phone.display}</a>.
+      </p>
+    </div>
+
+    <AboutSidebar slot="sidebar" label="The Dieye Firm" />
+  </InteriorShell>
+</Layout>
+
+<style>
+  .nf {
+    margin-top: 40px;
+  }
+
+  .nf__routes {
+    display: grid;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nf__routes li {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--bone-300);
+  }
+
+  .nf__link {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    color: var(--navy-700);
+    text-decoration: none;
+  }
+
+  .nf__link:hover {
+    color: var(--gold-600);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .nf__note {
+    display: block;
+    margin-top: 4px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink-500);
+  }
+
+  .nf__call {
+    margin: 36px 0 0;
+    font-size: 17px;
+    line-height: 29px;
+    color: var(--ink-500);
+  }
+
+  .nf__call a {
+    color: var(--navy-700);
+    font-weight: 600;
+  }
+</style>
