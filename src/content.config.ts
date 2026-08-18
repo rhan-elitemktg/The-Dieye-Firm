@@ -51,7 +51,7 @@ const blog = defineCollection({
     }),
 });
 
-/* Practice areas — the 31 family-law detail pages, ingested from the live site
+/* Practice areas — the 32 family-law detail pages, ingested from the live site
    by `npm run scrape:practice-areas`. See scripts/scrape-practice-areas.mjs.
 
    The file layout IS the route: src/content/practice-areas/divorce.md becomes
@@ -77,7 +77,7 @@ const practiceAreas = defineCollection({
     title: z.string(),
 
     /* The client's own nav wording ("Child Custody", "QDROs"). Distinct from
-       `title` on all 31 pages, which is why both exist. */
+       `title` on all 32 pages, which is why both exist. */
     navLabel: z.string(),
 
     seoTitle: z.string().optional(),
@@ -88,12 +88,12 @@ const practiceAreas = defineCollection({
     subtitle: z.string().optional(),
 
     /* Top-level pages omit this. Set to the parent's slug on the 21 children,
-       leaving 10 top-level areas.
+       leaving 11 top-level areas.
 
        It is NOT derived from the URL. 13 of the 21 are nested on the live site
        too (10 under divorce, 3 under child-custody); the other 8 are
        re-parented by PARENT_OVERRIDES in the scraper to keep the sidebar menu
-       to ten rows. Those 8 keep their flat URLs, so a page's path and its
+       to 11 rows. Those 8 keep their flat URLs, so a page's path and its
        parent deliberately disagree — see the note there. */
     parent: z.string().optional(),
 
@@ -108,4 +108,73 @@ const practiceAreas = defineCollection({
   }),
 });
 
-export const collections = { blog, practiceAreas };
+/* The 32 location pages, ingested by scripts/scrape-locations.mjs.
+ *
+ * NOT to be confused with `firmDetails.serviceAreas`, which is the FOUR nav
+ * entries in the Service Areas flyout. These are the pages those four head —
+ * the same trap as /family-law/ versus /practice-areas/, so the two are named
+ * apart deliberately.
+ *
+ * The file path IS the route, with no prefix to strip: the live URLs sit at the
+ * site root, so src/content/locations/sugar-land-family-law-attorney/divorce/
+ * uncontested-divorce.md renders at that exact path. src/pages/[...slug].astro
+ * consumes the id whole. Unlike the practice areas there is no section root
+ * exception — every id is its own route.
+ *
+ * URLs match the live site exactly, so this section needs no redirects.
+ *
+ * Shaped as a Sanity `locationPage` document will return, same as the other
+ * two collections — `location` and `parent` both become references, which is
+ * why each stores the target's id rather than a path. */
+const locations = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/locations" }),
+  schema: z.object({
+    /* The page h1, SEO-shaped on every page ("Sugar Land Paternity Attorney"). */
+    title: z.string(),
+
+    /* The short form for the sidebar menu ("Paternity"), read off the client's
+       own /site-map/. The four location roots take theirs from the LOCATIONS
+       table in the scraper instead, because the site map calls them "Sugar Land
+       Family Law Attorney" — right for a sitemap link, and wrong for a menu
+       whose every row would then repeat the city. */
+    navLabel: z.string(),
+
+    seoTitle: z.string().optional(),
+    description: z.string(),
+
+    /* The deck between the h1 and the opening paragraph. Present on 31 of 32 —
+       .../mothers-rights/ opens straight into copy. */
+    subtitle: z.string().optional(),
+
+    /* Which location's menu this page belongs to: the id of that location's
+       ROOT page. On a root it points at itself, so "which location am I in" is
+       a total function with no branch.
+
+       NOT derived from the URL, for the same reason `parent` isn't on the
+       practice areas. Two Pasadena pages hang off the site root —
+       /pasadena-child-support-attorney/ and
+       /pasadena-family-law-mediation-attorney/ — and are placed by
+       LOCATION_OVERRIDES in the scraper. Their URLs do not move; only their
+       grouping is ours. Deriving from the path would work for 30 and need a
+       special case for 2, which puts the truth in two places. */
+    location: z.string(),
+
+    /* The row above this one WITHIN its location. Absent on a location's
+       top-level rows — including the root itself — and set only at the third
+       level (.../divorce/uncontested-divorce/ → .../divorce/), which is what
+       lets buildTree() be shared with the practice-area menu unchanged. */
+    parent: z.string().optional(),
+
+    /* Lifted out of the body by the scraper so they render as real markup with
+       real FAQPage JSON-LD. Unlike the practice areas, none of these pages
+       carries FAQPage microdata — the extraction is heading-based and audited
+       in the run output. About 24 of the 32 have one. */
+    faqs: z
+      .array(z.object({ question: z.string(), answer: z.string() }))
+      .default([]),
+
+    legacyPath: z.string(),
+  }),
+});
+
+export const collections = { blog, practiceAreas, locations };

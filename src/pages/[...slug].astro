@@ -1,0 +1,201 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/header/Header.astro";
+import InteriorShell from "../components/interior/InteriorShell.astro";
+import InteriorHeader from "../components/interior/InteriorHeader.astro";
+import PracticeAreaFaqs from "../components/practice-areas/PracticeAreaFaqs.astro";
+import LocationSidebar from "../components/locations/LocationSidebar.astro";
+import { locationHref, rootOf } from "../components/locations/locations";
+import { getFirmDetails } from "../sanity/firmDetails";
+
+/* A root-level rest route, because these URLs sit at the site root and two of
+   them are orphans that no prefix would catch —
+   /pasadena-child-support-attorney/ shares nothing with the other Pasadena
+   paths but the word Pasadena.
+ *
+ * WHY THAT IS SAFE HERE, since a root catch-all normally reads as a footgun:
+ * this is a static build (astro.config.mjs sets `site` and no `output`), so
+ * there is no request-time matching at all. Astro emits exactly what
+ * getStaticPaths returns — 32 index.html files — and a route that never
+ * declares /about-us/ cannot serve it. Shadowing is not a failure mode
+ * available here. Route priority agrees anyway: Astro ranks a spread first
+ * segment below a static one unconditionally.
+ *
+ * The failure mode that IS available is a path COLLISION — two routes emitting
+ * the same dist/<path>/index.html, which the filesystem resolves as
+ * last-write-wins and reports nowhere. RESERVED below turns that into a build
+ * failure. /admin is in the list and is not a file in src/pages/: @sanity/astro
+ * injects it, so anything derived by looking at this directory would miss it. */
+export async function getStaticPaths() {
+  /* Declared in here rather than at module scope: Astro builds getStaticPaths
+     into its own prerender chunk, and a module-level const is not in scope
+     there — it fails at build time with "RESERVED is not defined". */
+  const RESERVED = new Set([
+    "about-us", "admin", "blog", "contact-us", "family-law",
+    "practice-areas", "testimonials", "thank-you",
+  ]);
+
+  const pages = await getCollection("locations");
+
+  for (const page of pages) {
+    /* A rest param with an empty value renders at the PARENT path — which at
+       the root is "/", colliding with index.astro. The glob loader cannot
+       produce an empty id today; this states the invariant where it would
+       break rather than where it would be noticed. */
+    if (!page.id) throw new Error("A locations entry has an empty id, which would render at /.");
+
+    const segment = page.id.split("/")[0];
+    if (RESERVED.has(segment)) {
+      throw new Error(
+        `src/content/locations/${page.id}.md would render under /${segment}/, which is ` +
+          `already a route. Its index.html would silently overwrite the existing page.`
+      );
+    }
+  }
+
+  return pages.map((page) => ({ params: { slug: page.id }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+
+const pages = await getCollection("locations");
+const root = rootOf(pages, page);
+if (!root) throw new Error(`${page.id} names location "${page.data.location}", which does not exist.`);
+
+const parent = page.data.parent
+  ? pages.find((candidate) => candidate.id === page.data.parent)
+  : undefined;
+
+/* The kicker names the level above, and there is always an honest one to name
+   except on a location root:
+ *
+ *   grandchild  -> its parent      ("Divorce" on .../divorce/divorce-mediation/)
+ *   child       -> its location    ("Sugar Land" on .../paternity/)
+ *   root        -> itself, no href
+ *
+ * The middle case is what makes the two orphans work: on
+ * /pasadena-child-support-attorney/ the kicker reads "Pasadena" and links to
+ * /pasadena-family-law-attorney/, which is the only place in the main column
+ * that its membership is stated at all.
+ *
+ * The root gets no href for the reason the practice-area route gives: the only
+ * honest destination is the page you are already on. If a /service-areas/
+ * index is ever built, this is the one line that changes. */
+const kicker = parent
+  ? { label: parent.data.navLabel, href: locationHref(parent) }
+  : page.id === root.id
+    ? { label: root.data.navLabel }
+    : { label: root.data.navLabel, href: locationHref(root) };
+
+const firm = await getFirmDetails();
+const canonical = new URL(locationHref(page), Astro.site ?? Astro.url).href;
+
+/* areaServed is THIS location, not all four. Copying the full list onto a
+   Sugar Land page is what makes a location section look templated to a crawler,
+   and place specificity is the one signal these pages exist to send.
+ *
+ * The name is matched out of firmDetails rather than retyped, so the nav, the
+ * sidebar card and this markup can never name different territories — and a
+ * fifth Sanity area without a page, or the reverse, fails the build here
+ * rather than shipping a page that quietly claims nothing. */
+const served = firm.serviceAreas.find(
+  (area) => area.href.replace(/\/?$/, "/") === locationHref(root)
+);
+if (!served) {
+  throw new Error(
+    `No firmDetails serviceArea has href ${locationHref(root)}. Either the Sanity ` +
+      `singleton or src/content/locations/ has an area the other doesn't.`
+  );
+}
+
+/* Two shapes, one branch. A child page offers a named service in a place, so
+   it is a Service. A location root is the firm operating in a place, so it is
+   a LegalService — `serviceType: "Sugar Land"` would not be true of either. */
+const provider = {
+  "@type": "LegalService",
+  name: firm.firmName,
+  telephone: firm.phone.display,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: firm.address.street,
+    addressLocality: firm.address.locality,
+    addressRegion: firm.address.region,
+    postalCode: firm.address.postalCode,
+    addressCountry: "US",
+  },
+};
+const areaServed = [{ "@type": "Place", name: served.label }];
+
+const schema =
+  page.id === root.id
+    ? {
+        "@context": "https://schema.org",
+        ...provider,
+        description: page.data.description,
+        url: canonical,
+        areaServed,
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        name: page.data.navLabel,
+        serviceType: page.data.navLabel,
+        description: page.data.description,
+        url: canonical,
+        provider,
+        areaServed,
+      };
+---
+
+<Layout
+  title={`${page.data.seoTitle ?? page.data.title} | The Dieye Firm`}
+  description={page.data.description}
+  canonical={canonical}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
+
+  {/* Stamped before <body> is parsed, so a collapsed branch in the sidebar is
+      never painted open and then closed. TreeNav's hide rule is keyed on it;
+      without JS the attribute never lands and every branch stays open. */}
+  <script is:inline slot="head">
+    document.documentElement.setAttribute("data-pa-boot", "");
+  </script>
+
+  {/* In flow, not overlay: there is no hero here. The page opens directly
+      under the header on white, the same as the practice-area route. */}
+  <Header />
+
+  <InteriorShell>
+    <InteriorHeader title={page.data.title} kicker={kicker} deck={page.data.subtitle} />
+
+    <div class="prose loc__body">
+      <Content />
+    </div>
+
+    <PracticeAreaFaqs faqs={page.data.faqs} name="loc-faq" />
+
+    <LocationSidebar slot="sidebar" pages={pages} current={page} root={root} />
+  </InteriorShell>
+
+  {/* Bound here, once for the document, the same split Layout uses for
+      lead-form.ts — the sidebar component stays pure markup. */}
+  <script>
+    import { initPracticeAreaNav } from "../scripts/pa-nav";
+    initPracticeAreaNav();
+  </script>
+</Layout>
+
+<style>
+  /* The grid lives in InteriorShell. Interior section copy runs 18px/30px
+     (AGENTS.md), matching the practice areas — these pages sit beside them in
+     the same template and should not disagree about body size. Scoped, and it
+     still reaches the div above: Astro assigns a scope hash at the authoring
+     site, not the render site. */
+  .loc__body {
+    margin-top: 40px;
+    font-size: 18px;
+    line-height: 30px;
+  }
+</style>

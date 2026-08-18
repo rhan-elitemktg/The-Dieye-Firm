@@ -1,20 +1,21 @@
 ---
 // FamilyLawNav — the practice-area menu in the sidebar.
 //
-// One state on every one of the 31 pages: all 10 top-level areas, with a "+"
+// One state on every one of the 32 pages: all 11 top-level areas, with a "+"
 // on the five that have children and an arrow on the rest. The branch you are
 // in opens by default, so the page you are on is always visible in the list
 // rather than hidden behind a "+" you have to find.
 //
 // It used to have a second state — a branch page listed only its own children
 // — because the flat list ran to 18 rows and was too tall to show everywhere.
-// Re-parenting eight areas took it to 10 rows and removed that reason, so the
+// Re-parenting eight areas took it to 11 rows and removed that reason, so the
 // menu is the same everywhere and the sidebar stops changing shape underneath
 // someone moving through the section.
 //
-// A "+" is a real button with aria-expanded, bound by src/scripts/pa-nav.ts
-// from the route — the same split Layout uses for lead-form.ts. Without JS
-// every branch renders open, so no link is ever unreachable.
+// The markup and the styling live in TreeNav now, shared with the location
+// pages' menu. What stays here is everything that is about practice areas:
+// which page is a parent, which branch to open, and that the card heads the
+// section INDEX rather than the section.
 //
 // It also renders OUTSIDE the section, on the About Us pages, whose live
 // versions carry the same cross-reference. There `current` is omitted: nothing
@@ -23,7 +24,7 @@
 // on <html> from a blocking head script, and call initPracticeAreaNav() —
 // or the branches render open and the "+" buttons do nothing.
 
-import SidebarCard from "../blog/SidebarCard.astro";
+import TreeNav from "../interior/TreeNav.astro";
 import { areaHref, branchOf, buildTree, type PracticeArea } from "./practiceAreas";
 
 interface Props {
@@ -39,239 +40,32 @@ interface Props {
 
 const { areas, current } = Astro.props;
 
-const tree = buildTree(areas);
+const rows = buildTree(areas).map(({ item: area, children }) => ({
+  id: area.id,
+  label: area.data.navLabel,
+  href: areaHref(area),
+  children: children.map((child) => ({
+    id: child.id,
+    label: child.data.navLabel,
+    href: areaHref(child),
+  })),
+}));
 
 /* The branch to open: this page if it is a parent, its parent if it is a
    child, and nothing if it is a childless top-level area — or if there is no
    current page at all. */
-const openBranch = current ? branchOf(current) : undefined;
-const rowId = (area: PracticeArea) => `fl-${area.id.replace(/\//g, "-")}`;
+const openId = current ? branchOf(current) : undefined;
 ---
 
 {/* Titled and linked for the section INDEX, /practice-areas/. Not
     /family-law/ — that is one of the rows in the list below now, and a card
     titled "Family Law" containing a row called "Family Law" reads as a bug. */}
-<SidebarCard title="Practice Areas" id="fl-nav" href="/practice-areas/">
-  <ul class="fl">
-    {
-      tree.map(({ area, children }) => {
-        const hasKids = children.length > 0;
-        const isOpen = hasKids && area.id === openBranch;
-        const isCurrent = area.id === current?.id;
-
-        return (
-          <li class:list={["fl__row", { "is-expanded": isOpen }]}>
-            <div class="fl__head">
-              <a
-                class:list={["fl__link", { "is-active": isCurrent }]}
-                href={areaHref(area)}
-                aria-current={isCurrent ? "page" : undefined}
-              >
-                <span>{area.data.navLabel}</span>
-
-                {!hasKids && (
-                  <span class="fl__mark" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M5 12h13m-5-6 6 6-6 6"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </span>
-                )}
-              </a>
-
-              {hasKids && (
-                <button
-                  class="fl__toggle"
-                  type="button"
-                  data-pa-toggle
-                  aria-expanded={isOpen ? "true" : "false"}
-                  aria-controls={rowId(area)}
-                >
-                  <span class="visually-hidden">
-                    {`Show pages under ${area.data.navLabel}`}
-                  </span>
-                  <span class="fl__mark" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M12 5v14M5 12h14"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </span>
-                </button>
-              )}
-            </div>
-
-            {hasKids && (
-              <ul class="fl__kids" id={rowId(area)}>
-                {children.map((child) => (
-                  <li>
-                    <a
-                      class:list={["fl__kid", { "is-active": child.id === current?.id }]}
-                      href={areaHref(child)}
-                      aria-current={child.id === current?.id ? "page" : undefined}
-                    >
-                      {child.data.navLabel}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        );
-      })
-    }
-  </ul>
-</SidebarCard>
-
-<style>
-  .fl {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .fl__row + .fl__row {
-    border-top: 1px solid var(--bone-300);
-  }
-
-  .fl__head {
-    display: flex;
-    align-items: stretch;
-  }
-
-  .fl__link {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    min-width: 0;
-    padding: 15px 0;
-    font-family: var(--font-ui);
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 1.35;
-    color: var(--navy-700);
-    text-decoration: none;
-    transition: color var(--dur-base) var(--ease-out);
-  }
-
-  .fl__link:hover {
-    color: var(--gold-600);
-  }
-
-  /* The page you are on. Weight and colour, plus aria-current on the element
-     itself so it doesn't rest on colour alone. */
-  .fl__link.is-active {
-    color: var(--gold-600);
-    font-weight: 700;
-  }
-
-  /* Both glyphs share a box, so a "+" row and an arrow row line up exactly. */
-  .fl__mark {
-    display: flex;
-    flex: none;
-    width: 20px;
-    height: 20px;
-    color: var(--gold-500);
-    transition: color var(--dur-base) var(--ease-out);
-  }
-
-  .fl__mark svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  .fl__link:hover .fl__mark {
-    color: var(--gold-600);
-  }
-
-  /* ---- The expand control ---- */
-
-  /* A button, not a second link: it changes the state of this list rather than
-     going anywhere. Padded left so its hit area doesn't crowd the label. */
-  .fl__toggle {
-    display: flex;
-    align-items: center;
-    flex: none;
-    padding: 0 0 0 14px;
-    margin: 0;
-    background: none;
-    border: 0;
-    cursor: pointer;
-    color: var(--gold-500);
-    transition: color var(--dur-base) var(--ease-out);
-  }
-
-  .fl__toggle:hover {
-    color: var(--gold-600);
-  }
-
-  .fl__toggle .fl__mark {
-    transition:
-      transform var(--dur-base) var(--ease-out),
-      color var(--dur-base) var(--ease-out);
-  }
-
-  /* The plus turns a quarter turn into a cross when open — the same gesture
-     the homepage FAQ accordion uses. */
-  .fl__row.is-expanded .fl__toggle .fl__mark {
-    transform: rotate(45deg);
-  }
-
-  /* ---- Children ---- */
-
-  /* Hung off a hairline and indented, so the group reads as belonging to the
-     row above rather than as more siblings. */
-  .fl__kids {
-    margin: 0 0 14px;
-    padding: 2px 0 0 16px;
-    list-style: none;
-    border-left: 1px solid var(--bone-300);
-  }
-
-  /* Closed by default only when the script is there to open them again.
-     `data-pa-boot` is stamped on <html> by a blocking head script, so a closed
-     branch is never painted open first — the same trick FilterBoot uses on the
-     Blog index, and for the same reason: collapsing rows after first paint
-     reads as a bug. Without JS the attribute is absent, every branch stays
-     open, and no page in the section is unreachable. */
-  :global(html[data-pa-boot]) .fl__row:not(.is-expanded) .fl__kids {
-    display: none;
-  }
-
-  .fl__kid {
-    display: block;
-    padding: 9px 0;
-    font-family: var(--font-ui);
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.4;
-    color: var(--ink-500);
-    text-decoration: none;
-    transition: color var(--dur-base) var(--ease-out);
-  }
-
-  .fl__kid:hover {
-    color: var(--gold-600);
-  }
-
-  .fl__kid.is-active {
-    color: var(--gold-600);
-    font-weight: 700;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .fl__toggle .fl__mark {
-      transition: color var(--dur-base) var(--ease-out);
-    }
-  }
-</style>
+<TreeNav
+  title="Practice Areas"
+  cardId="fl-nav"
+  cardHref="/practice-areas/"
+  rowIdPrefix="fl"
+  rows={rows}
+  currentId={current?.id}
+  openId={openId}
+/>

@@ -24,6 +24,19 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  attr,
+  decodeEntities,
+  frontmatter,
+  inlineToMd,
+  makeCachedFetch,
+  PHONE_RE,
+  sliceElement,
+  squash,
+  stripTags,
+  toMarkdown,
+} from "./lib/html.mjs";
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = path.join(ROOT, ".blog-cache");
 const OUT_CONTENT = path.join(ROOT, "src/content/blog");
@@ -81,63 +94,9 @@ const FEATURED_SLUG = "preparing-emotionally-for-mediation";
 
 /* ---------------------------------------------------------------- fetching */
 
-async function cachedFetch(url, binary = false) {
-  const key = url.replace(ORIGIN, "").replace(/[^a-z0-9]+/gi, "_").slice(0, 180);
-  const file = path.join(CACHE, key + (binary ? ".bin" : ".html"));
-  if (!REFETCH && existsSync(file)) {
-    return binary ? readFile(file) : readFile(file, "utf8");
-  }
-  const res = await fetch(url, { headers: { "user-agent": UA } });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url}`);
-  const body = binary
-    ? Buffer.from(await res.arrayBuffer())
-    : await res.text();
-  await mkdir(CACHE, { recursive: true });
-  await writeFile(file, body);
-  return body;
-}
-
-/* ------------------------------------------------------------ html helpers */
-
-const NAMED = {
-  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
-  rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”",
-  mdash: "—", ndash: "–", hellip: "…", eacute: "é",
-  uuml: "ü", ouml: "ö", agrave: "à", ccedil: "ç",
-  deg: "°", trade: "™", reg: "®", copy: "©",
-  bull: "•", middot: "·", frac12: "½", times: "×",
-  minus: "−", prime: "′", Prime: "″",
-};
-
-function decodeEntities(s) {
-  return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
-    .replace(/&([a-z][a-z0-9]*);/gi, (m, n) => (n in NAMED ? NAMED[n] : m));
-}
-
-const stripTags = (html) => decodeEntities(html.replace(/<[^>]*>/g, ""));
-const squash = (s) => s.replace(/\s+/g, " ").trim();
-
-function attr(tag, name) {
-  const m = tag.match(new RegExp(`${name}\\s*=\\s*"([^"]*)"`, "i"));
-  return m ? decodeEntities(m[1]) : null;
-}
-
-/* Slice out an element by its opening-tag match, honouring nesting. */
-function sliceElement(html, openRe, tagName) {
-  const open = html.match(openRe);
-  if (!open) return null;
-  const start = open.index + open[0].length;
-  const re = new RegExp(`<${tagName}\\b[^>]*>|</${tagName}>`, "gi");
-  re.lastIndex = start;
-  let depth = 1, m;
-  while ((m = re.exec(html))) {
-    depth += m[0][1] === "/" ? -1 : 1;
-    if (depth === 0) return html.slice(start, m.index);
-  }
-  return null;
-}
+/* No delay between live fetches: the archive is 16 posts and their artwork,
+   a fraction of what the other two scrapers pull. */
+const cachedFetch = makeCachedFetch({ cacheDir: CACHE, origin: ORIGIN, refetch: REFETCH, ua: UA });
 
 /* ------------------------------------------------------------- extraction */
 
@@ -280,8 +239,6 @@ function rewriteLinks(html, report) {
   });
 }
 
-const PHONE_RE = /\(?\d{3}\)?[\s.-]?\d{3}[-.\s]?\d{4}/;
-
 /* Nearly every post closes with a firm-plug paragraph carrying a phone number
    or a contact link. We drop those so the number can never go stale — it
    renders from the firmDetails singleton instead. Only trailing paragraphs and
@@ -329,59 +286,6 @@ function stripCtas(html, report) {
   return out;
 }
 
-/* ----------------------------------------------------- html -> markdown */
-
-function inlineToMd(html) {
-  let s = html;
-  s = s.replace(/<br\s*\/?>/gi, "\n");
-  s = s.replace(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, txt) => {
-    const label = squash(stripTags(txt));
-    if (!label) return "";
-    if (href === "__UNWRAP__") return label; // dead target: keep the words only
-    return `[${label}](${decodeEntities(href)})`;
-  });
-  s = s.replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, __, t) => {
-    const inner = squash(stripTags(t));
-    return inner ? `**${inner}**` : "";
-  });
-  s = s.replace(/<(em|i)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, __, t) => {
-    const inner = squash(stripTags(t));
-    return inner ? `*${inner}*` : "";
-  });
-  s = decodeEntities(s.replace(/<[^>]*>/g, ""));
-  return squash(s);
-}
-
-function toMarkdown(html) {
-  const blocks = [];
-  const re = /<(h[2-4]|p|ul|ol)\b[^>]*>([\s\S]*?)<\/\1>/gi;
-  let m;
-  while ((m = re.exec(html))) {
-    const tag = m[1].toLowerCase();
-    const inner = m[2];
-
-    if (tag.startsWith("h")) {
-      const text = inlineToMd(inner);
-      if (text) blocks.push("#".repeat(Number(tag[1])) + " " + text);
-      continue;
-    }
-    if (tag === "p") {
-      const text = inlineToMd(inner);
-      if (text) blocks.push(text);
-      continue;
-    }
-    const items = [...inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)]
-      .map((li) => inlineToMd(li[1]))
-      .filter(Boolean);
-    if (items.length) {
-      blocks.push(
-        items.map((t, i) => (tag === "ol" ? `${i + 1}. ${t}` : `- ${t}`)).join("\n")
-      );
-    }
-  }
-  return blocks.join("\n\n");
-}
-
 /* ------------------------------------------------------------------ slugs */
 
 const STOP = new Set(["a", "an", "the", "to", "of", "in", "is", "it", "for", "and", "your", "you"]);
@@ -404,24 +308,6 @@ function slugify(title) {
   // Never end on a stopword — that is what made the old URLs look broken.
   while (out.length > 4 && STOP.has(out[out.length - 1])) out.pop();
   return out.join("-");
-}
-
-/* ------------------------------------------------------------------ yaml */
-
-const y = (v) => JSON.stringify(v); // JSON scalars are valid YAML
-
-function frontmatter(fields) {
-  const lines = [];
-  for (const [k, v] of Object.entries(fields)) {
-    if (v === null || v === undefined || (Array.isArray(v) && !v.length)) continue;
-    if (Array.isArray(v)) {
-      lines.push(`${k}:`);
-      for (const item of v) lines.push(`  - ${y(item)}`);
-    } else {
-      lines.push(`${k}: ${y(v)}`);
-    }
-  }
-  return `---\n${lines.join("\n")}\n---\n`;
 }
 
 /* ------------------------------------------------------------------- main */
