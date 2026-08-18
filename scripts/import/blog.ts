@@ -7,9 +7,9 @@
  * attach an image, and `astro:assets` can only optimise files that are already
  * in the repo at build time.
  *
- * Sanity deduplicates uploads by SHA-1, so the six posts sharing the firm's
- * generic artwork resolve to one asset. The local path -> asset id map avoids
- * six round trips to discover that.
+ * Sanity deduplicates uploads by SHA-1, so two posts naming the same file cost
+ * one asset. The local path -> asset id map avoids discovering that the slow
+ * way, one round trip at a time.
  *
  * Bodies convert through scripts/lib/md-to-pt.mjs — the same satteri parse
  * Astro renders markdown with — proved lossless against dist/ for all 80 files
@@ -89,7 +89,15 @@ async function run() {
     if (!body.length) throw new Error(`${slug} converted to an empty body`);
 
     let image;
-    if (fm.image) {
+    /* Six posts named the firm's generic artwork as their "image". That is not
+       artwork, it is the absence of it — the same file every post without a
+       photo already falls back to. Importing it would put an explicit copy of
+       the placeholder on six documents, so an editor clearing it would see no
+       change and there would be no way to tell "no photo chosen" from "the
+       photo happens to be the placeholder". Left empty, the fallback handles it
+       and the field means what it says. */
+    const isPlaceholder = typeof fm.image === "string" && fm.image.endsWith("/blog-img.jpg");
+    if (fm.image && !isPlaceholder) {
       /* Frontmatter holds a path relative to the markdown file. */
       const abs = resolve(dirname(full), fm.image);
       const assetId = await uploadImage(abs);
