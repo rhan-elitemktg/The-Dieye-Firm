@@ -18,25 +18,38 @@ dangling nav links — every Service Areas link now resolves, and so do the four
 in-copy links to `/harris-county-family-law-attorney/…` that had been 404ing
 inside shipped practice-area and blog content.
 
-**What's left, in order:**
+**What's left, in the order Rhan set on 2026-08-18:**
 
-- **Wire the lead form to an endpoint.** `/thank-you/` has been built and
-  unreachable for three sessions. This is now the only thing between the site
-  and taking a real enquiry.
-- **`/faq/` and `/video-center/`**, to fill the Resources flyout. Both are real
-  sections of the live site, and both are still in the nav pointing at 404s.
+1. **`/video-center/`** — 4 pages on the live site. Third-party embeds go behind
+   a click-to-load facade with their metadata fetched at build time, per
+   `AGENTS.md`; the office map is the last holdout of that rule, so don't add a
+   second one.
+2. **`/faq/`** — a real section of the live site with the client's own prose,
+   so the same rule that governed the other three ingests applies. Finishes the
+   Resources flyout.
+3. **`/privacy-policy/`, `/disclaimer/` and `/sitemap/`** — the three footer
+   links that still 404. `/videos/` on the homepage is a fourth and is almost
+   certainly meant to be `/video-center/`; fold that one-line fix in with (1).
+
+**Still unscheduled, and still the only thing between the site and a real
+enquiry: the lead form has no endpoint.** `lead-form.ts` cancels submission and
+confirms inline, so `/thank-you/` remains unreachable. It needs a decision about
+where leads go before it can be built.
 
 ---
 
 ## Where we are
 
-Branch `location_pages`, cut from `master` at `e71bff2` (PR #26 merged). Eight
-commits, nothing uncommitted. **Pushed to `origin/location_pages`.** Whether a
-PR is open was not checked — the `gh` CLI is not installed on this machine.
+**The location-pages work is merged.** PR #27 took `location_pages` into
+`master` — the nine commits below are all on `origin/master` now.
+
+Working directly on `master` since then, at Rhan's call rather than by
+convention: one commit on top of the merge, for the scraper regex fix and the
+client corrections note.
 
 Build passes at **89 pages** (was 57).
 
-The commits are individually revertable and each carries its own proof:
+The merged commits are individually revertable and each carries its own proof:
 
 1. `Extract the sidebar tree menu out of FamilyLawNav`
 2. `Lift the shared scraper machinery into scripts/lib/html.mjs`
@@ -46,15 +59,16 @@ The commits are individually revertable and each carries its own proof:
 6. `Move the FAQs into the shared full-width band` — **reverted by 7**
 7. `Revert "Move the FAQs into the shared full-width band"`
 8. `Record why the FAQ band was reverted`
+9. `Note the branch is pushed, and correct the commit list`
 
 **6 and 7 cancel out and were deliberately left in history** rather than reset
-away: the band is one `git revert` from coming back if the mobile ordering below
-is ever solved, and the proof work in its message is worth keeping.
+away: the band is one `git revert` from coming back if the mobile ordering
+problem in *Decisions* is ever solved, and the proof work in its message is
+worth keeping.
 
-Commits 1 and 2 are shared infrastructure with no content in them and both are
-proven no-ops. **They would make a clean separate PR against `master`**, with
-`location_pages` rebased on top — which is a better answer to the
-branch-granularity question than carrying them here.
+Commits 1 and 2 were shared infrastructure with no content in them and both
+were proven no-ops. The question of splitting them into their own PR is moot
+now — they went in with the rest.
 
 ---
 
@@ -223,6 +237,15 @@ paths no location claimed: none · all 13 copy fixes matched.
   `/family-law/divorce/` and `/about-us/choosing-a-family-law-attorney/` do the
   same. Same class as the `WhatDrivesUs` issue below; the location pages inherit
   it rather than introduce it.
+- **Scorpion's phone links carry TWO href-like attributes**, and a greedy
+  regex takes the wrong one. `<a href="tel:(832) 299-1990"
+  data-replace-href="tel:{F:Tel:Cookie:…}">` — the second is a call-tracking
+  template swapped in at runtime, and `[^>]*href="` matches the LAST one, so
+  `inlineToMd` was writing the token into the markdown. Fixed by requiring
+  whitespace before `href` and making the prefix lazy. **Nothing ever shipped
+  with it** (those blocks are stripped as CTAs) and **the live site is fine** —
+  an earlier note here claimed the token was rendering on dieyelaw.com and that
+  was wrong; it is invisible to visitors and normal Scorpion markup.
 - **`sed -E` on macOS does not support `\b`.** A normalisation using it fails
   silently and every route "differs". Cost half an hour once; don't repeat it.
 - **`zsh` does not word-split unquoted variables.** `cmd $routes` passes one
@@ -250,26 +273,17 @@ paths no location claimed: none · all 13 copy fixes matched.
 2. **`/thank-you/` says nothing about what happens next** — no response time,
    no "call us if it's urgent". The wording is a commitment on the firm's
    behalf.
-3. **Three errors are still live on dieyelaw.com** and worth telling the firm
-   so their current site gets fixed too: the "Lawyer" singular-for-plural typo
-   (eleven places across the location pages, plus the two on
-   `/about-us/choosing-a-family-law-attorney/`), **"Pasadena, CA" on a Texas
-   page**, and a raw Scorpion `{F:P:Cookie:PPCP1/…}` template token rendering
-   inside the League City mediation page's CTA.
+3. **Send the firm `docs/live-site-corrections.md`.** Two errors in their own
+   published copy, both already fixed on the new site and both still live on
+   dieyelaw.com: **"Pasadena, CA" on a Texas page**, and the "Lawyer"
+   singular-for-plural typo in **13 places** across twelve pages, three of them
+   in meta descriptions. The doc is written for the firm to act on directly —
+   every entry is their sentence with the minimum change marked.
 4. **Authored strings with no comp behind them** — page title and meta
    description on `/thank-you/`, `/testimonials/`, `/contact-us/`,
    `/about-us/choosing-a-family-law-attorney/`, and the A–Z section head on
    `/practice-areas/`.
-5. **A real client video testimonial.** The `/testimonials/` tile is wired to
-   `z79lx3x00o` — the firm's own "About Us" reel, the same id `home/About.astro`
-   plays — as a stand-in. Its poster is a stock portrait of nobody connected to
-   the firm, so the tile is deliberately **un-attributed**. Swap the id, the
-   poster and add a name together.
-6. **The two CMS-truncated reviews.** Larry's and the "Honest, Sincere" review
-   end mid-word in the firm's own CMS. Each is cut back to its last complete
-   sentence in `ReviewWall.astro`. **The tails are not recoverable from the live
-   site; ask the firm for the originals.**
-7. **26 of the 32 practice-area pages and 26 of the 32 location pages close with
+5. **26 of the 32 practice-area pages and 26 of the 32 location pages close with
    a "come talk to us" section**, on top of the sidebar form and the sitewide
    Contact section. Kept deliberately, because on the practice areas it is
    **not** a blanket strip — six end on real content that must survive:
@@ -278,24 +292,28 @@ paths no location claimed: none · all 13 copy fixes matched.
    Parental Rights Cases in Harris County Family Court · Visitation Rights for
    Unmarried Parents in Pearland. Trivial to strip later, impossible to recover
    if dropped now.
-8. **FAQ answers flatten to one paragraph.** `PracticeAreaFaqs` renders
+6. **FAQ answers flatten to one paragraph.** `PracticeAreaFaqs` renders
    `<p>{answer}</p>`, so a multi-paragraph source answer joins with a space —
    14 pages, ~37 answers, all listed in the scraper run. Fixable, but it means
    changing a component 64 routes render, so it was kept out of this branch.
-9. **The source FAQ headings are more specific than the rendered one.** Five
+7. **The source FAQ headings are more specific than the rendered one.** Five
    pages say "Frequently Asked Questions About Divorce in Harris County" and
    render the component's generic title. A `faqsHeading` field would fix it.
-10. **`modifications-enforcement` is 290 words**, the thinnest practice area and
+8. **`modifications-enforcement` is 290 words**, the thinnest practice area and
     the only one where the sidebar overhangs the article.
-11. **Key Takeaways still need attorney review before launch** —
-    `scripts/add-takeaways.mjs`.
-12. **The August blog post is categorised by us, not the client**
+9. **The August blog post is categorised by us, not the client**
     (`child-custody` via `CATEGORY_OVERRIDES`) and still has no artwork.
-13. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
+10. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
     (2025-01) and `understanding-child-custody-laws-in-pearland-texas`
     (2026-07).
-14. **Should commits 1–2 be their own PR?** They are shared infrastructure,
+11. **Should commits 1–2 be their own PR?** They are shared infrastructure,
     proven no-ops, with no content in them. See *Where we are*.
+
+**Closed at Rhan's direction on 2026-08-18**, and deliberately no longer tracked
+here: the stock-photo testimonial poster, the two CMS-truncated reviews, attorney
+review of the Key Takeaways, and confirming the "500+ Families Helped" /
+"5.0 Stars" / "17+ Years" claims. Recorded so a later session reopens them by
+decision rather than by rediscovery.
 
 ---
 
@@ -310,18 +328,12 @@ paths no location claimed: none · all 13 copy fixes matched.
 - **`/about-us/` and `/blog/` carry no JSON-LD at all.** Only `/thank-you/`'s
   absence was deliberate. `/about-us/` is now the canonical entity page for
   Papa Dieye and has no `Person`/`Attorney` markup — worth adding.
-- **`MeetPapa` advertises "500+ Families Helped" and "5.0 Stars"**, and
-  `ByTheNumbers` "17+ Years". Those are claims on the firm's behalf, sitting on
-  the page search traffic now lands on. If they came from the comp rather than
-  from Papa, confirm before launch.
 - **The `/practice-areas/` hero is 1247×741**, so it upscales about 1.5× across
   a full-bleed band at 1920. Rhan chose the image knowing this.
 - **The office map is a bare Google embed**, on `/contact-us/` and on every
   content page via the shared section. It sets third-party cookies everywhere.
   `AGENTS.md` wants embeds behind a click-to-load facade; this one predates that
   rule and is the last holdout.
-- **The testimonials video poster is a stock face.** Item 5 above, but it is on
-  the one page whose job is credibility, so it should not reach launch.
 - **No location page carries an image.** The 32 are text and chrome only. Fine
   for now — no comp exists and no artwork was supplied — but a location landing
   page with a photo of the courthouse or the city would not go amiss.

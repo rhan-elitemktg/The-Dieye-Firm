@@ -90,7 +90,14 @@ export const titleCase = (slug) =>
 export function inlineToMd(html) {
   let s = html;
   s = s.replace(/<br\s*\/?>/gi, "\n");
-  s = s.replace(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, txt) => {
+  /* `\s` before href and a LAZY prefix, both deliberate. Scorpion's CTA phone
+     links carry `data-replace-href="tel:{F:Tel:Cookie:…}"` — a call-tracking
+     template it swaps in at runtime — alongside the real `href`. A greedy
+     `[^>]*href="` matches the LAST href-like attribute in the tag, so it
+     captured the token and wrote `[(832) 299-1990](tel:{F:Tel:Cookie:…})` into
+     the markdown. Nothing ships that today because those blocks are stripped as
+     CTAs, but a surviving link with both attributes would be silently wrong. */
+  s = s.replace(/<a\b[^>]*?\shref="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_, href, txt) => {
     const label = squash(stripTags(txt));
     if (!label) return "";
     if (href === "__UNWRAP__") return label; // dead target: keep the words only
