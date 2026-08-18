@@ -30,17 +30,24 @@ inside shipped practice-area and blog content.
 
 ## Where we are
 
-Branch `location_pages`, cut from `master` at `e71bff2` (PR #26 merged). Four
+Branch `location_pages`, cut from `master` at `e71bff2` (PR #26 merged). Seven
 commits, nothing uncommitted. **Not pushed; no PR open.**
 
 Build passes at **89 pages** (was 57).
 
-The four commits are individually revertable and each carries its own proof:
+The commits are individually revertable and each carries its own proof:
 
 1. `Extract the sidebar tree menu out of FamilyLawNav`
 2. `Lift the shared scraper machinery into scripts/lib/html.mjs`
 3. `Ingest the 32 location pages` — content only, build still 57
 4. `Render the 32 location pages` — build 57 → 89
+5. `Record the new rules in AGENTS.md, rewrite HANDOFF`
+6. `Move the FAQs into the shared full-width band` — **reverted by 7**
+7. `Revert "Move the FAQs into the shared full-width band"`
+
+**6 and 7 cancel out and were deliberately left in history** rather than reset
+away: the band is one `git revert` from coming back if the mobile ordering below
+is ever solved, and the proof work in its message is worth keeping.
 
 Commits 1 and 2 are shared infrastructure with no content in them and both are
 proven no-ops. **They would make a clean separate PR against `master`**, with
@@ -125,6 +132,17 @@ collection** rather than typed out, so a future stray page needs no nav edit.
   grammatical breakage, never voice. Plenty that merely reads oddly was left
   alone. The run **throws if a declared fix stops matching**, so a client edit
   surfaces rather than the deviation lapsing.
+- **The FAQ stays a block at the foot of the article's left column, NOT a
+  full-width band below `InteriorShell`.** Tried and reverted. Full width reads
+  better on desktop, but `InteriorShell` collapses to one column at 1000px, so
+  the sidebar — and the case-evaluation form in it — stacks below the article,
+  and a band below the shell then lands *after the form*: article → form → FAQ.
+  Measured at 430: with the band the form sat at y=6.0k and the questions at
+  y=7.3k; as a block the questions come first, at y=6.0k with the form at 7.3k.
+  A page's own questions belong to reading it, before the conversion prompt.
+  **Anyone retrying this has to solve the mobile order first** — the band would
+  need to move into the shell's main column at narrow widths, or the sidebar
+  would need to reorder, and neither is free.
 - **The "come talk to us" closers were kept**, on 26 of the 32. They are `h2`
   sections rather than CTA paragraphs, which is the same call already made for
   the practice areas.
