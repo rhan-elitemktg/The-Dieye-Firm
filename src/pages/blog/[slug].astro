@@ -1,5 +1,7 @@
 ---
 import { getBlogPosts } from "../../sanity/blogPosts";
+import { getImage } from "astro:assets";
+import fallbackImg from "../../assets/images/blog/blog-img.jpg";
 import { urlFor } from "../../sanity/image";
 import ProseBody from "../../components/prose/ProseBody.astro";
 import { toPlainText } from "../../lib/portableText";
@@ -38,12 +40,31 @@ const categories = allCategories(all);
 const minutes = readingTime(toPlainText(post.body));
 
 const canonical = new URL(postHref(post), Astro.site ?? Astro.url).href;
-/* Already absolute — Sanity's CDN serves it — so unlike the old local asset
-   path this needs no resolving against the site origin. 1200x630 is the card
-   size every platform crops toward. */
-const ogImage = post.data.image
+/* The post's OWN artwork, or nothing.
+ *
+ * Kept separate from the social card below, because the two want different
+ * answers when a post has no image. BlogPosting.image is a claim about what this
+ * article depicts, and the firm's generic graphic on a post about custody law is
+ * not that — Google would rather have no image than a wrong one. */
+const articleImage = post.data.image
   ? urlFor(post.data.image).width(1200).height(630).fit("crop").auto("format").url()
   : undefined;
+
+/* The social card, at the 1200x630 every platform crops toward. A post without
+ * artwork falls back to the same placeholder its card uses in the archive: it
+ * used to emit no og:image at all, so sharing that post produced a blank card.
+ * That was the one surface the placeholder never reached, because the archive
+ * falls back inside the component and this is built in the page.
+ *
+ * A Sanity URL is already absolute; a local asset is a build path, so it needs
+ * resolving against the site origin — social scrapers don't follow relative
+ * URLs. */
+const ogImage =
+  articleImage ??
+  new URL(
+      (await getImage({ src: fallbackImg, width: 1200, height: 630, format: "jpeg" })).src,
+      Astro.site ?? Astro.url,
+    ).href;
 
 /* Built from the same values as the markup so the two can't drift — the same
    pattern Faq.astro uses for its FAQPage schema. */
@@ -56,7 +77,7 @@ const schema = {
   author: { "@type": "Organization", name: post.data.author },
   publisher: { "@type": "Organization", name: "The Dieye Firm" },
   mainEntityOfPage: canonical,
-  ...(ogImage ? { image: ogImage } : {}),
+  ...(articleImage ? { image: articleImage } : {}),
 };
 ---
 

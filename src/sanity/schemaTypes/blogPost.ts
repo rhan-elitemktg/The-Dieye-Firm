@@ -105,9 +105,34 @@ export const blogPost = defineType({
       title: "Feature on the archive",
       type: "boolean",
       description:
-        "Puts this post in the large panel at the top of /blog/. Only one post can hold it; with none set, the newest post is used. Deliberately a choice rather than just the newest — the newest post is sometimes the one without artwork, and that panel renders its image about 600px tall.",
+        "Puts this post in the large panel at the top of /blog/. Only one post can hold it — turn it off on the current one first. With none set, the newest post is used. Deliberately a choice rather than just the newest: the newest post is sometimes the one without artwork, and that panel renders its image about 600px tall.",
       initialValue: false,
       group: "content",
+      /* The archive has ONE featured panel, and splitFeatured() takes the first
+         match it finds — so a second flagged post does nothing visible, it just
+         makes which post appears depend on document order. Blocking it here is
+         what turns a silent surprise into an answerable question.
+       *
+       * An error rather than a warning: this one is safe to block on, because
+       * it stops an editor publishing one document rather than stopping the
+       * whole site rebuilding. (SEO length rules are warnings for that reason.)
+       *
+       * Both `x` and `drafts.x` are excluded. A document being edited exists as
+       * a draft, so without stripping the prefix a post would find ITSELF and
+       * refuse to be featured at all. */
+      validation: (rule) =>
+        rule.custom(async (featured, context) => {
+          if (!featured) return true;
+          const id = context.document?._id?.replace(/^drafts\./, "");
+          const client = context.getClient({ apiVersion: "2025-08-15" });
+          const other = await client.fetch<string | null>(
+            `*[_type == "blogPost" && featured == true && !(_id in [$id, "drafts." + $id])][0].title`,
+            { id: id ?? "" },
+          );
+          return other
+            ? `“${other}” is already the featured post. Turn its feature off first — the archive only has room for one.`
+            : true;
+        }),
     }),
     defineField({
       name: "image",
