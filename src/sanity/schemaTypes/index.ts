@@ -8,6 +8,8 @@ import { testimonial } from "./testimonial";
 import { practiceArea } from "./practiceArea";
 import { locationPage } from "./locationPage";
 import { blogPost } from "./blogPost";
+import { consultForm } from "./consultForm";
+import { formField } from "./formField";
 
 /* Grouped the way the Studio sidebar groups them (see src/sanity/structure.ts),
    so a new type has an obvious place to go. Anything added here that is NOT
@@ -17,6 +19,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
   firmDetails,
   homePage,
+  consultForm,
   // Documents
   practiceArea,
   locationPage,
@@ -25,6 +28,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Objects
   navLink,
   seo,
+  formField,
   // Rich text
   blockContent,
 ];

@@ -34,6 +34,12 @@ export type BlockContent = Array<{
   _key: string;
 }>;
 
+export type FormField = {
+  _type: "formField";
+  label: string;
+  placeholder?: string;
+};
+
 export type SanityImageAssetReference = {
   _ref: string;
   _type: "reference";
@@ -169,6 +175,37 @@ export type PracticeArea = {
   }>;
   legacyPath?: string;
   seo?: Seo;
+};
+
+export type ConsultForm = {
+  _id: string;
+  _type: "consultForm";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  header?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    leadLines: Array<string>;
+  };
+  details?: {
+    callLabel: string;
+    emailLabel: string;
+    addressLabel: string;
+    hoursLabel: string;
+  };
+  form?: {
+    cardTitle: string;
+    cardIntro: string;
+    firstName: FormField;
+    lastName: FormField;
+    email: FormField;
+    phone: FormField;
+    message: FormField;
+    submitLabel: string;
+    privacyNote: string;
+  };
 };
 
 export type TestimonialReference = {
@@ -359,6 +396,7 @@ export type Geopoint = {
 
 export type AllSanitySchemaTypes =
   | BlockContent
+  | FormField
   | SanityImageAssetReference
   | Seo
   | NavLink
@@ -370,6 +408,7 @@ export type AllSanitySchemaTypes =
   | LocationPage
   | PracticeAreaReference
   | PracticeArea
+  | ConsultForm
   | TestimonialReference
   | HomePage
   | Testimonial

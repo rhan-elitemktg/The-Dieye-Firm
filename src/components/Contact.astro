@@ -10,6 +10,7 @@ import iconOffice from "../assets/icons/contact-office.svg?raw";
 import iconHours from "../assets/icons/contact-hours.svg?raw";
 import street from "../assets/images/papa-old-town-portrait.jpg";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getConsultForm } from "../sanity/consultForm";
 
 interface Props {
   /* "page" is /contact-us/ itself, where this stops being the closing prompt
@@ -33,6 +34,7 @@ const { variant = "section" } = Astro.props;
 const isPage = variant === "page";
 
 const { phone, email, address, hours } = await getFirmDetails();
+const copy = await getConsultForm();
 ---
 
 <section
@@ -46,15 +48,18 @@ const { phone, email, address, hours } = await getFirmDetails();
         <header class="contact__head">
           <p class="contact__eyebrow">
             <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-            <span>Let's Talk</span>
+            <span>{copy.header.eyebrow}</span>
           </p>
+          {/* The <em> stays in THIS template. Rendering the heading through a
+              child would strip Astro's scope hash from it, and the gold italic
+              would silently stop applying on all 93 pages. */}
           <h2 class="contact__title" id="contact-title">
-            Take the <em>First Step</em>
+            {copy.header.headingLead}{" "}{copy.header.headingAccent && <em>{copy.header.headingAccent}</em>}
           </h2>
           <p class="contact__lead">
-            One conversation can bring clarity.
-            <br />
-            Reach out for a free, confidential consultation. No pressure, just answers.
+            {copy.header.leadLines.map((line, i) => (
+              <>{i > 0 && <br />}{line}</>
+            ))}
           </p>
         </header>
       )
@@ -96,21 +101,21 @@ const { phone, email, address, hours } = await getFirmDetails();
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconCall} />
             <span class="cinfo__text">
-              <span class="cinfo__label">Call us</span>
+              <span class="cinfo__label">{copy.details.callLabel}</span>
               <a class="cinfo__value cinfo__link" href={phone.href}>{phone.display}</a>
             </span>
           </li>
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconMail} />
             <span class="cinfo__text">
-              <span class="cinfo__label">Email us</span>
+              <span class="cinfo__label">{copy.details.emailLabel}</span>
               <a class="cinfo__value cinfo__link" href={email.href}>{email.display}</a>
             </span>
           </li>
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconOffice} />
             <span class="cinfo__text">
-              <span class="cinfo__label">Address</span>
+              <span class="cinfo__label">{copy.details.addressLabel}</span>
               {/* Links out like the phone and email beside it. New tab because
                   leaving the site mid-enquiry would lose anything already
                   typed into the form - `noopener` since `_blank` otherwise
@@ -129,7 +134,7 @@ const { phone, email, address, hours } = await getFirmDetails();
           <li class="cinfo__item">
             <span class="cinfo__icon" aria-hidden="true" set:html={iconHours} />
             <span class="cinfo__text">
-              <span class="cinfo__label">Business Hours</span>
+              <span class="cinfo__label">{copy.details.hoursLabel}</span>
               <span class="cinfo__value">{hours.days}:<br />{hours.time}</span>
             </span>
           </li>
@@ -154,12 +159,8 @@ const { phone, email, address, hours } = await getFirmDetails();
       </div>
 
       <div class="contact__card">
-        <h3 class="contact__card-title">Request a Free Consultation</h3>
-        <p class="contact__card-intro">
-          When you choose to work with The Dieye Firm, you are choosing to work with a
-          divorce and family law attorney who will aggressively protect your rights and
-          best interests.
-        </p>
+        <h3 class="contact__card-title">{copy.form.cardTitle}</h3>
+        <p class="contact__card-intro">{copy.form.cardIntro}</p>
 
         {/* Behaviour (phone mask, validate-and-confirm) lives in
             src/scripts/lead-form.ts, shared with the blog sidebar's
@@ -167,24 +168,24 @@ const { phone, email, address, hours } = await getFirmDetails();
         <form class="cform" data-lead-form novalidate>
           <div class="cform__row">
             <p class="cform__field">
-              <label for="c-first">First name</label>
-              <input id="c-first" name="firstName" type="text" autocomplete="given-name" placeholder="First" />
+              <label for="c-first">{copy.form.firstName.label}</label>
+              <input id="c-first" name="firstName" type="text" autocomplete="given-name" placeholder={copy.form.firstName.placeholder} />
             </p>
             <p class="cform__field">
-              <label for="c-last">Last name</label>
-              <input id="c-last" name="lastName" type="text" autocomplete="family-name" placeholder="Last" />
+              <label for="c-last">{copy.form.lastName.label}</label>
+              <input id="c-last" name="lastName" type="text" autocomplete="family-name" placeholder={copy.form.lastName.placeholder} />
             </p>
           </div>
 
           <div class="cform__row">
             <p class="cform__field">
-              <label for="c-email">Email <span class="cform__req" aria-hidden="true">*</span></label>
+              <label for="c-email">{copy.form.email.label} <span class="cform__req" aria-hidden="true">*</span></label>
               <input
                 id="c-email"
                 name="email"
                 type="email"
                 autocomplete="email"
-                placeholder="you@email.com"
+                placeholder={copy.form.email.placeholder}
                 required
                 aria-required="true"
                 pattern="[^@\s]+@[^@\s]+\.[A-Za-z]{2,}"
@@ -192,14 +193,14 @@ const { phone, email, address, hours } = await getFirmDetails();
               />
             </p>
             <p class="cform__field">
-              <label for="c-phone">Phone</label>
+              <label for="c-phone">{copy.form.phone.label}</label>
               <input
                 id="c-phone"
                 name="phone"
                 type="tel"
                 inputmode="tel"
                 autocomplete="tel"
-                placeholder="(___) ___-____"
+                placeholder={copy.form.phone.placeholder}
                 pattern="\(\d{3}\) \d{3}-\d{4}"
                 maxlength="14"
                 title="Enter a 10-digit US phone number"
@@ -209,11 +210,11 @@ const { phone, email, address, hours } = await getFirmDetails();
           </div>
 
           <p class="cform__field">
-            <label for="c-message">How can we help?</label>
-            <textarea id="c-message" name="message" rows="4" placeholder="Tell us a little about your situation..."></textarea>
+            <label for="c-message">{copy.form.message.label}</label>
+            <textarea id="c-message" name="message" rows="4" placeholder={copy.form.message.placeholder}></textarea>
           </p>
 
-          <button class="btn btn--gold cform__submit" type="submit">Submit Request</button>
+          <button class="btn btn--gold cform__submit" type="submit">{copy.form.submitLabel}</button>
         </form>
 
         <p class="contact__status" data-lead-status role="status" aria-live="polite" hidden></p>
@@ -224,7 +225,7 @@ const { phone, email, address, hours } = await getFirmDetails();
               d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z"
             />
           </svg>
-          <span>Everything you share is private and confidential.</span>
+          <span>{copy.form.privacyNote}</span>
         </p>
       </div>
     </div>
