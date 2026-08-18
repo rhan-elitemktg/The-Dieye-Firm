@@ -34,7 +34,7 @@ export const SINGLETONS = ["firmDetails", "homePage"];
 
 /* Repeatable types with a curated list below. Kept beside SINGLETONS so the
    catch-all knows what has already been placed. */
-const COLLECTIONS = ["testimonial"];
+const COLLECTIONS = ["practiceArea", "locationPage", "testimonial"];
 
 /* Everything placed explicitly. Anything NOT here falls through to the
    catch-all. */
@@ -77,6 +77,18 @@ export const structure: StructureResolver = (S, context) =>
           S.list()
             .title("Collections")
             .items([
+              /* Not drag-ordered: the sidebar menu sorts alphabetically on the
+                 short name, with parent rows first, so a manual order would have
+                 nowhere to show up. */
+              S.documentTypeListItem("practiceArea")
+                .title("Practice Areas")
+                .icon(icons.tag),
+              /* "Location Pages", not "Service Areas" — Firm Details already has
+                 a Service Areas field holding the four nav entries, and two rows
+                 with one name would be worse than a slightly longer one. */
+              S.documentTypeListItem("locationPage")
+                .title("Location Pages")
+                .icon(icons.pin),
               /* Drag-ordered: /testimonials/ renders the wall in this order, and
                  as a plain list the sequence would be one no editor could reach. */
               orderableDocumentListDeskItem({

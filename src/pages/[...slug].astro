@@ -1,5 +1,6 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getLocationPages } from "../sanity/locationPages";
+import ProseBody from "../components/prose/ProseBody.astro";
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/header/Header.astro";
 import InteriorShell from "../components/interior/InteriorShell.astro";
@@ -37,7 +38,7 @@ export async function getStaticPaths() {
     "testimonials", "thank-you", "video-center",
   ]);
 
-  const pages = await getCollection("locations");
+  const pages = await getLocationPages();
 
   for (const page of pages) {
     /* A rest param with an empty value renders at the PARENT path — which at
@@ -59,9 +60,8 @@ export async function getStaticPaths() {
 }
 
 const { page } = Astro.props;
-const { Content } = await render(page);
 
-const pages = await getCollection("locations");
+const pages = await getLocationPages();
 const root = rootOf(pages, page);
 if (!root) throw new Error(`${page.id} names location "${page.data.location}", which does not exist.`);
 
@@ -172,7 +172,7 @@ const schema =
     <InteriorHeader title={page.data.title} kicker={kicker} deck={page.data.subtitle} />
 
     <div class="prose loc__body">
-      <Content />
+      <ProseBody value={page.body} />
     </div>
 
     <PracticeAreaFaqs faqs={page.data.faqs} name="loc-faq" />

@@ -4,7 +4,8 @@
 // Nav labels/hrefs come from the live dieyelaw.com source; Family Law is a
 // curated shortlist with a "View All" link to the full family-law index.
 import { Image } from "astro:assets";
-import { getCollection } from "astro:content";
+import { getLocationPages } from "../../sanity/locationPages";
+import { getPracticeAreas } from "../../sanity/practiceAreas";
 import logoLight from "../../assets/images/logo-light.png";
 import { getFirmDetails } from "../../sanity/firmDetails";
 import { areaHref } from "../practice-areas/practiceAreas";
@@ -35,7 +36,7 @@ const FAMILY_LAW_NAV: { id: string; label?: string }[] = [
   { id: "protective-restraining-orders", label: "Protective Orders" },
 ];
 
-const practiceAreas = await getCollection("practiceAreas");
+const practiceAreas = await getPracticeAreas();
 
 const familyLawItems = FAMILY_LAW_NAV.map((entry) => {
   const area = practiceAreas.find((candidate) => candidate.id === entry.id);
@@ -56,7 +57,7 @@ const familyLawItems = FAMILY_LAW_NAV.map((entry) => {
 
    Derived from the collection rather than typed out, so the day the client
    publishes another stray page the nav follows it without an edit here. */
-const locationPages = await getCollection("locations");
+const locationPages = await getLocationPages();
 const strayLocationPaths = [
   ...new Set(
     locationPages

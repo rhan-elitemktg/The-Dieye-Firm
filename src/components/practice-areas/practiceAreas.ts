@@ -1,6 +1,6 @@
-import type { CollectionEntry } from "astro:content";
+import type { PracticeArea } from "../../sanity/practiceAreas";
 
-export type PracticeArea = CollectionEntry<"practiceAreas">;
+export type { PracticeArea };
 
 /* The section root: a real practice-area page ("Pearland Family Lawyer") that
    lives AT /family-law/ rather than under it. It is the one page whose file
@@ -9,10 +9,11 @@ export type PracticeArea = CollectionEntry<"practiceAreas">;
    describes is a different page, at /practice-areas/. */
 export const SECTION_ROOT_ID = "family-law";
 
-/* The collection id IS the route tail — "divorce", "divorce/military-divorce"
-   — because the scraper writes the files in that shape. Nothing reassembles a
-   path from parts, so a page can't end up at a URL its file doesn't describe.
-   The section root is the single documented exception. */
+/* `id` IS the route tail — "divorce", "divorce/military-divorce" — taken
+   straight from the document's slug. Nothing reassembles a path from the parent
+   chain, and it must not start: eight pages sit under a parent in the sidebar
+   while keeping a top-level URL, so a derived path would move them. The section
+   root is the single documented exception. */
 export const areaHref = (area: PracticeArea) =>
   area.id === SECTION_ROOT_ID ? "/family-law/" : `/family-law/${area.id}/`;
 

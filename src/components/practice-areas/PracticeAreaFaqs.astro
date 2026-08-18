@@ -15,8 +15,12 @@
 // The JSON-LD is generated from the same array as the markup so the two can't
 // drift — the pattern home/Faq.astro and blog/[slug].astro both already use.
 
+import type { PortableTextBlock } from "@portabletext/types";
+import ProseBody from "../prose/ProseBody.astro";
+import { toPlainText } from "../../lib/portableText";
+
 interface Props {
-  faqs: { question: string; answer: string }[];
+  faqs: { _key?: string; question: string; answer: PortableTextBlock[] }[];
   /* Scopes the exclusive-accordion group and the heading id. Only one of these
      renders per page today, but a hardcoded name would silently link two
      accordions together the day that changes. */
@@ -31,7 +35,7 @@ const schema = {
   mainEntity: faqs.map((item) => ({
     "@type": "Question",
     name: item.question,
-    acceptedAnswer: { "@type": "Answer", text: item.answer },
+    acceptedAnswer: { "@type": "Answer", text: toPlainText(item.answer) },
   })),
 };
 ---
@@ -61,7 +65,7 @@ const schema = {
                 </span>
               </summary>
               <div class="pfaq__a">
-                <p>{item.answer}</p>
+                <ProseBody value={item.answer} />
               </div>
             </details>
           </li>
@@ -153,7 +157,11 @@ const schema = {
     padding: 0 0 22px;
   }
 
-  .pfaq__a p {
+  /* :global() because the <p> is emitted by ProseBody, a CHILD component, and
+     Astro only stamps its scope hash onto elements in THIS template. Without it
+     this rule matches nothing and every FAQ answer on 46 pages loses its type
+     styling — silently, with the markup still looking correct. */
+  .pfaq__a :global(p) {
     margin: 0;
     max-width: 60em;
     font-family: var(--font-ui);

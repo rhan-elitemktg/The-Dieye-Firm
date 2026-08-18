@@ -17,7 +17,8 @@
     "typegen": "sanity schema extract --enforce-required-fields --force && sanity typegen generate",
     "scrape:blog": "node scripts/scrape-blog.mjs",
     "scrape:practice-areas": "node scripts/scrape-practice-areas.mjs",
-    "scrape:locations": "node scripts/scrape-locations.mjs"
+    "scrape:locations": "node scripts/scrape-locations.mjs",
+    "check:prose-styles": "node scripts/probe.mjs scripts/checks/prose-styles.js"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.1",

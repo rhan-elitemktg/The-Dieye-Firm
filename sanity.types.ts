@@ -62,6 +62,71 @@ export type NavLink = {
   href: string;
 };
 
+export type LocationPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "locationPage";
+};
+
+export type LocationPage = {
+  _id: string;
+  _type: "locationPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  navLabel: string;
+  slug: Slug;
+  location: LocationPageReference;
+  parent?: LocationPageReference;
+  subtitle?: string;
+  body: BlockContent;
+  faqs?: Array<{
+    question: string;
+    answer: BlockContent;
+    _type: "faq";
+    _key: string;
+  }>;
+  legacyPath?: string;
+  seo?: Seo;
+};
+
+export type Slug = {
+  _type: "slug";
+  current: string;
+  source?: string;
+};
+
+export type PracticeAreaReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "practiceArea";
+};
+
+export type PracticeArea = {
+  _id: string;
+  _type: "practiceArea";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  navLabel: string;
+  slug: Slug;
+  parent?: PracticeAreaReference;
+  subtitle?: string;
+  body: BlockContent;
+  faqs?: Array<{
+    question: string;
+    answer: BlockContent;
+    _type: "faq";
+    _key: string;
+  }>;
+  legacyPath?: string;
+  seo?: Seo;
+};
+
 export type TestimonialReference = {
   _ref: string;
   _type: "reference";
@@ -264,17 +329,16 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type Slug = {
-  _type: "slug";
-  current: string;
-  source?: string;
-};
-
 export type AllSanitySchemaTypes =
   | BlockContent
   | SanityImageAssetReference
   | Seo
   | NavLink
+  | LocationPageReference
+  | LocationPage
+  | Slug
+  | PracticeAreaReference
+  | PracticeArea
   | TestimonialReference
   | HomePage
   | SanityImageCrop
@@ -288,8 +352,7 @@ export type AllSanitySchemaTypes =
   | SanityFileAsset
   | SanityAssetSourceData
   | SanityImageAsset
-  | Geopoint
-  | Slug;
+  | Geopoint;
 
 // Source: src/sanity/firmDetails.ts
 // Variable: FIRM_DETAILS_QUERY
@@ -350,6 +413,59 @@ export type FIRM_DETAILS_QUERY_RESULT =
     }
   | null;
 
+// Source: src/sanity/locationPages.ts
+// Variable: LOCATION_PAGES_ALL_QUERY
+// Query: *[_type == "locationPage"]{    "id": slug.current,    "data": {      title,      navLabel,      subtitle,      "parent": parent->slug.current,      "location": location->slug.current,      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "faqs": coalesce(faqs[]{ _key, question, answer }, [])    },    body,    "noIndex": seo.noIndex,    "canonicalUrl": seo.canonicalUrl,    _updatedAt  }
+export type LOCATION_PAGES_ALL_QUERY_RESULT = Array<{
+  id: string;
+  data: {
+    title: string;
+    navLabel: string;
+    subtitle: string | null;
+    parent: string | null;
+    location: string;
+    description: string | null;
+    seoTitle: string | null;
+    faqs:
+      | Array<{
+          _key: string;
+          question: string;
+          answer: BlockContent;
+        }>
+      | Array<never>;
+  };
+  body: BlockContent;
+  noIndex: boolean | null;
+  canonicalUrl: string | null;
+  _updatedAt: string;
+}>;
+
+// Source: src/sanity/practiceAreas.ts
+// Variable: PRACTICE_AREAS_ALL_QUERY
+// Query: *[_type == "practiceArea"]{    "id": slug.current,    "data": {      title,      navLabel,      subtitle,      "parent": parent->slug.current,      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "faqs": coalesce(faqs[]{ _key, question, answer }, [])    },    body,    "noIndex": seo.noIndex,    "canonicalUrl": seo.canonicalUrl,    _updatedAt  }
+export type PRACTICE_AREAS_ALL_QUERY_RESULT = Array<{
+  id: string;
+  data: {
+    title: string;
+    navLabel: string;
+    subtitle: string | null;
+    parent: string | null;
+    description: string | null;
+    seoTitle: string | null;
+    faqs:
+      | Array<{
+          _key: string;
+          question: string;
+          answer: BlockContent;
+        }>
+      | Array<never>;
+  };
+  body: BlockContent;
+  noIndex: boolean | null;
+  canonicalUrl: string | null;
+  _updatedAt: string;
+}>;
+
 // Source: src/sanity/testimonials.ts
 // Variable: TESTIMONIALS_ALL_QUERY
 // Query: *[_type == "testimonial"] | order(orderRank) {    _id, lead, body, name, matter  }
@@ -392,6 +508,8 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
+    '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
+    '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
     '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
     '\n  *[_id == "homePage"][0]{\n    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },\n    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_HOME_QUERY_RESULT;
   }

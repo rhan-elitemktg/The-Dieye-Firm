@@ -18,6 +18,8 @@
 // The interior template, exactly as /privacy-policy/ uses it (Rhan's call).
 
 import { getCollection } from "astro:content";
+import { getLocationPages } from "../sanity/locationPages";
+import { getPracticeAreas } from "../sanity/practiceAreas";
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/header/Header.astro";
 import InteriorShell from "../components/interior/InteriorShell.astro";
@@ -53,13 +55,13 @@ const mainPages = [
 
 /* --- Practice areas: the same 11 branches the sidebar menu shows, in the same
        order, because both go through buildTree/byLabel. --- */
-const areas = await getCollection("practiceAreas");
+const areas = await getPracticeAreas();
 const areaTree = buildTree(areas);
 
 /* --- Locations: grouped under their four roots, in firmDetails' own order so
        the sitemap agrees with the Service Areas flyout rather than with
        alphabetical chance. --- */
-const locationPages = await getCollection("locations");
+const locationPages = await getLocationPages();
 const locationGroups = firm.serviceAreas.map((area) => {
   /* firmDetails stores the root's href ("/sugar-land-family-law-attorney/");
      the collection is keyed on the bare id. */

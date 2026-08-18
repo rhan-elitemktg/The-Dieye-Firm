@@ -1,0 +1,23 @@
+---
+/* Heading blocks, carrying the id Astro's markdown renderer would have given
+   them. See ./headingIds.ts for why — the short version is that all 553
+   headings on the ingested pages currently render an id, and astro-portabletext
+   emits none.
+
+   `_headingId` is stamped onto the block by withHeadingIds() before the array
+   reaches <PortableText>. If it is missing the heading still renders, just
+   without an id — a page that forgot the wrapper degrades rather than breaks. */
+import type { WithHeadingId } from "./headingIds";
+
+interface Props {
+  node: WithHeadingId;
+  index?: number;
+  isInline?: boolean;
+}
+
+const { node, index, isInline, ...attrs } = Astro.props;
+const Tag = (node.style ?? "h2") as "h2" | "h3" | "h4";
+const id = node._headingId;
+---
+
+<Tag {...attrs} id={id}><slot /></Tag>

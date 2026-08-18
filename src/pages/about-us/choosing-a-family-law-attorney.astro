@@ -38,7 +38,7 @@
 // Attorney" without it. That disagreement is the client's, and it is the same
 // title/navLabel split every practice-area page already carries.
 
-import { getCollection } from "astro:content";
+import { getPracticeAreas } from "../../sanity/practiceAreas";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import InteriorShell from "../../components/interior/InteriorShell.astro";
@@ -51,7 +51,7 @@ import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
    from their slugs ("Qdros", "Mediation Vs Litigation") — and FamilyLawNav is
    that list done properly: the 11 top-level areas on the client's own
    navLabels, children behind a "+". No `current` is passed; see AboutSidebar. */
-const areas = await getCollection("practiceAreas");
+const areas = await getPracticeAreas();
 
 const canonical = new URL(
   "/about-us/choosing-a-family-law-attorney/",
