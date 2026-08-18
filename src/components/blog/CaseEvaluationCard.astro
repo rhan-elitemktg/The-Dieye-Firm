@@ -12,19 +12,21 @@
 // script of its own — a hoisted module tag would land as a stray element
 // between the sidebar cards.
 
+import { getCaseEvaluationForm } from "../../sanity/siteWide";
+
 interface Props {
   idPrefix?: string;
 }
 
 const { idPrefix = "ce" } = Astro.props;
 const id = (name: string) => `${idPrefix}-${name}`;
+
+const copy = await getCaseEvaluationForm();
 ---
 
 <section class="ce" aria-labelledby={id("title")}>
-  <h2 class="ce__title" id={id("title")}>Get a Case Evaluation</h2>
-  <p class="ce__intro">
-    Tell us a little about your situation and Papa will personally review your request.
-  </p>
+  <h2 class="ce__title" id={id("title")}>{copy.heading}</h2>
+  <p class="ce__intro">{copy.intro}</p>
 
   <form class="ce__form" data-lead-form novalidate>
     <p class="ce__field">
@@ -77,12 +79,12 @@ const id = (name: string) => `${idPrefix}-${name}`;
         placeholder="Briefly describe your situation"></textarea>
     </p>
 
-    <button class="btn btn--gold ce__submit" type="submit">Request Consultation</button>
+    <button class="btn btn--gold ce__submit" type="submit">{copy.submitLabel}</button>
   </form>
 
   <p class="ce__status" data-lead-status role="status" aria-live="polite" hidden></p>
 
-  <p class="ce__note">Confidential &amp; Privileged</p>
+  <p class="ce__note">{copy.privacyNote}</p>
 </section>
 
 <style>

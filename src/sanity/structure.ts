@@ -30,11 +30,11 @@ import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
    what makes a type a singleton — Sanity has no schema option for it. This list
    also drives the "＋ Create" filter in sanity.config.ts, so none can be
    duplicated into an orphan the sidebar can't reach. */
-export const SINGLETONS = ["firmDetails", "homePage", "consultForm"];
+export const SINGLETONS = ["firmDetails", "homePage", "consultForm", "caseEvaluationForm"];
 
 /* Repeatable types with a curated list below. Kept beside SINGLETONS so the
    catch-all knows what has already been placed. */
-const COLLECTIONS = ["blogPost", "practiceArea", "locationPage", "testimonial"];
+const COLLECTIONS = ["attorney", "blogPost", "practiceArea", "locationPage", "testimonial"];
 
 /* Everything placed explicitly. Anything NOT here falls through to the
    catch-all. */
@@ -77,6 +77,7 @@ export const structure: StructureResolver = (S, context) =>
           S.list()
             .title("Collections")
             .items([
+              S.documentTypeListItem("attorney").title("Attorneys").icon(icons.user),
               /* Ordered by date, newest first — the archive orders itself, so a
                  drag handle would set an order nothing reads. */
               S.documentTypeListItem("blogPost")
@@ -119,6 +120,7 @@ export const structure: StructureResolver = (S, context) =>
               /* Site-wide sections live here rather than under Pages: they are
                  not a page, they are something every page ends with. */
               page(S, "consultForm", "Consultation Section", icons.envelope),
+              page(S, "caseEvaluationForm", "Sidebar Enquiry Card", icons.case),
               /* Global SEO Settings lands here as a FOLDER when the SEO layer
                  does — sitewide defaults alongside the editor-managed redirect
                  list. Reserved as a folder from the start because adding one

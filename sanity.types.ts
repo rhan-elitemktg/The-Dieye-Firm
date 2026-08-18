@@ -171,6 +171,40 @@ export type PracticeArea = {
   seo?: Seo;
 };
 
+export type Attorney = {
+  _id: string;
+  _type: "attorney";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  role: string;
+  photo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
+  rating?: {
+    score?: string;
+    caption?: string;
+  };
+};
+
+export type CaseEvaluationForm = {
+  _id: string;
+  _type: "caseEvaluationForm";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  heading: string;
+  intro: string;
+  submitLabel: string;
+  privacyNote: string;
+};
+
 export type ConsultForm = {
   _id: string;
   _type: "consultForm";
@@ -390,6 +424,8 @@ export type AllSanitySchemaTypes =
   | LocationPage
   | PracticeAreaReference
   | PracticeArea
+  | Attorney
+  | CaseEvaluationForm
   | ConsultForm
   | TestimonialReference
   | HomePage
