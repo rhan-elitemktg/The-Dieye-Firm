@@ -25,7 +25,8 @@ import { UserIcon } from "@sanity/icons/User";
  *
  * Consumers, so this stays checkable:
  *   name   -> AuthorCard (85 pages)
- *   role   -> AuthorCard (85 pages)
+ *   role   -> AuthorCard (85 pages), About + FeaturedAttorney (homepage),
+ *             MeetPapa + FirmPromise (/about-us/)
  *   photo  -> AuthorCard, MeetPapa (/about-us/), GuideRequest (homepage)
  *
  * The photo carries NO alt field. It is the same man in all three places and
@@ -38,14 +39,19 @@ import { UserIcon } from "@sanity/icons/User";
  * The site described him as "Founding Attorney" on 2 pages and "Principal &
  * Founder" on 85 — the marketing pages and the article byline had drifted
  * apart, each hardcoded where it was used. Rhan's call, 2026-08-18: it is
- * "Founding Attorney" everywhere. The byline changes on 85 pages as a result,
+ * "Founding Attorney" everywhere. The byline changed on 85 pages as a result,
  * which is the point of asking rather than preserving both.
  *
- * ═══ The rating is a factual claim with a shelf life ═══
+ * The drift is only actually closed if every surface reads this field, so all
+ * five do. The four marketing spots were hardcoded for one commit longer than
+ * the byline, which meant retitling him in the Studio would have moved 85 pages
+ * and left the homepage and /about-us/ behind — the same disagreement, rebuilt
+ * with a CMS behind half of it.
  *
- * "5.0" and "Over 150 five-star Google reviews" are numbers that go stale and
- * that a law firm should not overstate. They are fields so the firm can keep
- * them true without a deploy, and the descriptions say so.
+ * Two places still say it in their own words, deliberately: the three
+ * /about-us/ meta descriptions, which are page copy and belong to that page's
+ * record, and one sentence of the client's published prose on
+ * /family-law/divorce/uncontested-divorce/, which is not ours to template.
  */
 export const attorney = defineType({
   name: "attorney",

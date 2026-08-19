@@ -110,7 +110,7 @@ const attorney = await getAttorney();
         <Eyebrow>Meet the Attorney</Eyebrow>
 
         <h2 class="meet__name" id="meet-title">Papa Dieye</h2>
-        <p class="meet__role">Founding Attorney</p>
+        <p class="meet__role">{attorney.role}</p>
 
         <ul class="meet__chips">
           {chips.map((chip) => (

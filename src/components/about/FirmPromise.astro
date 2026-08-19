@@ -4,6 +4,11 @@
 
 import { Image } from "astro:assets";
 import waterTower from "../../assets/images/papa-water-tower.jpg";
+import { getAttorney } from "../../sanity/siteWide";
+
+/* Title only — the name stays literal here, as it is part of the attribution
+   line rather than a field the firm would retitle. */
+const attorney = await getAttorney();
 ---
 
 <section class="promise">
@@ -28,7 +33,7 @@ import waterTower from "../../assets/images/papa-water-tower.jpg";
       I tell every client the same thing on day one: my job is to protect your
       family, and to make sure you <em>never feel alone</em> in this process.
     </blockquote>
-    <figcaption class="promise__attr">Papa Dieye &middot; Founding Attorney</figcaption>
+    <figcaption class="promise__attr">Papa Dieye &middot; {attorney.role}</figcaption>
   </figure>
 </section>
 

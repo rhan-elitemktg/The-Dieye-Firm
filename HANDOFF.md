@@ -13,7 +13,7 @@ _Last rewritten: 2026-08-19, on the `sanity_setup` branch._
 ## Start here
 
 **The Sanity content-modelling pass is underway.** Phases 0–4b of eight are
-committed on `sanity_setup`, 13 commits, working tree clean, build green at 95
+committed on `sanity_setup`, 14 commits, working tree clean, build green at 95
 pages. Every one of the 80 pages of ingested client prose now renders from
 Sanity, plus the reviews, the consultation section, the sidebar enquiry card and
 the attorney.
@@ -103,7 +103,11 @@ filtered out of the global ＋Create menu.
 - **3 `blogPost`.** 16 posts, artwork uploaded to Sanity.
 - **4a `consultForm`.** The consultation section, on 93 of 95 pages.
 - **4b `caseEvaluationForm` + `attorney`.** The sidebar card on 85 pages, and
-  Papa's record.
+  Papa's record. His **Title** ("Founding Attorney") drives all five components
+  that show it — the article byline plus the four marketing spots on the
+  homepage and `/about-us/` — so retitling him in the Studio moves every one.
+  His **name** is still literal in three of those four, deliberately: the
+  question was asked and scoped to the title.
 
 ## What is left
 
@@ -123,11 +127,17 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
 
 ## Decisions made — don't relitigate
 
-- **A field that nothing reads must not exist.** The `attorney` type shipped
-  with a `photo` and a `rating` that no component consumed: an editor could
-  upload a headshot, publish, and watch the site not change. That looks like a
-  broken CMS and the only way to learn otherwise is to read the code. The type's
-  header now lists every field against its consumers so the rule stays checkable.
+- **A field that nothing reads must not exist — and a field that exists must
+  reach every surface that shows it.** The `attorney` type shipped with a `photo`
+  and a `rating` that no component consumed: an editor could upload a headshot,
+  publish, and watch the site not change. That looks like a broken CMS and the
+  only way to learn otherwise is to read the code. The second half of the rule
+  is the one that bit later: `role` was modelled and wired to the byline while
+  four marketing spots kept their own hardcoded copy, so a retitle would have
+  moved 85 pages and left the homepage and `/about-us/` disagreeing — the exact
+  drift the field was added to end, rebuilt with a CMS behind half of it. The
+  type's header lists every field against its consumers so both halves stay
+  checkable.
 - **The line between editable and chrome.** Editable is what a reader perceives
   as the firm's voice — headings, leads, body copy, pull-quotes, CTA labels,
   stat figures, alt text carrying factual claims. Chrome stays in code: `Read
@@ -156,7 +166,15 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   link text is already the headline.
 - **Papa is "Founding Attorney" everywhere.** The site said that on 2 pages and
   "Principal & Founder" on 85. Resolved at Rhan's direction 2026-08-18; the
-  byline changed on 85 pages.
+  byline changed on 85 pages, and the four marketing spots were wired to the
+  same field on 2026-08-19.
+- **The Google rating is deliberately NOT editable.** "5.0" and "Over 150
+  five-star Google reviews" render on one page and are hardcoded in `MeetPapa`.
+  They were modelled as fields for one commit and removed at Rhan's direction:
+  a collapsed object holding two strings was more Studio furniture than it was
+  worth. The reasoning lives in commit `bd0cf9b` and nowhere else — the schema
+  header is a record of fields, and this is not one — so someone modelling that
+  page may well propose adding it back.
 - **`attorney` is a singleton.** Built as a collection first, which gave an
   editor a one-row list and a ＋ that could spawn a second Papa nobody would see.
   If the firm hires, it becomes a collection again — with the real question that
