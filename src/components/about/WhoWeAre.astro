@@ -3,33 +3,24 @@
 // title holds the left column, the copy and CTA the right.
 
 import Eyebrow from "../Eyebrow.astro";
+import { getAboutPage, tail } from "../../sanity/aboutPage";
+
+const copy = (await getAboutPage()).whoWeAre;
 ---
 
 <section class="who section" aria-labelledby="who-title">
   <div class="container who__grid">
     <header class="who__head">
-      <Eyebrow>Who We Are</Eyebrow>
+      <Eyebrow>{copy.eyebrow}</Eyebrow>
       <h2 class="who__title" id="who-title">
-        Not just a family lawyer, <em>a steady hand for your family.</em>
+        {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}
       </h2>
     </header>
 
     <div class="who__body">
-      <p>
-        When your family is going through a divorce, a custody dispute, or a
-        sudden change in circumstances, it can feel like the ground has shifted
-        beneath you. At The Dieye Firm, we understand that behind every case
-        file is a parent worried about their children and a family simply
-        trying to find a way forward.
-      </p>
-      <p>
-        Our approach is people-first: we listen before we advise, we explain
-        the law in plain language, and we never lose sight of the human beings
-        at the center of every matter. You are not a number here. You are a
-        neighbor, and your family's well-being is the measure of our work.
-      </p>
+      {copy.paragraphs.map((text) => <p>{text}</p>)}
 
-      <a class="btn btn--gold who__cta" href="/practice-areas/">Our Practice Areas</a>
+      <a class="btn btn--gold who__cta" href="/practice-areas/">{copy.ctaLabel}</a>
     </div>
   </div>
 </section>

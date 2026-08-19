@@ -29,10 +29,17 @@ const TESTIMONIALS_ALL_QUERY = defineQuery(`
   }
 `);
 
-const TESTIMONIALS_HOME_QUERY = defineQuery(`
-  *[_id == "homePage"][0]{
-    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },
-    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }
+/* Two selections that USED to be one query. They were split when the Success
+   Stories band moved out of `homePage` and into its own record: the band shows
+   on /about-us/ as well, and the pull quote does not. */
+const TESTIMONIALS_PULL_QUOTE_QUERY = defineQuery(`
+  *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }
+`);
+
+const TESTIMONIALS_BAND_QUERY = defineQuery(`
+  *[_id == "testimonialsBand"][0]{
+    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,
+    "picks": picks[]->{ _id, lead, body, name, matter }
   }
 `);
 
@@ -52,7 +59,8 @@ export type Testimonial = {
    would otherwise serve the reviews it fetched at boot for the life of the
    process, with every symptom pointing at the edit having failed. */
 let allCache: Promise<Testimonial[]> | undefined;
-let homeCache: Promise<HomeTestimonials> | undefined;
+let pullQuoteCache: Promise<Testimonial> | undefined;
+let bandCache: Promise<TestimonialsBand> | undefined;
 
 async function fetchAll(): Promise<Testimonial[]> {
   const rows = await sanityClient.fetch(TESTIMONIALS_ALL_QUERY);
@@ -72,34 +80,56 @@ export function getTestimonials(): Promise<Testimonial[]> {
   return allCache;
 }
 
-export type HomeTestimonials = {
-  pullQuote: Testimonial;
+export type TestimonialsBand = {
+  eyebrow: string;
+  headingLead: string;
+  headingAccent?: string;
+  lead: string;
+  cardKicker: string;
+  ctaLabel: string;
   picks: Testimonial[];
 };
 
-async function fetchHome(): Promise<HomeTestimonials> {
-  const doc = await sanityClient.fetch(TESTIMONIALS_HOME_QUERY);
-  /* Fail loudly rather than rendering a band with no cards or an empty
-     blockquote. Both are on the homepage, so a silent miss is the single most
-     visible thing that could go wrong on the site. */
-  if (!doc?.pullQuote) {
+async function fetchPullQuote(): Promise<Testimonial> {
+  const doc = await sanityClient.fetch(TESTIMONIALS_PULL_QUOTE_QUERY);
+  /* Fail loudly rather than rendering an empty blockquote on the homepage,
+     which is the single most visible thing that could go wrong on the site. */
+  if (!doc) {
     throw new Error(
       "homePage.about.pullQuote is not set — the homepage About section has no review to quote. " +
         "Set it in the Studio under Pages → Home Page → About section.",
     );
   }
-  if (doc.picks?.length !== 6) {
-    throw new Error(
-      `homePage.testimonials.picks has ${doc.picks?.length ?? 0} reviews, expected 6. ` +
-        "Set them in the Studio under Pages → Home Page → Success Stories.",
-    );
-  }
-  return doc as HomeTestimonials;
+  return doc as Testimonial;
 }
 
-/** The homepage's two curated selections, in one round trip. */
-export function getHomeTestimonials(): Promise<HomeTestimonials> {
-  if (!import.meta.env.PROD) return fetchHome();
-  homeCache ??= fetchHome();
-  return homeCache;
+/** The review quoted beside the homepage's video. */
+export function getAboutPullQuote(): Promise<Testimonial> {
+  if (!import.meta.env.PROD) return fetchPullQuote();
+  pullQuoteCache ??= fetchPullQuote();
+  return pullQuoteCache;
+}
+
+async function fetchBand(): Promise<TestimonialsBand> {
+  const doc = await sanityClient.fetch(TESTIMONIALS_BAND_QUERY);
+  if (!doc?.eyebrow) {
+    throw new Error(
+      "The testimonialsBand document is missing. Import it with:\n" +
+        "  npx sanity exec scripts/import/testimonials-band.ts --with-user-token",
+    );
+  }
+  if (doc.picks?.length !== 6) {
+    throw new Error(
+      `testimonialsBand.picks has ${doc.picks?.length ?? 0} reviews, expected 6. ` +
+        "Set them in the Studio under Site Settings → Success Stories Band.",
+    );
+  }
+  return doc as TestimonialsBand;
+}
+
+/** The Success Stories band — its copy and its six reviews. On 2 pages. */
+export function getTestimonialsBand(): Promise<TestimonialsBand> {
+  if (!import.meta.env.PROD) return fetchBand();
+  bandCache ??= fetchBand();
+  return bandCache;
 }

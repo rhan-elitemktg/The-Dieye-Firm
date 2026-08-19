@@ -4,14 +4,17 @@
 
 import { Image } from "astro:assets";
 import Eyebrow from "../Eyebrow.astro";
+import { getAboutPage, tail } from "../../sanity/aboutPage";
+
+const copy = (await getAboutPage()).whyFamilyLaw;
 import portrait from "../../assets/images/papa-portico-portrait.jpg";
 ---
 
 <section class="why section" aria-labelledby="why-title">
   <div class="container">
     <header class="why__head">
-      <Eyebrow>Why Family Law</Eyebrow>
-      <h2 class="why__title" id="why-title">Why Papa chose <em>family law.</em></h2>
+      <Eyebrow>{copy.eyebrow}</Eyebrow>
+      <h2 class="why__title" id="why-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}</h2>
     </header>
 
     <div class="why__grid">
@@ -29,26 +32,7 @@ import portrait from "../../assets/images/papa-portico-portrait.jpg";
       </div>
 
       <div class="why__body">
-        <p>
-          Family law is the one area of practice where the stakes are never
-          abstract. The outcome of a case decides where children sleep at
-          night, how parents share holidays, and whether a family can move
-          forward with dignity. For Papa, that weight is exactly the point. It
-          is work worth doing well.
-        </p>
-        <p>
-          He built his practice in the heart of the Houston area, rooted in Old
-          Town Pearland, because he wanted to serve the neighbors he lives
-          alongside. Over the years, that has meant guiding families through
-          divorce, custody, child support, property division, and the
-          modifications that come as life keeps changing.
-        </p>
-        <p>
-          Through all of it, one principle has never wavered: meet people with
-          empathy first, because this is their life, not just a case. It is a
-          standard he holds himself to on every matter, from the most amicable
-          agreement to the most difficult trial.
-        </p>
+        {copy.paragraphs.map((text) => <p>{text}</p>)}
       </div>
     </div>
   </div>

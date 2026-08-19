@@ -7,6 +7,7 @@ import heroWideSrc from "../../assets/images/papa-hero-b.jpg";
 import heroTallSrc from "../../assets/images/papa-hero-tan.jpg";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import { getFirmDetails } from "../../sanity/firmDetails";
+import { getHomePage } from "../../sanity/homePage";
 
 const { phone } = await getFirmDetails();
 
@@ -18,11 +19,7 @@ const heroWideJpg = await getImage({ src: heroWideSrc, format: "jpeg", widths: [
 const heroTallWebp = await getImage({ src: heroTallSrc, format: "webp", widths: [430, 660, 824] });
 const heroTallJpg = await getImage({ src: heroTallSrc, format: "jpeg", widths: [430, 660, 824] });
 
-const stats = [
-  { value: "17+", label: "Years of Experience" },
-  { value: "500+", label: "Families Helped" },
-  { value: "Countless", label: "Success Stories" },
-];
+const copy = (await getHomePage()).hero;
 ---
 
 <section class="hero">
@@ -64,22 +61,22 @@ const stats = [
     <div class="hero__content">
       <p class="hero__eyebrow">
         <Image src={birdGold} alt="" width={70} format="webp" loading="eager" />
-        <span>Pearland &amp; Houston Family Law</span>
+        <span>{copy.eyebrow}</span>
       </p>
 
+      {/* The <em> stays in THIS template: through a renderer it would lose the
+          scope hash and the gold italic would silently go plain. The accent is
+          appended to the last line, so the break falls where the copy says. */}
       <h1 class="hero__title">
-        When family life<br />
-        changes, <em>we're with you.</em>
+        {copy.headingLines.map((line, i) => (
+          <>{i > 0 && <br />}{line}{i === copy.headingLines.length - 1 && copy.headingAccent && <>{" "}<em>{copy.headingAccent}</em></>}</>
+        ))}
       </h1>
 
-      <p class="hero__lead">
-        Compassionate, steady guidance through divorce, custody, and the moments
-        that matter most, from an attorney who treats you like a neighbor, not a
-        case number.
-      </p>
+      <p class="hero__lead">{copy.lead}</p>
 
       <div class="hero__actions">
-        <a class="btn btn--gold" href="/contact-us/">Get in Touch</a>
+        <a class="btn btn--gold" href="/contact-us/">{copy.ctaLabel}</a>
         <a class="btn btn--ghost" href={phone.href}>
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path
@@ -91,7 +88,7 @@ const stats = [
       </div>
 
       <ul class="hero__stats">
-        {stats.map((stat) => (
+        {copy.stats.map((stat) => (
           <li>
             <span class="hero__stat-value">{stat.value}</span>
             <span class="hero__stat-label">{stat.label}</span>

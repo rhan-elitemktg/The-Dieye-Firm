@@ -33,11 +33,13 @@ import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
 export const SINGLETONS = [
   "firmDetails",
   "homePage",
+  "aboutPage",
   "consultForm",
   "caseEvaluationForm",
   "attorney",
   "whatDrivesUs",
   "awardsBand",
+  "testimonialsBand",
 ];
 
 /* Repeatable types with a curated list below. Kept beside SINGLETONS so the
@@ -72,7 +74,10 @@ export const structure: StructureResolver = (S, context) =>
         .child(
           S.list()
             .title("Pages")
-            .items([page(S, "homePage", "Home Page", icons.home)]),
+            .items([
+              page(S, "homePage", "Home Page", icons.home),
+              page(S, "aboutPage", "About Page", icons.users),
+            ]),
         ),
 
       // ── Collections ─────────────────────────────────────────────────────────
@@ -160,6 +165,7 @@ export const structure: StructureResolver = (S, context) =>
               page(S, "caseEvaluationForm", "Sidebar Enquiry Card", icons.case),
               page(S, "whatDrivesUs", "What Drives Us Band", icons.heart),
               page(S, "awardsBand", "Awards Band", icons.diamond),
+              page(S, "testimonialsBand", "Success Stories Band", icons.blockquote),
               /* Global SEO Settings lands here as a FOLDER when the SEO layer
                  does — sitewide defaults alongside the editor-managed redirect
                  list. Reserved as a folder from the start because adding one

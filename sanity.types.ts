@@ -248,6 +248,32 @@ export type Attorney = {
   };
 };
 
+export type TestimonialReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "testimonial";
+};
+
+export type TestimonialsBand = {
+  _id: string;
+  _type: "testimonialsBand";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  eyebrow: string;
+  headingLead: string;
+  headingAccent?: string;
+  lead: string;
+  cardKicker: string;
+  picks: Array<
+    {
+      _key: string;
+    } & TestimonialReference
+  >;
+  ctaLabel: string;
+};
+
 export type AwardsBand = {
   _id: string;
   _type: "awardsBand";
@@ -307,11 +333,67 @@ export type ConsultForm = {
   };
 };
 
-export type TestimonialReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "testimonial";
+export type AboutPage = {
+  _id: string;
+  _type: "aboutPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  hero?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+    lead: string;
+    ctaLabel: string;
+  };
+  whoWeAre?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+    paragraphs: Array<string>;
+    ctaLabel: string;
+  };
+  byTheNumbers?: {
+    stats: Array<{
+      value: string;
+      label: string;
+      _type: "stat";
+      _key: string;
+    }>;
+  };
+  promise?: {
+    quoteLead: string;
+    quoteAccent?: string;
+    quoteTail?: string;
+  };
+  meetPapa?: {
+    eyebrow: string;
+    chips: Array<{
+      icon: "scales" | "star" | "heart";
+      value: string;
+      label: string;
+      _type: "chip";
+      _key: string;
+    }>;
+    paragraphs: Array<string>;
+    milestones: Array<{
+      when: string;
+      title: string;
+      text: string;
+      _type: "milestone";
+      _key: string;
+    }>;
+  };
+  whyFamilyLaw?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+    paragraphs: Array<string>;
+  };
+  seo?: Seo;
 };
 
 export type HomePage = {
@@ -320,15 +402,119 @@ export type HomePage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  about?: {
-    pullQuote: TestimonialReference;
+  hero?: {
+    eyebrow: string;
+    headingLines: Array<string>;
+    headingAccent?: string;
+    lead: string;
+    ctaLabel: string;
+    stats: Array<{
+      value: string;
+      label: string;
+      _type: "stat";
+      _key: string;
+    }>;
   };
-  testimonials?: {
-    picks: Array<
-      {
-        _key: string;
-      } & TestimonialReference
-    >;
+  about?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    videoLabel: string;
+    videoCaption: string;
+    lead: string;
+    intro: string;
+    helpHeading: string;
+    helpIntro: string;
+    checklist: Array<{
+      lead: string;
+      text: string;
+      _type: "item";
+      _key: string;
+    }>;
+    pullQuote: TestimonialReference;
+    whyHeading: string;
+    whyParagraphs: Array<string>;
+    servingHeading: string;
+    servingParagraph: string;
+    ctaLabel: string;
+  };
+  practiceAreas?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    intro: string;
+    areas: Array<{
+      icon:
+        | "divorce"
+        | "child-custody"
+        | "family-law"
+        | "child-support"
+        | "property-division"
+        | "modifications";
+      title: string;
+      href: string;
+      text: string;
+      _type: "area";
+      _key: string;
+    }>;
+    ctaLabel: string;
+  };
+  featuredAttorney?: {
+    eyebrow: string;
+    quote: string;
+    paragraphs: Array<string>;
+    ctaLabel: string;
+    badgeYears: number;
+    badgeLabelLines: Array<string>;
+  };
+  sellingPoints?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    points: Array<{
+      icon:
+        | "compassionate-approach"
+        | "client-focused"
+        | "experienced"
+        | "flexible-payments";
+      title: string;
+      text: string;
+      _type: "point";
+      _key: string;
+    }>;
+  };
+  faq?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+  };
+  videoReels?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    ctaLabel: string;
+  };
+  community?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    paragraphs: Array<string>;
+    ctaLabel: string;
+    tileTitle: string;
+    tileText: string;
+  };
+  guideRequest?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    lead: string;
+    offer: string;
+  };
+  blog?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    ctaLabel: string;
   };
   seo?: Seo;
 };
@@ -510,11 +696,13 @@ export type AllSanitySchemaTypes =
   | PracticeAreaReference
   | PracticeArea
   | Attorney
+  | TestimonialReference
+  | TestimonialsBand
   | AwardsBand
   | WhatDrivesUs
   | CaseEvaluationForm
   | ConsultForm
-  | TestimonialReference
+  | AboutPage
   | HomePage
   | Testimonial
   | FirmDetails
@@ -526,6 +714,85 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint;
+
+// Source: src/sanity/aboutPage.ts
+// Variable: ABOUT_PAGE_QUERY
+// Query: *[_id == "aboutPage"][0]{    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },    byTheNumbers{ stats[]{ value, label } },    promise{ quoteLead, quoteAccent, quoteTail },    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }  }
+export type ABOUT_PAGE_QUERY_RESULT =
+  | {
+      hero: null;
+      whoWeAre: null;
+      byTheNumbers: null;
+      promise: null;
+      meetPapa: null;
+      whyFamilyLaw: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: null;
+        headingAccent: string | null;
+        headingTail: null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      whoWeAre: null;
+      byTheNumbers: null;
+      promise: null;
+      meetPapa: null;
+      whyFamilyLaw: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      whoWeAre: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        paragraphs: Array<string>;
+        ctaLabel: string;
+      } | null;
+      byTheNumbers: {
+        stats: Array<{
+          value: string;
+          label: string;
+        }>;
+      } | null;
+      promise: {
+        quoteLead: string;
+        quoteAccent: string | null;
+        quoteTail: string | null;
+      } | null;
+      meetPapa: {
+        eyebrow: string;
+        chips: Array<{
+          icon: "heart" | "scales" | "star";
+          value: string;
+          label: string;
+        }>;
+        paragraphs: Array<string>;
+        milestones: Array<{
+          when: string;
+          title: string;
+          text: string;
+        }>;
+      } | null;
+      whyFamilyLaw: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        paragraphs: Array<string>;
+      } | null;
+    }
+  | null;
 
 // Source: src/sanity/awards.ts
 // Variable: AWARDS_QUERY
@@ -665,6 +932,150 @@ export type FIRM_DETAILS_QUERY_RESULT =
     }
   | null;
 
+// Source: src/sanity/homePage.ts
+// Variable: HOME_PAGE_QUERY
+// Query: *[_id == "homePage"][0]{    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },    about{      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, lead, intro,      helpHeading, helpIntro, checklist[]{ lead, text },      whyHeading, whyParagraphs, servingHeading, servingParagraph, ctaLabel    },    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },    faq{ eyebrow, headingLead, headingAccent },    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },    blog{ eyebrow, headingLead, headingAccent, ctaLabel }  }
+export type HOME_PAGE_QUERY_RESULT =
+  | {
+      hero: null;
+      about: null;
+      practiceAreas: null;
+      featuredAttorney: null;
+      sellingPoints: null;
+      faq: null;
+      videoReels: null;
+      community: null;
+      guideRequest: null;
+      blog: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLines: null;
+        headingAccent: string | null;
+        lead: string;
+        ctaLabel: string;
+        stats: null;
+      } | null;
+      about: null;
+      practiceAreas: null;
+      featuredAttorney: null;
+      sellingPoints: null;
+      faq: null;
+      videoReels: null;
+      community: null;
+      guideRequest: null;
+      blog: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLines: Array<string>;
+        headingAccent: string | null;
+        lead: string;
+        ctaLabel: string;
+        stats: Array<{
+          value: string;
+          label: string;
+        }>;
+      } | null;
+      about: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        videoLabel: string;
+        videoCaption: string;
+        lead: string;
+        intro: string;
+        helpHeading: string;
+        helpIntro: string;
+        checklist: Array<{
+          lead: string;
+          text: string;
+        }>;
+        whyHeading: string;
+        whyParagraphs: Array<string>;
+        servingHeading: string;
+        servingParagraph: string;
+        ctaLabel: string;
+      } | null;
+      practiceAreas: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        intro: string;
+        ctaLabel: string;
+        areas: Array<{
+          icon:
+            | "child-custody"
+            | "child-support"
+            | "divorce"
+            | "family-law"
+            | "modifications"
+            | "property-division";
+          title: string;
+          href: string;
+          text: string;
+        }>;
+      } | null;
+      featuredAttorney: {
+        eyebrow: string;
+        quote: string;
+        paragraphs: Array<string>;
+        ctaLabel: string;
+        badgeYears: number;
+        badgeLabelLines: Array<string>;
+      } | null;
+      sellingPoints: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        points: Array<{
+          icon:
+            | "client-focused"
+            | "compassionate-approach"
+            | "experienced"
+            | "flexible-payments";
+          title: string;
+          text: string;
+        }>;
+      } | null;
+      faq: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+      } | null;
+      videoReels: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        ctaLabel: string;
+      } | null;
+      community: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        paragraphs: Array<string>;
+        ctaLabel: string;
+        tileTitle: string;
+        tileText: string;
+      } | null;
+      guideRequest: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        lead: string;
+        offer: string;
+      } | null;
+      blog: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        ctaLabel: string;
+      } | null;
+    }
+  | null;
+
 // Source: src/sanity/locationPages.ts
 // Variable: LOCATION_PAGES_ALL_QUERY
 // Query: *[_type == "locationPage"]{    "id": slug.current,    "data": {      title,      navLabel,      subtitle,      "parent": parent->slug.current,      "location": location->slug.current,      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "faqs": coalesce(faqs[]{ _key, question, answer }, [])    },    body,    "noIndex": seo.noIndex,    "canonicalUrl": seo.canonicalUrl,    _updatedAt  }
@@ -778,28 +1189,61 @@ export type TESTIMONIALS_ALL_QUERY_RESULT = Array<{
 }>;
 
 // Source: src/sanity/testimonials.ts
-// Variable: TESTIMONIALS_HOME_QUERY
-// Query: *[_id == "homePage"][0]{    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }  }
-export type TESTIMONIALS_HOME_QUERY_RESULT =
+// Variable: TESTIMONIALS_PULL_QUOTE_QUERY
+// Query: *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }
+export type TESTIMONIALS_PULL_QUOTE_QUERY_RESULT = {
+  _id: string;
+  lead: string;
+  body: string;
+  name: string;
+  matter: string;
+} | null;
+
+// Source: src/sanity/testimonials.ts
+// Variable: TESTIMONIALS_BAND_QUERY
+// Query: *[_id == "testimonialsBand"][0]{    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,    "picks": picks[]->{ _id, lead, body, name, matter }  }
+export type TESTIMONIALS_BAND_QUERY_RESULT =
   | {
-      pullQuote: null;
+      eyebrow: null;
+      headingLead: null;
+      headingAccent: null;
+      lead: null;
+      cardKicker: null;
+      ctaLabel: null;
       picks: null;
     }
   | {
-      pullQuote: {
-        _id: string;
-        lead: string;
-        body: string;
-        name: string;
-        matter: string;
-      } | null;
+      eyebrow: null;
+      headingLead: null;
+      headingAccent: null;
+      lead: string;
+      cardKicker: null;
+      ctaLabel: null;
+      picks: null;
+    }
+  | {
+      eyebrow: string;
+      headingLead: string;
+      headingAccent: string | null;
+      lead: null;
+      cardKicker: null;
+      ctaLabel: null;
+      picks: null;
+    }
+  | {
+      eyebrow: string;
+      headingLead: string;
+      headingAccent: string | null;
+      lead: string;
+      cardKicker: string;
+      ctaLabel: string;
       picks: Array<{
         _id: string;
         lead: string;
         body: string;
         name: string;
         matter: string;
-      }> | null;
+      }>;
     }
   | null;
 
@@ -842,23 +1286,32 @@ export type WHAT_DRIVES_US_QUERY_RESULT =
         text: string;
       }>;
     }
+  | {
+      eyebrow: string;
+      headingLead: string;
+      headingAccent: string | null;
+      values: null;
+    }
   | null;
 
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    '\n  *[_id == "aboutPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },\n    byTheNumbers{ stats[]{ value, label } },\n    promise{ quoteLead, quoteAccent, quoteTail },\n    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },\n    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }\n  }\n': ABOUT_PAGE_QUERY_RESULT;
     '{\n  "heading": *[_id == "awardsBand"][0].heading,\n  "badges": *[_type == "award"] | order(orderRank){\n    "id": _id,\n    alt,\n    width,\n    image{ asset, "dimensions": asset->metadata.dimensions }\n  }\n}': AWARDS_QUERY_RESULT;
     '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
     '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
     '\n  *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }\n': FAQS_QUERY_RESULT;
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0]{\n    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },\n    about{\n      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, lead, intro,\n      helpHeading, helpIntro, checklist[]{ lead, text },\n      whyHeading, whyParagraphs, servingHeading, servingParagraph, ctaLabel\n    },\n    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },\n    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },\n    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },\n    faq{ eyebrow, headingLead, headingAccent },\n    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },\n    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },\n    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },\n    blog{ eyebrow, headingLead, headingAccent, ctaLabel }\n  }\n': HOME_PAGE_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
     '\n  *[_id == "caseEvaluationForm"][0]{ heading, intro, submitLabel, privacyNote }\n': SITE_WIDE_CASE_EVALUATION_QUERY_RESULT;
     '\n  *[_id == "attorney"][0]{\n    name,\n    role,\n    photo{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': SITE_WIDE_ATTORNEY_QUERY_RESULT;
     '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
-    '\n  *[_id == "homePage"][0]{\n    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },\n    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_HOME_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }\n': TESTIMONIALS_PULL_QUOTE_QUERY_RESULT;
+    '\n  *[_id == "testimonialsBand"][0]{\n    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,\n    "picks": picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_BAND_QUERY_RESULT;
     '\n  *[_type == "video"] | order(orderRank){\n    "id": wistiaId,\n    title,\n    label,\n    aspect,\n    reelOrder,\n    poster{ asset, "dimensions": asset->metadata.dimensions },\n    reelPoster{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': VIDEOS_QUERY_RESULT;
     '\n  *[_id == "whatDrivesUs"][0]{\n    eyebrow,\n    headingLead,\n    headingAccent,\n    values[]{ icon, title, text }\n  }\n': WHAT_DRIVES_US_QUERY_RESULT;
   }

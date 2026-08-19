@@ -6,9 +6,9 @@ import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import portrait from "../../assets/images/papa-storefront.jpg";
 import { getAttorney } from "../../sanity/siteWide";
+import { getHomePage } from "../../sanity/homePage";
 
-/* The "+" is set separately so it can be sized down against the numeral. */
-const years = 17;
+const copy = (await getHomePage()).featuredAttorney;
 
 /* Title only. The portrait here is a different photograph from the headshot on
    the attorney record, and the name below is the section's own heading. */
@@ -34,10 +34,12 @@ const attorney = await getAttorney();
         {/* Anchored to the photo rather than the stage so it stays on the
             image once the two unstack at tablet. */}
         <p class="fa__badge">
+          {/* The "+" is a separate span so it can be sized down against the
+              numeral. */}
           <span class="fa__badge-num">
-            {years}<span class="fa__badge-plus">+</span>
+            {copy.badgeYears}<span class="fa__badge-plus">+</span>
           </span>
-          <span class="fa__badge-label">Years of Texas<br />Family Law</span>
+          <span class="fa__badge-label">{copy.badgeLabelLines.map((line, i) => (<>{i > 0 && <br />}{line}</>))}</span>
         </p>
       </div>
 
@@ -45,33 +47,20 @@ const attorney = await getAttorney();
         <header class="fa__head">
           <p class="fa__eyebrow">
             <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-            <span>Meet the Attorney</span>
+            <span>{copy.eyebrow}</span>
           </p>
         </header>
 
-        <h2 class="fa__title" id="fa-title">Papa Dieye</h2>
+        <h2 class="fa__title" id="fa-title">{attorney.name}</h2>
         <p class="fa__role">{attorney.role}</p>
 
-        <blockquote class="fa__quote">
-          "I became a family lawyer to be the steady voice families need on their
-          hardest day."
-        </blockquote>
+        <blockquote class="fa__quote">{copy.quote}</blockquote>
 
-        <p class="fa__text">
-          For more than seventeen years, Papa Dieye has guided families across
-          Pearland and the greater Houston area through divorce, custody, and
-          support. He built this firm on a simple belief: that people in crisis
-          deserve a lawyer who treats them with dignity, answers honestly, and
-          fights thoughtfully for what matters most.
-        </p>
-        <p class="fa__text">
-          As a solo practitioner, Papa works with you directly. No handoffs, no
-          shuffle. Just one experienced attorney who knows your story.
-        </p>
+        {copy.paragraphs.map((text) => <p class="fa__text">{text}</p>)}
 
         <footer class="fa__foot">
-          <a class="btn btn--gold" href="/about-us/">Get to Know Papa</a>
-          <span class="fa__sign" aria-hidden="true">Papa Dieye</span>
+          <a class="btn btn--gold" href="/about-us/">{copy.ctaLabel}</a>
+          <span class="fa__sign" aria-hidden="true">{attorney.name}</span>
         </footer>
       </article>
     </div>

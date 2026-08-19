@@ -7,6 +7,8 @@ import { getBlogPosts } from "../../sanity/blogPosts";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import fallbackImg from "../../assets/images/blog/blog-img.jpg";
 import { responsiveImage } from "../../sanity/image";
+import { getHomePage } from "../../sanity/homePage";
+const copy = (await getHomePage()).blog;
 import { byNewest, formatDate, isoDate, postHref } from "../blog/blog";
 
 /* Real posts, ingested from the live archive by `npm run scrape:blog`. This
@@ -27,9 +29,9 @@ const author = featured.data.author;
     <header class="blog__head">
       <p class="blog__eyebrow">
         <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-        <span>Our Blog</span>
+        <span>{copy.eyebrow}</span>
       </p>
-      <h2 class="blog__title" id="blog-title">We're Keeping You <em>Informed</em></h2>
+      <h2 class="blog__title" id="blog-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}</h2>
     </header>
 
     <div class="blog__grid">
@@ -112,7 +114,7 @@ const author = featured.data.author;
     </div>
 
     <div class="blog__cta">
-      <a class="btn btn--gold" href="/blog/">View All Blog Posts</a>
+      <a class="btn btn--gold" href="/blog/">{copy.ctaLabel}</a>
     </div>
   </div>
 </section>

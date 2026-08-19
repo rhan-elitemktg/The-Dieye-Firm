@@ -1,5 +1,6 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { HeartIcon } from "@sanity/icons/Heart";
+import { iconList } from "./iconOptions";
 
 /* "The standard we hold" — the navy band of three values, on 8 pages.
  *
@@ -68,11 +69,7 @@ export const whatDrivesUs = defineType({
               type: "string",
               description: "One of the three glyphs the site carries.",
               options: {
-                list: [
-                  { title: "Hands holding a heart", value: "compassionate-approach" },
-                  { title: "Person in a crosshair", value: "client-focused" },
-                  { title: "Briefcase and gavel", value: "experienced" },
-                ],
+                list: iconList("compassionate-approach", "client-focused", "experienced"),
                 layout: "radio",
               },
               validation: (rule) => rule.required(),

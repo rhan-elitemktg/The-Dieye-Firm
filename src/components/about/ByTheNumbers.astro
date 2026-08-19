@@ -2,12 +2,9 @@
 // By the Numbers — a navy band of four figures, divided by hairline rules.
 // Deliberately quiet: no icons, no cards, just the numbers.
 
-const stats = [
-  { value: "17+", label: "Years in Family Law" },
-  { value: "6", label: "Communities Served" },
-  { value: "100%", label: "Focused on Families" },
-  { value: "Financing", label: "Payment Plans Available" },
-];
+import { getAboutPage } from "../../sanity/aboutPage";
+
+const { stats } = (await getAboutPage()).byTheNumbers;
 ---
 
 <section class="nums" aria-label="The Dieye Firm by the numbers">
