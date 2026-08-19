@@ -41,7 +41,7 @@ const showFooter = date !== undefined && minutes !== undefined;
       <img
         class="ac__photo"
         {...croppedImage(attorney.photo, 160, 160)}
-        alt={attorney.photo.alt || `${attorney.name}, ${attorney.role.toLowerCase()} of The Dieye Firm`}
+        alt={`${attorney.name}, ${attorney.role.toLowerCase()} of The Dieye Firm`}
         loading="lazy"
         decoding="async"
       />

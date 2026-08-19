@@ -50,7 +50,7 @@ const attorney = await getAttorney();
             class="meet__photo"
             {...responsiveImage(attorney.photo, [620, 900, 1024])}
             sizes="(max-width: 1000px) 100vw, 620px"
-            alt={attorney.photo.alt || `Attorney ${attorney.name}, ${attorney.role.toLowerCase()} of The Dieye Firm`}
+            alt={`Attorney ${attorney.name}, ${attorney.role.toLowerCase()} of The Dieye Firm`}
             loading="lazy"
             decoding="async"
           />
@@ -99,9 +99,9 @@ const attorney = await getAttorney();
                   </svg>
                 ))}
               </span>
-              <b>{attorney.rating?.score ?? "5.0"}</b>
+              <b>5.0</b>
             </div>
-            <span class="meet__rating-note">{attorney.rating?.caption ?? "Over 150 five-star Google reviews"}</span>
+            <span class="meet__rating-note">Over 150 five-star Google reviews</span>
           </div>
         </div>
       </div>

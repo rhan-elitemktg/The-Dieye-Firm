@@ -21,8 +21,7 @@ const SITE_WIDE_ATTORNEY_QUERY = defineQuery(`
   *[_id == "attorney"][0]{
     name,
     role,
-    photo{ asset, alt, "dimensions": asset->metadata.dimensions },
-    rating{ score, caption }
+    photo{ asset, "dimensions": asset->metadata.dimensions }
   }
 `);
 
@@ -42,7 +41,6 @@ export type Attorney = {
      Studio changes the site. It did not always, which is the whole reason this
      comment exists. */
   photo?: SanityImage;
-  rating?: { score?: string; caption?: string };
 };
 
 let caseCache: Promise<CaseEvaluationForm> | undefined;

@@ -56,10 +56,6 @@ async function run() {
       _type: "image",
       asset: { _type: "reference", _ref: headshot._id },
     },
-    rating: {
-      score: "5.0",
-      caption: "Over 150 five-star Google reviews",
-    },
   });
 
   await tx.commit();

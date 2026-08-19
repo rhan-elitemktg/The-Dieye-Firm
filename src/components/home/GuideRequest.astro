@@ -69,7 +69,7 @@ const attorney = await getAttorney();
           <img
             {...responsiveImage(attorney.photo, [320, 440, 600, 800])}
             sizes="(max-width: 1000px) 260px, 30vw"
-            alt={attorney.photo.alt || `Attorney ${attorney.name}`}
+            alt={`Attorney ${attorney.name}`}
             loading="lazy"
             decoding="async"
           />

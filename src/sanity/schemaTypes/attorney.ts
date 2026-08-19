@@ -24,10 +24,14 @@ import { UserIcon } from "@sanity/icons/User";
  * way to find out otherwise is to read the code.
  *
  * Consumers, so this stays checkable:
- *   name    -> AuthorCard (85 pages)
- *   role    -> AuthorCard (85 pages)
- *   photo   -> AuthorCard, MeetPapa (/about-us/), GuideRequest (homepage)
- *   rating  -> MeetPapa (/about-us/)
+ *   name   -> AuthorCard (85 pages)
+ *   role   -> AuthorCard (85 pages)
+ *   photo  -> AuthorCard, MeetPapa (/about-us/), GuideRequest (homepage)
+ *
+ * The photo carries NO alt field. It is the same man in all three places and
+ * his name sits beside it every time, so the description is derived from `name`
+ * and `role` — which means it can never fall out of step with them, and there is
+ * one less box asking an editor to describe a face.
  *
  * ═══ ONE role, resolved ═══
  *
@@ -71,35 +75,6 @@ export const attorney = defineType({
       description:
         "Used on the article byline (every blog post, practice area and location page), on the About page, and beside the guide offer on the homepage. A SQUARE crop works best — the byline renders it as a 160px circle.",
       options: { hotspot: true },
-      fields: [
-        defineField({
-          name: "alt",
-          title: "Alt text",
-          type: "string",
-          description: "Leave empty where the name is already beside the photo.",
-        }),
-      ],
-    }),
-    defineField({
-      name: "rating",
-      title: "Google rating",
-      type: "object",
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        defineField({
-          name: "score",
-          title: "Score",
-          type: "string",
-          description: 'As shown — e.g. "5.0". Keep it matching the firm\'s actual Google rating.',
-        }),
-        defineField({
-          name: "caption",
-          title: "Caption",
-          type: "string",
-          description:
-            'The line beside the score — e.g. "Over 150 five-star Google reviews". A claim about a number that keeps growing, so it is worth revisiting rather than leaving to age.',
-        }),
-      ],
     }),
   ],
   preview: {
