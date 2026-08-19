@@ -3,16 +3,17 @@
 // recent posts stacked on the right.
 
 import { Image } from "astro:assets";
-import { getCollection } from "astro:content";
+import { getBlogPosts } from "../../sanity/blogPosts";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import fallbackImg from "../../assets/images/blog/blog-img.jpg";
+import { responsiveImage } from "../../sanity/image";
 import { byNewest, formatDate, isoDate, postHref } from "../blog/blog";
 
 /* Real posts, ingested from the live archive by `npm run scrape:blog`. This
    used to be a placeholder array shaped like a future Sanity `post`; the
    collection now supplies the same fields, so the eventual Sanity swap is
    still a query change rather than a rewrite. */
-const all = (await getCollection("blog")).sort(byNewest);
+const all = (await getBlogPosts()).sort(byNewest);
 const [featured, ...rest] = all;
 const posts = rest.slice(0, 3);
 
@@ -36,16 +37,26 @@ const author = featured.data.author;
         {/* The whole card is one link via the title's ::after, so the image and
             heading are a single tab stop rather than two to the same place. */}
         <a class="blog-feat__media" href={postHref(featured)} tabindex="-1" aria-hidden="true">
-          <Image
-            src={featured.data.image ?? fallbackImg}
-            alt=""
-            widths={[400, 600, 800]}
-            sizes="(max-width: 1000px) 92vw, 46vw"
-            format="webp"
-            quality={80}
-            loading="lazy"
-            decoding="async"
-          />
+          {featured.data.image ? (
+            <img
+              {...responsiveImage(featured.data.image, [400, 600, 800])}
+              sizes="(max-width: 1000px) 92vw, 46vw"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <Image
+              src={fallbackImg}
+              alt=""
+              widths={[400, 600, 800]}
+              sizes="(max-width: 1000px) 92vw, 46vw"
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+            />
+          )}
         </a>
         <p class="blog__meta">
           <time datetime={isoDate(featured.data.date)}>{formatDate(featured.data.date)}</time>
@@ -63,16 +74,26 @@ const author = featured.data.author;
           <li>
             <article class="blog-item">
               <a class="blog-item__media" href={postHref(post)} tabindex="-1" aria-hidden="true">
-                <Image
-                  src={post.data.image ?? fallbackImg}
-                  alt=""
-                  widths={[300, 400, 600]}
-                  sizes="(max-width: 650px) 40vw, (max-width: 1000px) 300px, 20vw"
-                  format="webp"
-                  quality={80}
-                  loading="lazy"
-                  decoding="async"
-                />
+                {post.data.image ? (
+                  <img
+                    {...responsiveImage(post.data.image, [300, 400, 600])}
+                    sizes="(max-width: 650px) 40vw, (max-width: 1000px) 300px, 20vw"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <Image
+                    src={fallbackImg}
+                    alt=""
+                    widths={[300, 400, 600]}
+                    sizes="(max-width: 650px) 40vw, (max-width: 1000px) 300px, 20vw"
+                    format="webp"
+                    quality={80}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
               </a>
               <div class="blog-item__body">
                 <p class="blog__meta">

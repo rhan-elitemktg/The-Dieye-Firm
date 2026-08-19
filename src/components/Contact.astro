@@ -10,6 +10,7 @@ import iconOffice from "../assets/icons/contact-office.svg?raw";
 import iconHours from "../assets/icons/contact-hours.svg?raw";
 import street from "../assets/images/papa-old-town-portrait.jpg";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getConsultForm } from "../sanity/consultForm";
 
 interface Props {
   /* "page" is /contact-us/ itself, where this stops being the closing prompt
@@ -33,6 +34,7 @@ const { variant = "section" } = Astro.props;
 const isPage = variant === "page";
 
 const { phone, email, address, hours } = await getFirmDetails();
+const copy = await getConsultForm();
 ---
 
 <section
@@ -46,15 +48,18 @@ const { phone, email, address, hours } = await getFirmDetails();
         <header class="contact__head">
           <p class="contact__eyebrow">
             <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-            <span>Let's Talk</span>
+            <span>{copy.header.eyebrow}</span>
           </p>
+          {/* The <em> stays in THIS template. Rendering the heading through a
+              child would strip Astro's scope hash from it, and the gold italic
+              would silently stop applying on all 93 pages. */}
           <h2 class="contact__title" id="contact-title">
-            Take the <em>First Step</em>
+            {copy.header.headingLead}{" "}{copy.header.headingAccent && <em>{copy.header.headingAccent}</em>}
           </h2>
           <p class="contact__lead">
-            One conversation can bring clarity.
-            <br />
-            Reach out for a free, confidential consultation. No pressure, just answers.
+            {copy.header.leadLines.map((line, i) => (
+              <>{i > 0 && <br />}{line}</>
+            ))}
           </p>
         </header>
       )
@@ -154,12 +159,8 @@ const { phone, email, address, hours } = await getFirmDetails();
       </div>
 
       <div class="contact__card">
-        <h3 class="contact__card-title">Request a Free Consultation</h3>
-        <p class="contact__card-intro">
-          When you choose to work with The Dieye Firm, you are choosing to work with a
-          divorce and family law attorney who will aggressively protect your rights and
-          best interests.
-        </p>
+        <h3 class="contact__card-title">{copy.form.cardTitle}</h3>
+        <p class="contact__card-intro">{copy.form.cardIntro}</p>
 
         {/* Behaviour (phone mask, validate-and-confirm) lives in
             src/scripts/lead-form.ts, shared with the blog sidebar's
@@ -213,7 +214,7 @@ const { phone, email, address, hours } = await getFirmDetails();
             <textarea id="c-message" name="message" rows="4" placeholder="Tell us a little about your situation..."></textarea>
           </p>
 
-          <button class="btn btn--gold cform__submit" type="submit">Submit Request</button>
+          <button class="btn btn--gold cform__submit" type="submit">{copy.form.submitLabel}</button>
         </form>
 
         <p class="contact__status" data-lead-status role="status" aria-live="polite" hidden></p>
@@ -224,7 +225,7 @@ const { phone, email, address, hours } = await getFirmDetails();
               d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z"
             />
           </svg>
-          <span>Everything you share is private and confidential.</span>
+          <span>{copy.form.privacyNote}</span>
         </p>
       </div>
     </div>

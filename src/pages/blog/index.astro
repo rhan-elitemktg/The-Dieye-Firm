@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getBlogPosts } from "../../sanity/blogPosts";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import BlogHeader from "../../components/blog/BlogHeader.astro";
@@ -14,7 +14,7 @@ const title = "Our Blog";
 const intro =
   "Clear, compassionate guidance on divorce, custody, support, and everything Texas families face - straight from Papa Dieye.";
 
-const all = (await getCollection("blog")).sort(byNewest);
+const all = (await getBlogPosts()).sort(byNewest);
 /* The featured post is pinned above the filter and never appears in the grid,
    so both halves come from one split. */
 const { featured, rest } = splitFeatured(all);

@@ -1,12 +1,12 @@
-import type { CollectionEntry } from "astro:content";
+import type { LocationPage } from "../../sanity/locationPages";
 
-export type LocationPage = CollectionEntry<"locations">;
+export type { LocationPage };
 
-/* The collection id IS the route, whole — "sugar-land-family-law-attorney",
+/* `id` IS the route, whole — "sugar-land-family-law-attorney",
    "sugar-land-family-law-attorney/divorce/uncontested-divorce". These URLs sit
    at the site ROOT, so unlike the practice areas there is no prefix to add and
    no section-root exception: every id is its own path. Nothing reassembles a
-   route from parts, so a page cannot end up at a URL its file doesn't name. */
+   route from parts, so a page cannot end up at a URL its slug doesn't name. */
 export const locationHref = (page: LocationPage) => `/${page.id}/`;
 
 /* The location root a page belongs to. `location` points at itself on a root,
@@ -14,7 +14,7 @@ export const locationHref = (page: LocationPage) => `/${page.id}/`;
 
    It is a lookup rather than a path derivation because two Pasadena pages hang
    off the site root and their paths do not name their location. See the note
-   on `location` in src/content.config.ts. */
+   on `location` in src/sanity/schemaTypes/locationPage.ts. */
 export const rootOf = (pages: LocationPage[], page: LocationPage) =>
   pages.find((candidate) => candidate.id === page.data.location);
 

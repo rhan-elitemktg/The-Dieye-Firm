@@ -1,5 +1,6 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getPracticeAreas } from "../../sanity/practiceAreas";
+import ProseBody from "../../components/prose/ProseBody.astro";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import InteriorShell from "../../components/interior/InteriorShell.astro";
@@ -19,7 +20,7 @@ import { getFirmDetails } from "../../sanity/firmDetails";
    route — the only page in the section where the two differ. The practice-area
    INDEX is a separate page at /practice-areas/, built from the comp. */
 export async function getStaticPaths() {
-  const areas = await getCollection("practiceAreas");
+  const areas = await getPracticeAreas();
   return areas.map((area) => ({
     params: { slug: area.id === SECTION_ROOT_ID ? undefined : area.id },
     props: { area },
@@ -27,9 +28,8 @@ export async function getStaticPaths() {
 }
 
 const { area } = Astro.props;
-const { Content } = await render(area);
 
-const areas = await getCollection("practiceAreas");
+const areas = await getPracticeAreas();
 const parent = area.data.parent
   ? areas.find((candidate) => candidate.id === area.data.parent)
   : undefined;
@@ -111,7 +111,7 @@ const schema = {
         scoped and still reaches this div: slotted markup carries the hash of
         the component that wrote it, not of the one that renders it. */}
     <div class="prose pa__body">
-      <Content />
+      <ProseBody value={area.body} />
     </div>
 
     <PracticeAreaFaqs faqs={area.data.faqs} />

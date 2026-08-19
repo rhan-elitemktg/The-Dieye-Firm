@@ -5,9 +5,14 @@
 import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import portrait from "../../assets/images/papa-storefront.jpg";
+import { getAttorney } from "../../sanity/siteWide";
 
 /* The "+" is set separately so it can be sized down against the numeral. */
 const years = 17;
+
+/* Title only. The portrait here is a different photograph from the headshot on
+   the attorney record, and the name below is the section's own heading. */
+const attorney = await getAttorney();
 ---
 
 <section class="fa section" aria-labelledby="fa-title">
@@ -45,7 +50,7 @@ const years = 17;
         </header>
 
         <h2 class="fa__title" id="fa-title">Papa Dieye</h2>
-        <p class="fa__role">Founding Attorney</p>
+        <p class="fa__role">{attorney.role}</p>
 
         <blockquote class="fa__quote">
           "I became a family lawyer to be the steady voice families need on their

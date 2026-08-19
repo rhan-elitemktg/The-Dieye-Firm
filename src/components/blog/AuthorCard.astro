@@ -12,6 +12,8 @@
 import { Image } from "astro:assets";
 import papa from "../../assets/images/papa-headshot-square.jpg";
 import { formatDate, isoDate } from "./blog";
+import { getAttorney } from "../../sanity/siteWide";
+import { croppedImage } from "../../sanity/image";
 
 interface Props {
   /* Both optional, and both absent on practice-area pages. A practice area has
@@ -23,6 +25,8 @@ interface Props {
 }
 
 const { date, minutes } = Astro.props;
+
+const attorney = await getAttorney();
 const showFooter = date !== undefined && minutes !== undefined;
 ---
 
@@ -30,19 +34,32 @@ const showFooter = date !== undefined && minutes !== undefined;
   <p class="ac__kicker" id="ac-kicker"><span class="ac__rule" aria-hidden="true"></span>Reviewed by</p>
 
   <div class="ac__row">
-    <Image
-      class="ac__photo"
-      src={papa}
-      alt="Papa Dieye, founding attorney of The Dieye Firm"
-      width={160}
-      height={160}
-      format="webp"
+    {/* The <img> stays here rather than in a shared component: `.ac__photo`
+        is a scoped rule and a child component's markup never gets this
+        component's hash. */}
+    {attorney.photo?.asset ? (
+      <img
+        class="ac__photo"
+        {...croppedImage(attorney.photo, 160, 160)}
+        alt={`${attorney.name}, ${attorney.role.toLowerCase()} of The Dieye Firm`}
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <Image
+        class="ac__photo"
+        src={papa}
+        alt={`${attorney.name}, ${attorney.role.toLowerCase()} of The Dieye Firm`}
+        width={160}
+        height={160}
+        format="webp"
       loading="lazy"
       decoding="async"
-    />
+      />
+    )}
     <span class="ac__id">
-      <a class="ac__name" href="/about-us/">Papa Dieye</a>
-      <span class="ac__role">Principal &amp; Founder</span>
+      <a class="ac__name" href="/about-us/">{attorney.name}</a>
+      <span class="ac__role">{attorney.role}</span>
     </span>
   </div>
 

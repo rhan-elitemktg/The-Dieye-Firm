@@ -4,6 +4,8 @@
 // right, and a four-part "then / now" strip closing the section.
 
 import { Image } from "astro:assets";
+import { getAttorney } from "../../sanity/siteWide";
+import { responsiveImage } from "../../sanity/image";
 import Eyebrow from "../Eyebrow.astro";
 import headshot from "../../assets/images/papa-headshot-square.jpg";
 
@@ -35,23 +37,36 @@ const milestones = [
     text: "Standing beside your family from the first call through the final signed order.",
   },
 ];
+
+const attorney = await getAttorney();
 ---
 
 <section class="meet section" aria-labelledby="meet-title">
   <div class="container">
     <div class="meet__grid">
       <div class="meet__media">
-        <Image
-          class="meet__photo"
-          src={headshot}
-          alt="Attorney Papa Dieye, founding attorney of The Dieye Firm"
-          widths={[620, 900, 1024]}
-          sizes="(max-width: 1000px) 100vw, 620px"
-          format="webp"
-          quality={80}
-          loading="lazy"
-          decoding="async"
-        />
+        {attorney.photo?.asset ? (
+          <img
+            class="meet__photo"
+            {...responsiveImage(attorney.photo, [620, 900, 1024])}
+            sizes="(max-width: 1000px) 100vw, 620px"
+            alt={`Attorney ${attorney.name}, ${attorney.role.toLowerCase()} of The Dieye Firm`}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Image
+            class="meet__photo"
+            src={headshot}
+            alt="Attorney Papa Dieye, founding attorney of The Dieye Firm"
+            widths={[620, 900, 1024]}
+            sizes="(max-width: 1000px) 100vw, 620px"
+            format="webp"
+            quality={80}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
 
         <div class="meet__rating">
           <svg class="meet__google" viewBox="0 0 48 48" aria-hidden="true">
@@ -95,7 +110,7 @@ const milestones = [
         <Eyebrow>Meet the Attorney</Eyebrow>
 
         <h2 class="meet__name" id="meet-title">Papa Dieye</h2>
-        <p class="meet__role">Founding Attorney</p>
+        <p class="meet__role">{attorney.role}</p>
 
         <ul class="meet__chips">
           {chips.map((chip) => (

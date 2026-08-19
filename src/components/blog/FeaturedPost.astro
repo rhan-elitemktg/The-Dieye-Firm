@@ -9,6 +9,7 @@
 
 import { Image } from "astro:assets";
 import fallbackImg from "../../assets/images/blog/blog-img.jpg";
+import { responsiveImage } from "../../sanity/image";
 import { categoryLabel, formatDate, isoDate, postHref, type Post } from "./blog";
 
 interface Props {
@@ -25,17 +26,33 @@ const category = post.data.categories[0];
       {/* Out of flow so the photo can't drive the row's height — the copy
           column sizes the panel and the photo fills whatever that comes to. */}
       <div class="fp__media">
-        <Image
-          src={post.data.image ?? fallbackImg}
-          alt={post.data.imageAlt || ""}
-          widths={[600, 900, 1200]}
-          sizes="(max-width: 1000px) 100vw, 50vw"
-          format="webp"
-          quality={80}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
+        {/* The placeholder is the firm's generic graphic, identical on every post
+            that has no artwork of its own. It says nothing about THIS article, and
+            the card's link text is already the headline — so alt="" marks it
+            decorative and a screen reader skips it, rather than reading the same
+            sentence out on every such card. */}
+        {post.data.image ? (
+          <img
+            {...responsiveImage(post.data.image, [600, 900, 1200])}
+            sizes="(max-width: 1000px) 100vw, 50vw"
+            alt={post.data.imageAlt || ""}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        ) : (
+          <Image
+            src={fallbackImg}
+            alt=""
+            widths={[600, 900, 1200]}
+            sizes="(max-width: 1000px) 100vw, 50vw"
+            format="webp"
+            quality={80}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        )}
         <span class="fp__badge">Featured Post</span>
       </div>
 

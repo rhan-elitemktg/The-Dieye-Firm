@@ -3,8 +3,12 @@
 // an email capture on the left, Papa's portrait on the right.
 
 import { Image } from "astro:assets";
+import { getAttorney } from "../../sanity/siteWide";
+import { responsiveImage } from "../../sanity/image";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import headshot from "../../assets/images/papa-headshot-square.jpg";
+
+const attorney = await getAttorney();
 ---
 
 <section class="guide section" aria-labelledby="guide-title">
@@ -61,16 +65,26 @@ import headshot from "../../assets/images/papa-headshot-square.jpg";
       </div>
 
       <div class="guide__portrait">
-        <Image
-          src={headshot}
-          alt="Attorney Papa Dieye"
-          widths={[320, 440, 600, 800]}
-          sizes="(max-width: 1000px) 260px, 30vw"
-          format="webp"
-          quality={80}
-          loading="lazy"
-          decoding="async"
-        />
+        {attorney.photo?.asset ? (
+          <img
+            {...responsiveImage(attorney.photo, [320, 440, 600, 800])}
+            sizes="(max-width: 1000px) 260px, 30vw"
+            alt={`Attorney ${attorney.name}`}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Image
+            src={headshot}
+            alt="Attorney Papa Dieye"
+            widths={[320, 440, 600, 800]}
+            sizes="(max-width: 1000px) 260px, 30vw"
+            format="webp"
+            quality={80}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
       </div>
     </div>
   </div>

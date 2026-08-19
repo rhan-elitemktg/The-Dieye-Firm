@@ -50,7 +50,9 @@ const VIDEO = {
   poster: videoPoster,
 };
 
-import { reviews } from "./reviews";
+import { getTestimonials } from "../../sanity/testimonials";
+
+const reviews = await getTestimonials();
 ---
 
 <section class="wall section" aria-labelledby="wall-title">

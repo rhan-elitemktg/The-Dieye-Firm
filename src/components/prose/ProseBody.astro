@@ -1,0 +1,60 @@
+---
+/* Renders a Portable Text body.
+ *
+ * Use this for every rich-text field on the site rather than reaching for
+ * <PortableText> directly — it is what applies the heading ids, and a page that
+ * skips it loses the id on every heading with nothing failing.
+ *
+ * ── THIS COMPONENT EMITS NO WRAPPER, AND THAT IS DELIBERATE ──────────────────
+ *
+ * The caller keeps its own `<div class="prose pa__body">` around this. Moving
+ * that div in here would look tidier and would silently break the type size on
+ * 32 pages.
+ *
+ * Astro scopes styles by stamping a hash onto the elements in the component's
+ * OWN template. `.pa__body { font-size: 18px }` lives in the practice-area
+ * route's scoped <style> and compiles to `.pa__body[data-astro-cid-<page>]`. A
+ * div emitted from here would carry THIS component's hash instead, so the rule
+ * would match nothing — no error, no warning, just 18px quietly becoming 17px
+ * on every practice area. That is finding F14 in the Cogdell notes, and a diff
+ * that strips `data-astro-cid` cannot see it.
+ *
+ * `.prose` itself is unscoped in global.css for the mirror-image reason: the
+ * <p> and <h2> below are rendered by a child, so a scoped rule could never
+ * reach them. Its comment says so, and was written for this migration.
+ *
+ * ── What is deliberately not overridden ──────────────────────────────────────
+ *
+ * Only `block` is customised, and only for headings. astro-portabletext's
+ * defaults already emit exactly what satteri emitted for everything else —
+ * <p>, <ul>/<ol>, <li>, <strong>, <em>, and <a> from the link annotation — and
+ * it groups adjacent spans that share a decorator, which is what makes
+ * `**[a](/x/) and [b](/y/)**` render as one <strong> rather than three. All of
+ * that is verified against the pre-migration build by
+ * `npm run check:md-to-pt`, which renders the same blocks independently and
+ * diffs them against dist/.
+ */
+import { PortableText } from "astro-portabletext";
+import type { PortableTextBlock } from "@portabletext/types";
+import { withHeadingIds } from "./headingIds";
+import ProseHeading from "./ProseHeading.astro";
+
+interface Props {
+  /** The document's complete body. Pass the whole array — the heading slugger
+      is per document, so slicing it would change the ids. */
+  value: PortableTextBlock[] | null | undefined;
+}
+
+const { value } = Astro.props;
+const blocks = withHeadingIds(value);
+
+const components = {
+  block: {
+    h2: ProseHeading,
+    h3: ProseHeading,
+    h4: ProseHeading,
+  },
+};
+---
+
+{blocks.length > 0 && <PortableText value={blocks} components={components} />}

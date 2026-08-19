@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getPracticeAreas } from "../../sanity/practiceAreas";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import PracticeAreasHero from "../../components/practice-areas/PracticeAreasHero.astro";
@@ -13,7 +13,7 @@ import { areaHref, byLabel } from "../../components/practice-areas/practiceAreas
    /family-law/ — that URL is a practice-area page in its own right ("Pearland
    Family Lawyer"), built from the client's own copy and rendered by
    family-law/[...slug].astro. This page is built from the comp instead. */
-const areas = await getCollection("practiceAreas");
+const areas = await getPracticeAreas();
 
 const canonical = new URL("/practice-areas/", Astro.site ?? Astro.url).href;
 

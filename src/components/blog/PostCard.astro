@@ -6,6 +6,7 @@
 
 import { Image } from "astro:assets";
 import fallbackImg from "../../assets/images/blog/blog-img.jpg";
+import { croppedImage } from "../../sanity/image";
 import { categoryLabel, formatDate, isoDate, postHref, type Post } from "./blog";
 
 interface Props {
@@ -27,16 +28,35 @@ const cats = post.data.categories.join(" ");
 ---
 
 <a class:list={["pc", `pc--${tone}`]} href={postHref(post)} data-cats={cats}>
-  <Image
-    class="pc__photo"
-    src={post.data.image ?? fallbackImg}
-    alt={post.data.imageAlt || ""}
-    width={520}
-    height={293}
-    format="webp"
-    loading="lazy"
-    decoding="async"
-  />
+  {/* The <img> stays in THIS template rather than moving to a shared component:
+      `.pc__photo` is a scoped rule, and markup rendered by a child never gets
+      this component's hash, so the card's photo styling would silently stop
+      applying. Only the URL is computed elsewhere. */}
+  {/* The placeholder is the firm's generic graphic, identical on every post
+      that has no artwork of its own. It says nothing about THIS article, and
+      the card's link text is already the headline — so alt="" marks it
+      decorative and a screen reader skips it, rather than reading the same
+      sentence out on every such card. */}
+  {post.data.image ? (
+    <img
+      class="pc__photo"
+      {...croppedImage(post.data.image, 520, 293)}
+      alt={post.data.imageAlt || ""}
+      loading="lazy"
+      decoding="async"
+    />
+  ) : (
+    <Image
+      class="pc__photo"
+      src={fallbackImg}
+      alt=""
+      width={520}
+      height={293}
+      format="webp"
+      loading="lazy"
+      decoding="async"
+    />
+  )}
   <div class="pc__body">
     <p class="pc__meta">
       {
