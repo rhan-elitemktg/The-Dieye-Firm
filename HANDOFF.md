@@ -13,8 +13,8 @@ _Last rewritten: 2026-08-19, on the `sanity_last_pages` branch._
 ## Start here
 
 **PHASE 5 IS COMPLETE — all 14 page singletons.** Phases 0–4 and the first
-eight pages are **merged to `master`** (PRs #31–#36); the last six are done and
-**uncommitted** on `sanity_last_pages`.
+eight pages are **merged to `master`** (PRs #31–#36). The last six are committed
+and pushed on `sanity_last_pages` (`f8b5a5b`) and **not yet merged**.
 
 Every word a reader sees on this site now comes from Sanity, apart from the
 chrome the decisions below keep in code deliberately. What is left is phase 6
@@ -111,12 +111,11 @@ and `/video-center/`. Both were checked rather than assumed:
 
 ## What is in Sanity
 
-**Fourteen document types, 126 documents.** (The old count of "95" here was
-the collections plus `homePage` and missed the four Site Settings singletons.)
+**Twenty-nine document types, 141 documents.**
 
 | | |
 |---|---|
-| Pages | `homePage` (grown one phase at a time — currently the About pull-quote and the six Success Stories picks) |
+| Pages | 14 singletons, one per page of the site — see the list below |
 | Collections | `practiceArea` 32 · `locationPage` 32 · `blogPost` 16 · `testimonial` 14 · `video` 9 · `faq` 9 · `award` 7 |
 | Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` · `testimonialsBand` · `statsBand` |
 
@@ -135,7 +134,7 @@ filtered out of the global ＋Create menu.
 
 ---
 
-## Where we are — phases 0–4 done
+## Where we are — phases 0–5 done
 
 - **0 Foundations.** Baseline frozen, both proof tools built, TypeGen wired,
   `blockContent` and `seo` object types, `getFirmDetails()` cache made
@@ -154,56 +153,30 @@ filtered out of the global ＋Create menu.
   pages (byte-identical), the strip on 3, the nine questions on 2, the nine
   videos on 2. Four surfaces gained images in Sanity — 7 badges and 13 posters —
   so those four pages differ from the frozen baseline only by CDN image URLs.
+- **5 The 14 page singletons.** Every page's own eyebrows, headings, leads,
+  CTA labels, stat figures and card copy. Almost all of it landed
+  byte-identical; the differences are entity escaping and inline-`<style>`
+  boundaries, both listed above.
 
-- **5 (in flight) the last six pages.** `/client-portal/`, `/sitemap/`,
-  `/thank-you/` and `404` came out 94/94 byte-identical. The two PROSE pages —
-  `/privacy-policy/` and the hiring guide — are the only ones in phase 5
-  modelled as **Portable Text**, because their sentences carry bold and links
-  and a plain string field would have handed a lawyer a box with tags in it.
-  Their diff is two overlapping expected classes and nothing else: entities
-  became real characters, and the `<p>` tags lost the page's scope hash because
-  they now come from `ProseBody`. With both normalised, ZERO differences remain,
-  and computed styles are identical on both pages — 18px/30px, same colour, same
-  list metrics.
-- **5 (in flight) `/contact-us/` + `/faq/` + `/video-center/`.** Two bands and
-  two headers. 93 of 94 pages byte-identical; `/contact-us/` differs by one
-  entity escape ("Let's Talk") and the other two by nothing at all.
-  `/faq/` and `/video-center/` reuse `blogPage`'s `PageHeader` type — three
-  pages, one shared `BlogHeader`, one shape.
-- **5 (in flight) `/blog/` + `/testimonials/`.** One band and two. Both pages
-  came out **100% byte-identical, all 94 pages** — the first migration in this
-  phase with no entity escaping at all, because none of the copy carried an
-  apostrophe or a quote. `/blog/`'s kicker was `BlogHeader`'s DEFAULT PROP, so
-  one page's copy was sitting in a component three pages render, where
-  `check:page-copy` could not see it — a default is not a read of a page
-  singleton. The prop is required now and all three callers pass their own.
-- **5 (in flight) `/practice-areas/`.** Three bands on a new
-  `practiceAreasPage` singleton, and the By the Numbers strip moved OUT of
-  `aboutPage` into `statsBand` — it renders here too. That was the SECOND time
-  page copy was filed as a record's job in two days, so the rule is now a script:
-  `npm run check:page-copy` walks the import graph from every page and fails on
-  it. Byte-identical everywhere but this page, which gained one entity escape.
-- **5 (in flight) `/about-us/`.** Six bands on a new `aboutPage` singleton, and
-  the Success Stories band moved OUT of `homePage` into its own record — it
-  renders on this page too, which the rule below forbids a page document from
-  owning. Two headings here put their italic mid-sentence, so accents grew a
-  third part; see `tail()` in `src/sanity/aboutPage.ts`.
-- **5 (in flight) the homepage.** Eleven bands of copy on the `homePage`
-  singleton, which had held only two reference fields. Every string extracted
-  from the components and diffed, never retyped. 92 of 94 pages byte-identical;
-  the homepage differs by 11 HTML entity escapes and nothing else, and
-  `/about-us/` by inline-style boundaries with its 511 CSS rules unchanged.
+  Two things came out of this phase that outlive it. The **record-versus-page**
+  rule below was broken twice — Success Stories inside `homePage`, By the
+  Numbers inside `aboutPage` — so it is now `npm run check:page-copy` rather
+  than a paragraph. And two pages are **Portable Text** while twelve are plain
+  strings, which is a deliberate split, not an inconsistency.
 
 ## What is left
 
-- ~~**Phase 5**~~ — done, 14 of 14.
-  `/sitemap/`'s rows stay DERIVED from the collections — modelling them would
-  replace something self-maintaining with something that goes stale.
 - **Phase 6** — Studio polish: icon audit, previews, field descriptions naming
-  the desk path an editor sees, warning-only length caps.
+  the desk path an editor sees, warning-only length caps. One known starting
+  point: `blockquote` is on two rows, the `testimonial` collection and the
+  Success Stories band. Everything else is distinct — 31 glyphs across
+  32 rows — and `@sanity/icons` has 236, so there is room.
 - **Phase 7** — retire the old layer. Delete `src/content/` and
   `src/content.config.ts`, move the three scrapers to `scripts/legacy-scrapers/`,
-  add the Sanity publish webhook → Vercel deploy hook.
+  add the Sanity publish webhook → Vercel deploy hook. **The old layer is
+  already unused**: nothing under `src/` imports `astro:content`, and the only
+  mentions of `getCollection` are three comments explaining why the query layers
+  mimic its shape. So this is a deletion and a webhook, not a migration.
 
 Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
 
@@ -257,7 +230,8 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   consultation copy (93), no What Drives Us (8), and no attorney name or phone
   number (facts about the firm, not the page). Two documents describing one line
   disagree eventually and the page picks one. The rule is written into the
-  `homePage` header, which is the file the next 13 pages will be copied from.
+  `homePage` header, which is the file every other page document was copied
+  from, and enforced by `npm run check:page-copy`.
 - **Portable Text only where a sentence carries markup.** Thirteen of the
   fourteen page documents hold plain strings, because their copy is plain. The
   privacy policy and the hiring guide hold `blockContent`, because bold and
@@ -276,10 +250,13 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   More`, `Load More Posts`, form labels and placeholders, `aria-label`s, the
   lead-form validation strings. The consultation section was built with all
   fourteen labels modelled and they were removed for exactly this reason.
-- **Accent headings are `{lead, accent}` strings, never rich text.** 22 headings
-  carry an inline `<em>` styled by a *scoped* rule. Rendered through Portable
-  Text the `<em>` loses its scope hash and the gold italic silently turns black —
-  on 92 pages for the consultation section alone.
+- **Accent headings are `{lead, accent}` strings, never rich text.** All 22 of
+  them carry an inline `<em>` styled by a *scoped* rule, and every one is
+  modelled this way. Rendered through Portable Text the `<em>` would lose its
+  scope hash and the gold italic would silently turn black — on 92 pages for the
+  consultation section alone. Some also carry a `tail`, for an italic that sits
+  mid-sentence; `tail()` in `src/sanity/aboutPage.ts` decides the spacing so the
+  Studio field can be trimmed safely.
 - **`slug` is the full path; `parent` is nav-only.** Eight practice areas are
   deliberately re-parented for the sidebar while keeping flat URLs. Deriving the
   path from the parent would move eight pages that carry live equity.
@@ -293,6 +270,12 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   collections would have let someone edit one wording believing they had edited
   both; one document with two fields makes the pairing visible. AGENTS.md
   forbids unifying them and the schema header says why.
+- **`/sitemap/`'s rows stay DERIVED.** Only its header is modelled. Every row
+  comes from the collections and from `firmDetails`, so the list maintains
+  itself; modelling it would replace something always right with something that
+  goes stale the first time a page is added. Its standfirst carries a `{count}`
+  token for the same reason — a number an editor can type is a number that can
+  disagree with the list beneath it.
 - **Categories stay slug strings.** Their slugs are baked into the index's
   client-side filter, into CSS `FilterBoot` generates per slug, and into each
   card's `data-cats`. Documents would ripple through eight components to make
@@ -417,6 +400,8 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
    "call us if it's urgent". The wording is a commitment on the firm's behalf.
 3. **Confirm the MyCase subdomain split** — `dieylaw` vs `dieyelaw`. Both work;
    flagging because one looks like a typo and it controls an OAuth callback.
+   Both links are now fields on `clientPortalPage`, one under the other, which
+   is what makes them comparable at a glance.
 4. **Should the homepage keep its `FAQPage` JSON-LD now that `/faq/` exists?**
 5. **The nine FAQ questions are `<summary>` text, not headings**, so a screen
    reader navigating by heading skips all nine.
@@ -430,10 +415,12 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
 8. **The `/testimonials/` video tile is still a placeholder** — stock-photo
    poster, generic label. The poster question was closed 2026-08-18; the label
    was not.
-9. **Authored strings with no comp behind them** — `/client-portal/` in full,
-   `/sitemap/`'s and `/faq/`'s kickers and decks, the 404's copy, and the titles
-   and meta descriptions on `/thank-you/`, `/testimonials/`, `/contact-us/` and
-   `/about-us/choosing-a-family-law-attorney/`.
+9. **Authored strings with no comp behind them**, now editable rather than
+   buried: `/client-portal/` in full, `/sitemap/`'s and `/faq/`'s kickers and
+   decks, and the 404's copy. Phase 5 moved them into the Studio; whether the
+   wording is what the firm wants is still an open question. The page TITLES and
+   META DESCRIPTIONS in that list are the exception — they are still hardcoded
+   in the page files, because the SEO tab that should hold them is not wired.
 10. **26 of 32 practice areas and 26 of 32 location pages close with a "come talk
    to us" section.** Kept deliberately — six end on real content that must
    survive. Trivial to strip later, impossible to recover if dropped.
@@ -475,13 +462,14 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
 - **The office map is a bare Google embed on 92 pages**, loading at parse time
   and setting third-party cookies sitewide. The last holdout of the
   click-to-load rule.
-- **The SEO tab is dead on both page singletons.** `homePage.seo` and
-  `aboutPage.seo` exist and nothing reads them — an editor can fill in a meta
-  title and watch the page not change, which is the exact failure the attorney's
-  `photo` and `rating` were removed for. They are reserved for `/new-seo-setup`,
-  which wires them alongside sitemap, robots and the JSON-LD builders. Either
-  bring that pass forward or drop the tab until it lands; leaving it is the one
-  place this migration knowingly breaks its own rule.
+- **The SEO tab is dead on all 14 page singletons.** Every page document has
+  one and nothing reads any of them — an editor can fill in a meta title and
+  watch the page not change, which is the exact failure the attorney's `photo`
+  and `rating` were removed for. They are reserved for `/new-seo-setup`, which
+  wires them alongside sitemap, robots and the JSON-LD builders. Either bring
+  that pass forward or drop the tabs until it lands; leaving them is the one
+  place this migration knowingly breaks its own rule, and it is now 14 places
+  rather than 2.
 - **`og:image` is on 16 of 95 pages.** Better solved by the SEO pass, where a
   per-page image field and a sitewide default supply it.
 - **10 pages skip a heading level** (h1 → h3): 8 practice areas, one location
