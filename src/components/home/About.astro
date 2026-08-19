@@ -8,6 +8,7 @@ import videoPoster from "../../assets/images/video-poster-pearland.jpg";
 import headshot from "../../assets/images/papa-headshot.jpg";
 import { getHomeTestimonials } from "../../sanity/testimonials";
 import { getAttorney } from "../../sanity/siteWide";
+import { getHomePage } from "../../sanity/homePage";
 
 /* The pull-quote in the aside. It used to be an INVENTED review attributed to
    "Danielle R. / Divorce & Custody" - hand-written markup, carrying no
@@ -57,24 +58,7 @@ const playLabel = runtime
    thumbnail is a mid-sentence frame, so it isn't used — swap this for the
    oEmbed `thumbnail_url` if a proper thumbnail is set in Wistia. */
 
-const checklist = [
-  {
-    lead: "Direct access to your attorney.",
-    text: "You work with Papa himself, not a rotating cast of associates. The person you meet at your consultation is the person who stands beside you in court.",
-  },
-  {
-    lead: "Seventeen-plus years of experience",
-    text: "across divorce, child custody, child support, property division, and post-decree modifications throughout the greater Houston area.",
-  },
-  {
-    lead: "Honest counsel and realistic expectations,",
-    text: "so you can make informed decisions about your family's future without false promises or pressure.",
-  },
-  {
-    lead: "Flexible, transparent fees and payment plans",
-    text: "built for real families navigating real financial stress during an already overwhelming time.",
-  },
-];
+const copy = (await getHomePage()).about;
 ---
 
 <section class="about section" aria-labelledby="about-title">
@@ -82,11 +66,9 @@ const checklist = [
     <header class="about__head">
       <p class="about__eyebrow">
         <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-        <span>Houston Family Law Firm</span>
+        <span>{copy.eyebrow}</span>
       </p>
-      <h2 class="about__title" id="about-title">
-        Family Law Isn't Just About Outcomes - <em>It's About People.</em>
-      </h2>
+      <h2 class="about__title" id="about-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}</h2>
     </header>
 
     <div class="about__grid">
@@ -114,10 +96,8 @@ const checklist = [
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
           </span>
           <span class="video-card__meta">
-            <span class="video-card__label">Watch Our Video</span>
-            <span class="video-card__caption">
-              Meet Papa Dieye, and hear how he stands beside Pearland families.
-            </span>
+            <span class="video-card__label">{copy.videoLabel}</span>
+            <span class="video-card__caption">{copy.videoCaption}</span>
           </span>
         </button>
 
@@ -138,34 +118,15 @@ const checklist = [
       </aside>
 
       <div class="about__body">
-        <p class="about__lead">
-          When your family is going through a divorce, a custody dispute, or a sudden
-          change in circumstances, it can feel like the ground has shifted beneath you.
-          At The Dieye Firm, we understand that behind every case file is a parent
-          worried about their children, a spouse facing an uncertain future, or a family
-          simply trying to find a way forward. We're here to help you carry that weight,
-          with compassion, honesty, and seventeen years of Texas family law experience
-          behind every decision.
-        </p>
+        <p class="about__lead">{copy.lead}</p>
 
-        <p>
-          For more than seventeen years, attorney Papa Dieye has guided Pearland and
-          Houston families through some of the hardest seasons of their lives. Our
-          approach is people-first: we listen before we advise, we explain the law in
-          plain language, and we never lose sight of the human beings at the center of
-          every matter. You are not a number here. You are a neighbor, and your family's
-          well-being is the measure of our work.
-        </p>
+        <p>{copy.intro}</p>
 
-        <h3>How The Dieye Firm Can Help</h3>
-        <p>
-          Family law in Texas covers a wide range of deeply personal matters, and we walk
-          with you through all of them, from the first difficult conversation to the
-          final signed order:
-        </p>
+        <h3>{copy.helpHeading}</h3>
+        <p>{copy.helpIntro}</p>
 
         <ul class="checklist">
-          {checklist.map((item) => (
+          {copy.checklist.map((item) => (
             <li>
               <span class="checklist__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
@@ -199,38 +160,19 @@ const checklist = [
               decoding="async"
             />
             <span>
-              <span class="pullquote__name">Papa Dieye</span>
+              <span class="pullquote__name">{attorney.name}</span>
               <span class="pullquote__role">{attorney.role}</span>
             </span>
           </figcaption>
         </figure>
 
-        <h3>Why You Need a Compassionate Family Lawyer</h3>
-        <p>
-          Family law touches the things you hold most dear: your children, your home,
-          your financial security, and your peace of mind. A knowledgeable family lawyer
-          takes over the confusing paperwork, the court deadlines, and the difficult
-          negotiations, so you can focus on healing and on the people who depend on you
-          most.
-        </p>
-        <p>
-          Whether your situation is amicable or deeply contested, we work to resolve it
-          efficiently, protect your rights, and keep your children's well-being at the
-          heart of every strategy. We handle the legal complexity; you get room to
-          breathe.
-        </p>
+        <h3>{copy.whyHeading}</h3>
+        {copy.whyParagraphs.map((text) => <p>{text}</p>)}
 
-        <h3>Serving Families Across the Houston Area</h3>
-        <p>
-          The Dieye Firm proudly represents families in Pearland, Houston, Sugar Land,
-          Friendswood, Manvel, Alvin, and the surrounding communities. From contested
-          divorces and high-conflict custody disputes to straightforward, uncontested
-          separations, no family is too complicated and no concern is too small. We
-          believe everyone deserves clear answers, dignified treatment, and an advocate
-          who genuinely cares about what happens next.
-        </p>
+        <h3>{copy.servingHeading}</h3>
+        <p>{copy.servingParagraph}</p>
 
-        <a class="btn btn--gold about__cta" href="/contact-us/">Get in Touch</a>
+        <a class="btn btn--gold about__cta" href="/contact-us/">{copy.ctaLabel}</a>
       </div>
     </div>
   </div>

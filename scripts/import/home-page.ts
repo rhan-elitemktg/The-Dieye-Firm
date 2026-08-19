@@ -16,6 +16,11 @@
  * dataset rather than hardcoding document ids, and a miss throws — the same
  * invariant the components enforced, applied at import instead of at build.
  *
+ * ⚠ THIS SCRIPT REPLACES THE WHOLE DOCUMENT. Since phase 5 the homePage
+ * singleton also holds eleven sections of copy, and `createOrReplace` below
+ * would delete every one of them. It has already been run; if it ever needs to
+ * run again, re-run scripts/import/home-page-copy.ts straight afterwards.
+ *
  * (name, matter) is the de-facto key and it is fragile: three reviews are signed
  * "Former Client" and are told apart only by matter. It is good enough for a
  * one-time resolve and is exactly why the selection becomes a reference here —

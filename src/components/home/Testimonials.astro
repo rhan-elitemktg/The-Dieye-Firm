@@ -42,6 +42,9 @@ import birdGold from "../../assets/images/logo-bird-gold.png";
    The matter is simply absent rather than filled with something that doesn't
    say it. */
 import { getHomeTestimonials } from "../../sanity/testimonials";
+import { getHomePage } from "../../sanity/homePage";
+
+const copy = (await getHomePage()).testimonials;
 
 /* Which six, and their order, is set on the Home Page document
    (Pages -> Home Page -> Success Stories) rather than chosen here. It used to be
@@ -56,20 +59,18 @@ const { picks: testimonials } = await getHomeTestimonials();
     <header class="tst__head">
       <p class="tst__eyebrow">
         <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-        <span>In Their Words</span>
+        <span>{copy.eyebrow}</span>
       </p>
-      <h2 class="tst__title" id="tst-title">Success <em>Stories</em></h2>
-      <p class="tst__lead">
-        Real outcomes for real families, shared with care, never as a guarantee.
-      </p>
-      <a class="btn btn--gold tst__cta" href="/testimonials/">View All Reviews</a>
+      <h2 class="tst__title" id="tst-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}</h2>
+      <p class="tst__lead">{copy.lead}</p>
+      <a class="btn btn--gold tst__cta" href="/testimonials/">{copy.ctaLabel}</a>
     </header>
 
     <ul class="tst__track" tabindex="0" role="region" aria-label="Client testimonials" data-tst-track>
       {testimonials.map((item) => (
         <li class="tst__slide">
           <figure class="tcard">
-            <p class="tcard__kicker">Testimonial</p>
+            <p class="tcard__kicker">{copy.cardKicker}</p>
 
             <div class="tcard__stars" role="img" aria-label="Five out of five stars">
               {[...Array(5)].map(() => (

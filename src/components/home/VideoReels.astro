@@ -7,6 +7,8 @@ import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import { responsiveImage } from "../../sanity/image";
 import { getReels } from "../../sanity/videos";
+import { getHomePage } from "../../sanity/homePage";
+const copy = (await getHomePage()).videoReels;
 
 /* Posters are shot portraits rather than Wistia's auto-generated stills - the
    Wistia frames are mid-sentence and carry burned-in social captions, which
@@ -33,9 +35,9 @@ const videos = reels.map((reel) => ({
     <header class="reels__head">
       <p class="reels__eyebrow">
         <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-        <span>Watch &amp; Learn</span>
+        <span>{copy.eyebrow}</span>
       </p>
-      <h2 class="reels__title" id="reels-title">Family Law, <em>Explained</em></h2>
+      <h2 class="reels__title" id="reels-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}</h2>
     </header>
 
     <ul
@@ -90,7 +92,7 @@ const videos = reels.map((reel) => ({
     </div>
 
     <div class="reels__cta">
-      <a class="btn btn--gold" href="/video-center/">View More Videos</a>
+      <a class="btn btn--gold" href="/video-center/">{copy.ctaLabel}</a>
     </div>
   </div>
 </section>

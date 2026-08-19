@@ -14,6 +14,8 @@ import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import headshot from "../../assets/images/papa-headshot.jpg";
 import { getHomeFaqs, type FaqItem } from "../../sanity/faqs";
+import { getHomePage } from "../../sanity/homePage";
+const copy = (await getHomePage()).faq;
 
 interface Props {
   /* Defaults to the homepage's six, so <Faq /> is unchanged. */
@@ -53,10 +55,10 @@ const faqSchema = {
       <header class="faq__head">
         <p class="faq__eyebrow">
           <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-          <span>Frequently Asked Questions</span>
+          <span>{copy.eyebrow}</span>
         </p>
         <h2 class="faq__title" id="faq-title">
-          Answers to the Most Commonly <em>Asked Questions</em>
+          {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}
         </h2>
       </header>
     )}

@@ -5,6 +5,9 @@
 import { Image } from "astro:assets";
 import { getAttorney } from "../../sanity/siteWide";
 import { responsiveImage } from "../../sanity/image";
+import { getHomePage } from "../../sanity/homePage";
+
+const copy = (await getHomePage()).guideRequest;
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import headshot from "../../assets/images/papa-headshot-square.jpg";
 
@@ -17,19 +20,16 @@ const attorney = await getAttorney();
       <div class="guide__copy">
         <p class="guide__eyebrow">
           <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-          <span>No Pressure</span>
+          <span>{copy.eyebrow}</span>
         </p>
 
         <h2 class="guide__title" id="guide-title">
-          Hey, Not Ready Yet? <em>That's Okay.</em>
+          {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}
         </h2>
 
-        <p class="guide__lead">
-          Choosing a lawyer is a big step. Here's something genuinely helpful to guide
-          you through what comes next, on your own time.
-        </p>
+        <p class="guide__lead">{copy.lead}</p>
 
-        <p class="guide__offer">Get your free Texas Divorce Checklist</p>
+        <p class="guide__offer">{copy.offer}</p>
 
         {/* PLACEHOLDER: no endpoint yet. The script cancels submission and shows
             an inline confirmation, so nothing is silently posted to a URL that

@@ -8,6 +8,9 @@ import commFestival from "../../assets/images/community/comm-n1.jpg";
 import commSidewalk from "../../assets/images/community/comm-n2.jpg";
 import badgeFile from "../../assets/images/community/pearland-badge.png";
 import communityMark from "../../assets/icons/community-mark.svg?raw";
+import { getHomePage } from "../../sanity/homePage";
+
+const copy = (await getHomePage()).community;
 
 /* 382px is the badge's native size, so never ask for more. It goes through
    getImage() for the WebP conversion but is consumed as a background-image
@@ -45,27 +48,18 @@ const photos = [
       <div class="community__copy">
         <p class="community__eyebrow">
           <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-          <span>Rooted in Community</span>
+          <span>{copy.eyebrow}</span>
         </p>
         <h2 class="community__title" id="community-title">
-          Giving Back to Our <em>Neighbors</em>
+          {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}
         </h2>
-        <p class="community__text">
-          The Dieye Firm believes in showing up for the community that raised it. From pro
-          bono family law clinics to local mentorship and neighborhood events, Papa is
-          invested in Pearland and Houston beyond the courtroom.
-        </p>
-        <p class="community__text">
-          Because caring for families shouldn't stop at the office door.
-        </p>
+        {copy.paragraphs.map((text) => <p class="community__text">{text}</p>)}
         {/* Was /about-us/the-difference/, which folded into /about-us/ and now
             301s there. Pointed at the canonical rather than left to ride the
             redirect — see "Moving or removing a route" in AGENTS.md. The label
             still reads as the firm's own phrase, and /about-us/ is where that
             story now lives. */}
-        <a class="btn btn--gold community__cta" href="/about-us/">
-          The Dieye Difference
-        </a>
+        <a class="btn btn--gold community__cta" href="/about-us/">{copy.ctaLabel}</a>
       </div>
 
       <ul class="community__tiles">
@@ -94,10 +88,8 @@ const photos = [
               Astro's scoping attribute. */}
           <span class="ctile__mark" aria-hidden="true" set:html={communityMark} />
           <div class="ctile__body">
-            <h3 class="ctile__title">Beyond the Courtroom</h3>
-            <p class="ctile__desc">
-              Pro bono clinics, mentorship, and neighborhood events across Pearland.
-            </p>
+            <h3 class="ctile__title">{copy.tileTitle}</h3>
+            <p class="ctile__desc">{copy.tileText}</p>
           </div>
         </li>
       </ul>

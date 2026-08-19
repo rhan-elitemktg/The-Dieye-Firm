@@ -14,45 +14,27 @@ import familyLawIcon from "../../assets/icons/family-law.svg?raw";
 import childSupportIcon from "../../assets/icons/child-support.svg?raw";
 import propertyDivisionIcon from "../../assets/icons/property-division.svg?raw";
 import modificationsIcon from "../../assets/icons/modifications.svg?raw";
+import { getHomePage } from "../../sanity/homePage";
 
-const areas = [
-  {
-    title: "Divorce",
-    href: "/family-law/divorce/",
-    icon: divorceIcon,
-    text: "Divorce, whether contested or amicable, calls for steady guidance that protects your future and the people you love most.",
-  },
-  {
-    title: "Child Custody",
-    href: "/family-law/child-custody/",
-    icon: childCustodyIcon,
-    text: "Child Custody arrangements put your children first while protecting your role, your rights, and your peace of mind as a parent.",
-  },
-  {
-    title: "Family Law",
-    href: "/family-law/",
-    icon: familyLawIcon,
-    text: "Family Law covers every family matter, from mediation to litigation, you'll have calm, capable counsel beside you every step.",
-  },
-  {
-    title: "Child Support",
-    href: "/family-law/child-support/",
-    icon: childSupportIcon,
-    text: "Child Support orders should be fair and accurate. We help you set them correctly, and adjust them as your life changes over time.",
-  },
-  {
-    title: "Property Division",
-    href: "/family-law/property-division/",
-    icon: propertyDivisionIcon,
-    text: "Property Division under Texas law calls for a clear-eyed, even-handed approach to dividing your assets and debts as fairly as possible.",
-  },
-  {
-    title: "Modifications",
-    href: "/family-law/modifications-enforcement/",
-    icon: modificationsIcon,
-    text: "Modifications keep your orders current, because when life changes your custody, support, and parenting plans can change too.",
-  },
-];
+const ICONS: Record<string, string> = {
+  divorce: divorceIcon,
+  "child-custody": childCustodyIcon,
+  "family-law": familyLawIcon,
+  "child-support": childSupportIcon,
+  "property-division": propertyDivisionIcon,
+  modifications: modificationsIcon,
+};
+
+const copy = (await getHomePage()).practiceAreas;
+
+/* A name the schema's list does not offer can only arrive by editing that list
+   without adding the glyph, so it fails the build rather than rendering a card
+   with an empty square where the icon goes. */
+const areas = copy.areas.map((area) => {
+  const icon = ICONS[area.icon];
+  if (!icon) throw new Error(`practiceAreas: no icon named "${area.icon}".`);
+  return { ...area, icon };
+});
 ---
 
 <section class="pa section" aria-labelledby="pa-title">
@@ -60,16 +42,10 @@ const areas = [
     <header class="pa__head">
       <p class="pa__eyebrow">
         <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-        <span>What We Do</span>
+        <span>{copy.eyebrow}</span>
       </p>
-      <h2 class="pa__title" id="pa-title">How We Can <em>Help</em></h2>
-      <p class="pa__intro">
-        From divorce and custody to support and modifications, we guide Pearland and
-        Houston families through every family law matter with steady, compassionate
-        counsel, and the honest answers you deserve. Family law covers issues about
-        family relationships, including how to approach changes and resolve conflict.
-        The legal landscape can be far more intricate than many expect.
-      </p>
+      <h2 class="pa__title" id="pa-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}</h2>
+      <p class="pa__intro">{copy.intro}</p>
     </header>
 
     <ul class="pa__grid">
@@ -93,7 +69,7 @@ const areas = [
     <div class="pa__cta">
       {/* The section index, not /family-law/ — that is one of the six cards
           above now. */}
-      <a class="btn btn--gold" href="/practice-areas/">View All Services</a>
+      <a class="btn btn--gold" href="/practice-areas/">{copy.ctaLabel}</a>
     </div>
   </div>
 </section>

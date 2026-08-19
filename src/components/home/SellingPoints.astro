@@ -14,29 +14,25 @@ import compassionIcon from "../../assets/icons/compassionate-approach.svg?raw";
 import personalIcon from "../../assets/icons/client-focused.svg?raw";
 import experienceIcon from "../../assets/icons/experienced.svg?raw";
 import paymentsIcon from "../../assets/icons/flexible-payments.svg?raw";
+import { getHomePage } from "../../sanity/homePage";
 
-const points = [
-  {
-    icon: compassionIcon,
-    title: "Compassionate Approach",
-    text: "We meet you with empathy first, listening before we advise, because this is your life, not just a case.",
-  },
-  {
-    icon: personalIcon,
-    title: "Direct, Personal Attention",
-    text: "You work with Papa himself, the attorney who knows your name, your story, and your goals.",
-  },
-  {
-    icon: experienceIcon,
-    title: "17+ Years of Experience",
-    text: "Steady, practical judgment navigating Texas family courts across the Houston area.",
-  },
-  {
-    icon: paymentsIcon,
-    title: "Flexible Payment Plans",
-    text: "Transparent fees and financing options built for real families during a hard season.",
-  },
-];
+const ICONS: Record<string, string> = {
+  "compassionate-approach": compassionIcon,
+  "client-focused": personalIcon,
+  experienced: experienceIcon,
+  "flexible-payments": paymentsIcon,
+};
+
+const copy = (await getHomePage()).sellingPoints;
+
+/* A name the schema's list does not offer can only arrive by editing that
+   list without adding the glyph, so it fails the build rather than rendering
+   an empty square where the icon goes. */
+const points = copy.points.map((point) => {
+  const icon = ICONS[point.icon];
+  if (!icon) throw new Error(`sellingPoints: no icon named "${point.icon}".`);
+  return { ...point, icon };
+});
 ---
 
 <section class="sp section" aria-labelledby="sp-title">
@@ -59,9 +55,9 @@ const points = [
       <header class="sp__head">
         <p class="sp__eyebrow">
           <Image src={birdGold} alt="" width={70} format="webp" loading="lazy" decoding="async" />
-          <span>The Difference</span>
+          <span>{copy.eyebrow}</span>
         </p>
-        <h2 class="sp__title" id="sp-title">Why Hire <em>The Dieye Firm?</em></h2>
+        <h2 class="sp__title" id="sp-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}</h2>
       </header>
 
       <ul class="sp__grid">
