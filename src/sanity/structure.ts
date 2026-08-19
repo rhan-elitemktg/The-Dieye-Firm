@@ -35,6 +35,8 @@ export const SINGLETONS = [
   "homePage",
   "aboutPage",
   "practiceAreasPage",
+  "blogPage",
+  "testimonialsPage",
   "consultForm",
   "caseEvaluationForm",
   "attorney",
@@ -80,6 +82,8 @@ export const structure: StructureResolver = (S, context) =>
               page(S, "homePage", "Home Page", icons.home),
               page(S, "aboutPage", "About Page", icons.users),
               page(S, "practiceAreasPage", "Practice Areas Page", icons["th-large"]),
+              page(S, "blogPage", "Blog Page", icons.documents),
+              page(S, "testimonialsPage", "Testimonials Page", icons["star-filled"]),
             ]),
         ),
 

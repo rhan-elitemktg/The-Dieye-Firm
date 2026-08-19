@@ -6,22 +6,22 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-19, on the `sanity_practice_areas` branch._
+_Last rewritten: 2026-08-19, on the `sanity_blog_testimonials` branch._
 
 ---
 
 ## Start here
 
-**The Sanity content-modelling pass is underway.** Phases 0–4 and the first two
-page singletons are **merged to `master`** (PRs #31, #32, #33). Phase 5 continues
-on `sanity_practice_areas`, branched from master: `/practice-areas/` is done and
-**uncommitted**; 11 page singletons are left.
+**The Sanity content-modelling pass is underway.** Phases 0–4 and the first
+three page singletons are **merged to `master`** (PRs #31–#34). Phase 5 continues
+on `sanity_blog_testimonials`, branched from master: `/blog/` and
+`/testimonials/` are done and **uncommitted**; 9 page singletons are left.
 
 Build green at 95 pages. Every one of the 80 pages of ingested client prose
 renders from Sanity, plus the reviews, the consultation section, the sidebar
 enquiry card, the attorney, the What Drives Us band, the awards strip, the nine
 FAQs, the nine videos — and the homepage's eleven bands of copy, `/about-us/`'s
-five and `/practice-areas/`'s three.
+five, `/practice-areas/`'s three, `/blog/`'s one and `/testimonials/`'s two.
 
 The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`. Read it
 before continuing — it holds the phase order, the reasoning behind the model,
@@ -117,7 +117,8 @@ the collections plus `homePage` and missed the four Site Settings singletons.)
 | Collections | `practiceArea` 32 · `locationPage` 32 · `blogPost` 16 · `testimonial` 14 · `video` 9 · `faq` 9 · `award` 7 |
 | Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` · `testimonialsBand` · `statsBand` |
 
-Pages: `homePage` · `aboutPage` · `practiceAreasPage`, with 11 more to come.
+Pages: `homePage` · `aboutPage` · `practiceAreasPage` · `blogPage` ·
+`testimonialsPage`, with 9 more to come.
 
 Four collections are drag-ordered in the Studio — `testimonial`, `award`, `faq`
 and `video`. Nothing about those documents would reproduce their order, and for
@@ -149,6 +150,13 @@ filtered out of the global ＋Create menu.
   videos on 2. Four surfaces gained images in Sanity — 7 badges and 13 posters —
   so those four pages differ from the frozen baseline only by CDN image URLs.
 
+- **5 (in flight) `/blog/` + `/testimonials/`.** One band and two. Both pages
+  came out **100% byte-identical, all 94 pages** — the first migration in this
+  phase with no entity escaping at all, because none of the copy carried an
+  apostrophe or a quote. `/blog/`'s kicker was `BlogHeader`'s DEFAULT PROP, so
+  one page's copy was sitting in a component three pages render, where
+  `check:page-copy` could not see it — a default is not a read of a page
+  singleton. The prop is required now and all three callers pass their own.
 - **5 (in flight) `/practice-areas/`.** Three bands on a new
   `practiceAreasPage` singleton, and the By the Numbers strip moved OUT of
   `aboutPage` into `statsBand` — it renders here too. That was the SECOND time
@@ -168,12 +176,11 @@ filtered out of the global ＋Create menu.
 
 ## What is left
 
-- **Phase 5** — 3 of 14 page singletons done (the homepage, `/about-us/`,
-  `/practice-areas/`). The other 11:
-  `/about-us/choosing-a-family-law-attorney/` · `/blog/` · `/testimonials/` ·
-  `/contact-us/` · `/faq/` · `/video-center/` · `/client-portal/` ·
-  `/privacy-policy/` · `/sitemap/` · `/thank-you/` · `404`.
-  15 of the 18 accent headings are done; 3 are left.
+- **Phase 5** — 5 of 14 page singletons done (the homepage, `/about-us/`,
+  `/practice-areas/`, `/blog/`, `/testimonials/`). The other 9:
+  `/about-us/choosing-a-family-law-attorney/` · `/contact-us/` · `/faq/` ·
+  `/video-center/` · `/client-portal/` · `/privacy-policy/` · `/sitemap/` ·
+  `/thank-you/` · `404`. All 18 accent headings are done.
   `/sitemap/`'s rows stay DERIVED from the collections — modelling them would
   replace something self-maintaining with something that goes stale.
 - **Phase 6** — Studio polish: icon audit, previews, field descriptions naming
@@ -324,6 +331,11 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   `home-page-copy.ts` — and it PATCHES with dotted paths so the references
   survive. Both scripts now say so at the top. This was found the hard way: the
   phase-5 script was written to the phase-2 filename and overwrote it.
+- **A DEFAULT PROP hides page copy from the check.** `/blog/`'s kicker lived as
+  `eyebrow = "News & Insights"` in `BlogHeader`, which /faq/ and /video-center/
+  also render. `check:page-copy` reads imports, not defaults, so it saw nothing.
+  When a shared component carries a default that only one caller uses, that
+  default is that caller's copy — make the prop required.
 - **A section that renders on several pages is NOT page copy**, and the miss is
   easy — it happened twice. Success Stories sat in `homePage` until `/about-us/`
   surfaced it; By the Numbers sat in `aboutPage` until `/practice-areas/` did.

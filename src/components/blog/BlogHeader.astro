@@ -8,13 +8,14 @@ import Eyebrow from "../Eyebrow.astro";
 interface Props {
   title: string;
   intro: string;
-  /* Optional so /blog/ is untouched. /video-center/ borrows this header and
-     only needs a different kicker; if a third page ever wants it, it graduates
-     to interior/PageHeader.astro. */
-  eyebrow?: string;
+  /* Required. It was optional with a default, which meant /blog/'s kicker
+     lived in a component that three pages render — one page's copy in shared
+     code, and invisible to check:page-copy because a default is not a read of a
+     page singleton. Every caller passes its own now. */
+  eyebrow: string;
 }
 
-const { title, intro, eyebrow = "News & Insights" } = Astro.props;
+const { title, intro, eyebrow } = Astro.props;
 ---
 
 <header class="bh">

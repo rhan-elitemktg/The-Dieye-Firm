@@ -1,5 +1,6 @@
 ---
 import { getBlogPosts } from "../../sanity/blogPosts";
+import { getBlogPage } from "../../sanity/blogPage";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import BlogHeader from "../../components/blog/BlogHeader.astro";
@@ -10,9 +11,7 @@ import FilterBoot from "../../components/blog/FilterBoot.astro";
 import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
 import { byNewest, splitFeatured } from "../../components/blog/blog";
 
-const title = "Our Blog";
-const intro =
-  "Clear, compassionate guidance on divorce, custody, support, and everything Texas families face - straight from Papa Dieye.";
+const { header } = await getBlogPage();
 
 const all = (await getBlogPosts()).sort(byNewest);
 /* The featured post is pinned above the filter and never appears in the grid,
@@ -23,7 +22,7 @@ const canonical = new URL("/blog/", Astro.site ?? Astro.url).href;
 ---
 
 <Layout
-  title={`${title} | The Dieye Firm`}
+  title={`${header.title} | The Dieye Firm`}
   description="Family law insight from The Dieye Firm - divorce, custody, child support and more, written for Texas families in Pearland and Houston."
   canonical={canonical}
 >
@@ -33,7 +32,7 @@ const canonical = new URL("/blog/", Astro.site ?? Astro.url).href;
       exactly as a blog post does, so a transparent header would sit on white. */}
   <Header />
 
-  <BlogHeader title={title} intro={intro} />
+  <BlogHeader title={header.title} intro={header.intro} eyebrow={header.eyebrow} />
   {featured && <FeaturedPost post={featured} />}
   <CategoryFilter posts={all} />
   <PostGrid posts={rest} />

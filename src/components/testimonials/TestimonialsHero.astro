@@ -13,6 +13,10 @@
 
 import { Image } from "astro:assets";
 import Eyebrow from "../Eyebrow.astro";
+import { getTestimonialsPage } from "../../sanity/testimonialsPage";
+import { tail } from "../../sanity/aboutPage";
+
+const copy = (await getTestimonialsPage()).hero;
 import consultation from "../../assets/images/hero-testimonials.jpg";
 ---
 
@@ -35,20 +39,16 @@ import consultation from "../../assets/images/hero-testimonials.jpg";
 
   <div class="container tshero__inner">
     <div class="tshero__content">
-      <Eyebrow light eager>Client Reviews</Eyebrow>
+      <Eyebrow light eager>{copy.eyebrow}</Eyebrow>
 
-      <h1 class="tshero__title">What our clients <em>say.</em></h1>
+      {/* The <em> stays in THIS template: through a renderer it would lose the
+          scope hash and the gold italic would silently go plain. */}
+      <h1 class="tshero__title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}</h1>
 
       {/* The comp's em dash becomes a spaced hyphen, per AGENTS.md. */}
-      <p class="tshero__lead">
-        For more than seventeen years, families across Pearland and Houston have
-        trusted The Dieye Firm through their hardest days. Here is what they have
-        to say - in their own words.
-      </p>
+      <p class="tshero__lead">{copy.lead}</p>
 
-      <a class="btn btn--gold tshero__cta" href="/contact-us/">
-        Schedule a Consultation
-      </a>
+      <a class="btn btn--gold tshero__cta" href="/contact-us/">{copy.ctaLabel}</a>
     </div>
   </div>
 </section>

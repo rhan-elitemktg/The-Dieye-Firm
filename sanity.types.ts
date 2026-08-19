@@ -347,6 +347,45 @@ export type ConsultForm = {
   };
 };
 
+export type TestimonialsPage = {
+  _id: string;
+  _type: "testimonialsPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  hero?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+    lead: string;
+    ctaLabel: string;
+  };
+  wall?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+    lead: string;
+    cardKicker: string;
+  };
+  seo?: Seo;
+};
+
+export type BlogPage = {
+  _id: string;
+  _type: "blogPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  header?: {
+    eyebrow: string;
+    title: string;
+    intro: string;
+  };
+  seo?: Seo;
+};
+
 export type PracticeAreasPage = {
   _id: string;
   _type: "practiceAreasPage";
@@ -753,6 +792,8 @@ export type AllSanitySchemaTypes =
   | WhatDrivesUs
   | CaseEvaluationForm
   | ConsultForm
+  | TestimonialsPage
+  | BlogPage
   | PracticeAreasPage
   | AboutPage
   | HomePage
@@ -868,6 +909,29 @@ export type AWARDS_QUERY_RESULT = {
   }>;
 };
 
+// Source: src/sanity/blogPage.ts
+// Variable: BLOG_PAGE_QUERY
+// Query: *[_id == "blogPage"][0]{ header{ eyebrow, title, intro } }
+export type BLOG_PAGE_QUERY_RESULT =
+  | {
+      header: null;
+    }
+  | {
+      header: {
+        eyebrow: string;
+        title: null;
+        intro: null;
+      } | null;
+    }
+  | {
+      header: {
+        eyebrow: string;
+        title: string;
+        intro: string;
+      } | null;
+    }
+  | null;
+
 // Source: src/sanity/blogPosts.ts
 // Variable: BLOG_POSTS_ALL_QUERY
 // Query: *[_type == "blogPost"]{    "id": slug.current,    "data": {      title,      date,      author,      "categories": coalesce(categories, []),      featured,      "keyTakeaways": coalesce(keyTakeaways, []),      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "imageAlt": coalesce(image.alt, ""),      "image": image{        asset,        "dimensions": asset->metadata.dimensions      }    },    body,    "noIndex": seo.noIndex,    _updatedAt  }
@@ -903,6 +967,15 @@ export type BLOG_POSTS_ALL_QUERY_RESULT = Array<{
 export type CONSULT_FORM_QUERY_RESULT =
   | {
       header: null;
+      form: null;
+    }
+  | {
+      header: {
+        eyebrow: string;
+        headingLead: null;
+        headingAccent: null;
+        leadLines: null;
+      } | null;
       form: null;
     }
   | {
@@ -1390,6 +1463,56 @@ export type TESTIMONIALS_BAND_QUERY_RESULT =
     }
   | null;
 
+// Source: src/sanity/testimonialsPage.ts
+// Variable: TESTIMONIALS_PAGE_QUERY
+// Query: *[_id == "testimonialsPage"][0]{    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },    wall{ eyebrow, headingLead, headingAccent, headingTail, lead, cardKicker }  }
+export type TESTIMONIALS_PAGE_QUERY_RESULT =
+  | {
+      hero: null;
+      wall: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: null;
+        headingAccent: string | null;
+        headingTail: null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      wall: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      wall: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      wall: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        cardKicker: string;
+      } | null;
+    }
+  | null;
+
 // Source: src/sanity/videos.ts
 // Variable: VIDEOS_QUERY
 // Query: *[_type == "video"] | order(orderRank){    "id": wistiaId,    title,    label,    aspect,    reelOrder,    poster{ asset, "dimensions": asset->metadata.dimensions },    reelPoster{ asset, "dimensions": asset->metadata.dimensions }  }
@@ -1443,6 +1566,7 @@ declare module "@sanity/client" {
   interface SanityQueries {
     '\n  *[_id == "aboutPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },\n    promise{ quoteLead, quoteAccent, quoteTail },\n    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },\n    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }\n  }\n': ABOUT_PAGE_QUERY_RESULT;
     '{\n  "heading": *[_id == "awardsBand"][0].heading,\n  "badges": *[_type == "award"] | order(orderRank){\n    "id": _id,\n    alt,\n    width,\n    image{ asset, "dimensions": asset->metadata.dimensions }\n  }\n}': AWARDS_QUERY_RESULT;
+    '\n  *[_id == "blogPage"][0]{ header{ eyebrow, title, intro } }\n': BLOG_PAGE_QUERY_RESULT;
     '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
     '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
     '\n  *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }\n': FAQS_QUERY_RESULT;
@@ -1457,6 +1581,7 @@ declare module "@sanity/client" {
     '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
     '\n  *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }\n': TESTIMONIALS_PULL_QUOTE_QUERY_RESULT;
     '\n  *[_id == "testimonialsBand"][0]{\n    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,\n    "picks": picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_BAND_QUERY_RESULT;
+    '\n  *[_id == "testimonialsPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    wall{ eyebrow, headingLead, headingAccent, headingTail, lead, cardKicker }\n  }\n': TESTIMONIALS_PAGE_QUERY_RESULT;
     '\n  *[_type == "video"] | order(orderRank){\n    "id": wistiaId,\n    title,\n    label,\n    aspect,\n    reelOrder,\n    poster{ asset, "dimensions": asset->metadata.dimensions },\n    reelPoster{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': VIDEOS_QUERY_RESULT;
     '\n  *[_id == "whatDrivesUs"][0]{\n    eyebrow,\n    headingLead,\n    headingAccent,\n    values[]{ icon, title, text }\n  }\n': WHAT_DRIVES_US_QUERY_RESULT;
   }

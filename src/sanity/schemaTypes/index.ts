@@ -6,6 +6,8 @@ import { blockContent } from "./blockContent";
 import { homePage } from "./homePage";
 import { aboutPage } from "./aboutPage";
 import { practiceAreasPage } from "./practiceAreasPage";
+import { blogPage } from "./blogPage";
+import { testimonialsPage } from "./testimonialsPage";
 import { testimonial } from "./testimonial";
 import { practiceArea } from "./practiceArea";
 import { locationPage } from "./locationPage";
@@ -31,6 +33,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   homePage,
   aboutPage,
   practiceAreasPage,
+  blogPage,
+  testimonialsPage,
   consultForm,
   caseEvaluationForm,
   whatDrivesUs,
