@@ -3,12 +3,13 @@ import { defineQuery } from "groq";
 
 /* /about-us/ — its own copy, in one fetch for the whole page.
  *
- * Six components read bands of this document. They all render on the same
+ * Five components read bands of this document. They all render on the same
  * request, so one query beats six round trips. Promise-cached in PROD and
  * deliberately not in dev, so a Studio edit shows up on refresh.
  *
- * Three more bands on that page are NOT here: the awards strip, the Success
- * Stories band and What Drives Us are shared records. Papa's name and title
+ * Four more bands on that page are NOT here: the awards strip, the Success
+ * Stories band, the By the Numbers strip and What Drives Us are shared
+ * records. Papa's name and title
  * are not here either — they are the `attorney` record, and they render in
  * four places on this page.
  */
@@ -16,7 +17,6 @@ const ABOUT_PAGE_QUERY = defineQuery(`
   *[_id == "aboutPage"][0]{
     hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },
     whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },
-    byTheNumbers{ stats[]{ value, label } },
     promise{ quoteLead, quoteAccent, quoteTail },
     meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },
     whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }
@@ -33,7 +33,6 @@ type Heading = {
 export type AboutPage = {
   hero: Heading & { lead: string; ctaLabel: string };
   whoWeAre: Heading & { paragraphs: string[]; ctaLabel: string };
-  byTheNumbers: { stats: { value: string; label: string }[] };
   promise: { quoteLead: string; quoteAccent?: string; quoteTail?: string };
   meetPapa: {
     eyebrow: string;

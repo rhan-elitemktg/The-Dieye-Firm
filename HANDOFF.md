@@ -6,22 +6,22 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-19, on the `sanity_homepage` branch._
+_Last rewritten: 2026-08-19, on the `sanity_practice_areas` branch._
 
 ---
 
 ## Start here
 
-**The Sanity content-modelling pass is underway.** Phases 0–4 are **merged to
-`master`** (PRs #31 and #32). Phase 5 is in flight on `sanity_homepage`, branched
-from master: the homepage and `/about-us/` are done and pushed, the other 12
-page singletons are not.
+**The Sanity content-modelling pass is underway.** Phases 0–4 and the first two
+page singletons are **merged to `master`** (PRs #31, #32, #33). Phase 5 continues
+on `sanity_practice_areas`, branched from master: `/practice-areas/` is done and
+**uncommitted**; 11 page singletons are left.
 
 Build green at 95 pages. Every one of the 80 pages of ingested client prose
 renders from Sanity, plus the reviews, the consultation section, the sidebar
 enquiry card, the attorney, the What Drives Us band, the awards strip, the nine
-FAQs, the nine videos — and now the homepage's eleven bands of copy and
-`/about-us/`'s six.
+FAQs, the nine videos — and the homepage's eleven bands of copy, `/about-us/`'s
+five and `/practice-areas/`'s three.
 
 The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`. Read it
 before continuing — it holds the phase order, the reasoning behind the model,
@@ -52,7 +52,16 @@ actually renders. A span carrying both bold and a link emits `<strong><a>` from
 markdown and `<a><strong>` from the real renderer — same data, same appearance,
 inverted nesting. `diff:baseline` caught that; the converter check never could.
 
-**And a third thing neither covers:** a scoped CSS rule that stops matching when
+**`npm run check:page-copy`** is the third tool, and it guards a rule rather
+than the bytes: page copy must render on exactly one page. It walks
+`import … from "*.astro"` from every page in `src/pages/`, so it sees a shared
+section that the page you are working on gives no sign of. One exemption is
+hardcoded with its reason — `home/Faq.astro`, where `/faq/` passes
+`head={false}` and supplies its own items, so the fields modelled on `homePage`
+really do render once. **Run it before modelling any page**; the rule was
+written down and then broken twice in two days.
+
+**And a third thing the byte tools do not cover:** a scoped CSS rule that stops matching when
 markup moves into a renderer. The markup stays correct, the build stays green,
 and the type silently reverts to browser defaults. `scripts/checks/prose-styles.js`
 exists for exactly that — it asserts computed styles, so run it on a page that
@@ -106,9 +115,9 @@ the collections plus `homePage` and missed the four Site Settings singletons.)
 |---|---|
 | Pages | `homePage` (grown one phase at a time — currently the About pull-quote and the six Success Stories picks) |
 | Collections | `practiceArea` 32 · `locationPage` 32 · `blogPost` 16 · `testimonial` 14 · `video` 9 · `faq` 9 · `award` 7 |
-| Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` · `testimonialsBand` |
+| Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` · `testimonialsBand` · `statsBand` |
 
-Pages: `homePage` · `aboutPage`, with 12 more to come.
+Pages: `homePage` · `aboutPage` · `practiceAreasPage`, with 11 more to come.
 
 Four collections are drag-ordered in the Studio — `testimonial`, `award`, `faq`
 and `video`. Nothing about those documents would reproduce their order, and for
@@ -140,6 +149,12 @@ filtered out of the global ＋Create menu.
   videos on 2. Four surfaces gained images in Sanity — 7 badges and 13 posters —
   so those four pages differ from the frozen baseline only by CDN image URLs.
 
+- **5 (in flight) `/practice-areas/`.** Three bands on a new
+  `practiceAreasPage` singleton, and the By the Numbers strip moved OUT of
+  `aboutPage` into `statsBand` — it renders here too. That was the SECOND time
+  page copy was filed as a record's job in two days, so the rule is now a script:
+  `npm run check:page-copy` walks the import graph from every page and fails on
+  it. Byte-identical everywhere but this page, which gained one entity escape.
 - **5 (in flight) `/about-us/`.** Six bands on a new `aboutPage` singleton, and
   the Success Stories band moved OUT of `homePage` into its own record — it
   renders on this page too, which the rule below forbids a page document from
@@ -153,11 +168,12 @@ filtered out of the global ＋Create menu.
 
 ## What is left
 
-- **Phase 5** — 2 of 14 page singletons done (the homepage, `/about-us/`). The
-  other 12: `/about-us/choosing-a-family-law-attorney/` · `/practice-areas/` ·
-  `/blog/` · `/testimonials/` · `/contact-us/` · `/faq/` · `/video-center/` ·
-  `/client-portal/` · `/privacy-policy/` · `/sitemap/` · `/thank-you/` · `404`.
-  12 of the 18 accent headings are done; 6 are left.
+- **Phase 5** — 3 of 14 page singletons done (the homepage, `/about-us/`,
+  `/practice-areas/`). The other 11:
+  `/about-us/choosing-a-family-law-attorney/` · `/blog/` · `/testimonials/` ·
+  `/contact-us/` · `/faq/` · `/video-center/` · `/client-portal/` ·
+  `/privacy-policy/` · `/sitemap/` · `/thank-you/` · `404`.
+  15 of the 18 accent headings are done; 3 are left.
   `/sitemap/`'s rows stay DERIVED from the collections — modelling them would
   replace something self-maintaining with something that goes stale.
 - **Phase 6** — Studio polish: icon audit, previews, field descriptions naming
@@ -309,10 +325,12 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   survive. Both scripts now say so at the top. This was found the hard way: the
   phase-5 script was written to the phase-2 filename and overwrote it.
 - **A section that renders on several pages is NOT page copy**, and the miss is
-  easy: Success Stories sat in `homePage` for one commit before `/about-us/`
-  surfaced it. Before modelling a component, `grep -rl "home/<Name>.astro"
-  src/pages/` — more than one hit means it is a record, unless the second page
-  passes props that suppress the fields in question.
+  easy — it happened twice. Success Stories sat in `homePage` until `/about-us/`
+  surfaced it; By the Numbers sat in `aboutPage` until `/practice-areas/` did.
+  Both times the page being migrated looked self-contained, because the
+  component that gave it away was imported by a page nobody was reading. That is
+  not something a person reliably remembers to check, so it is
+  `npm run check:page-copy` now. Run it BEFORE modelling, not after.
 - **`npm run typegen` is not `npx sanity typegen generate`.** The npm script
   runs `sanity schema extract` FIRST. Running the generate step alone
   regenerates the file from a stale schema snapshot and silently omits every new

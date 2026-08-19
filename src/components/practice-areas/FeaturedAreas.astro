@@ -15,6 +15,8 @@
 import { Image } from "astro:assets";
 import Eyebrow from "../Eyebrow.astro";
 import { areaHref, type PracticeArea } from "./practiceAreas";
+import { getPracticeAreasPage } from "../../sanity/practiceAreasPage";
+import { tail } from "../../sanity/aboutPage";
 
 import divorcePhoto from "../../assets/images/practice-areas/pa-divorce.jpg";
 import custodyPhoto from "../../assets/images/practice-areas/pa-child-custody.jpg";
@@ -36,80 +38,71 @@ interface Props {
 
 const { areas } = Astro.props;
 
-/* Keyed on collection id, the same pattern as FAMILY_LAW_NAV in MainNav.astro:
-   the id is the contract, so a page that moves takes its card with it, and a
-   page that disappears fails the build rather than shipping a dead card. */
-const FEATURED: {
-  id: string;
-  /* Overrides the collection's navLabel where the card wants it shorter. */
-  label?: string;
-  photo: ImageMetadata;
-  icon: string;
-  text: string;
-}[] = [
-  {
-    id: "divorce",
-    photo: divorcePhoto,
-    icon: divorceIcon,
-    text: "Whether your divorce is contested or amicable, it calls for steady, strategic guidance that protects your finances, your future, and the people you love most through every stage of the process.",
-  },
-  {
-    id: "child-custody",
-    photo: custodyPhoto,
-    icon: custodyIcon,
-    text: "Custody arrangements should put your children first while protecting your role and your rights as a parent - we work to secure a plan that gives your family stability and you lasting peace of mind.",
-  },
-  {
-    id: "family-law",
-    photo: familyLawPhoto,
-    icon: familyLawIcon,
-    text: "From quiet mediation to the courtroom, every family matter is met with calm, capable counsel who stays beside you at each step and keeps your goals and your family's wellbeing at the center.",
-  },
-  {
-    id: "child-support",
-    photo: supportPhoto,
-    icon: supportIcon,
-    text: "Support orders should be fair, accurate, and rooted in the real numbers - we help you establish them correctly the first time and adjust them as your circumstances and your children's needs change.",
-  },
-  {
-    id: "property-division",
-    photo: propertyPhoto,
-    icon: propertyIcon,
-    text: "Texas community-property law calls for a clear-eyed, even-handed approach - we work to divide your assets and debts as fairly as possible while safeguarding the things that matter most to you.",
-  },
-  {
-    id: "modifications-enforcement",
-    /* The comp's card title, and shorter than the collection's "Modifications
-       & Enforcement", which wraps to two lines here and leaves this card out
-       of step with the two beside it. */
-    label: "Modifications",
-    photo: modificationsPhoto,
-    icon: modificationsIcon,
-    text: "When life changes, your custody, support, and parenting orders can change too - we petition the court to keep every order current, realistic, and aligned with what your family needs today.",
-  },
-];
+const copy = (await getPracticeAreasPage()).featured;
 
-const cards = FEATURED.map((entry) => {
-  const area = areas.find((candidate) => candidate.id === entry.id);
+const PHOTOS: Record<string, ImageMetadata> = {
+  divorce: divorcePhoto,
+  "child-custody": custodyPhoto,
+  "family-law": familyLawPhoto,
+  "child-support": supportPhoto,
+  "property-division": propertyPhoto,
+  "modifications-enforcement": modificationsPhoto,
+};
+
+const ICONS: Record<string, string> = {
+  divorce: divorceIcon,
+  "child-custody": custodyIcon,
+  "family-law": familyLawIcon,
+  "child-support": supportIcon,
+  "property-division": propertyIcon,
+  modifications: modificationsIcon,
+};
+
+
+/* Keyed on collection id, the same contract as before this copy moved into
+   Sanity: the id is what ties a card to its page, so a card takes its title and
+   link from the page it points at and can never drift from it, and a page that
+   disappears fails the build rather than shipping a dead card.
+
+   The PHOTO stays in code because the six are art-directed files, which is the
+   one thing on this card an editor cannot change from the Studio. Adding a
+   seventh id therefore stops the build here, naming the file to add, rather
+   than rendering a card with a hole in it. */
+const cards = copy.cards.map((entry) => {
+  const area = areas.find((candidate) => candidate.id === entry.areaId);
   if (!area) {
     throw new Error(
-      `FeaturedAreas: no practice area "${entry.id}". Either the id is wrong or ` +
-        `the page is gone from the last scrape — fix FEATURED in this file.`
+      `FeaturedAreas: no practice area "${entry.areaId}". Either the id is wrong in ` +
+        `Pages → Practice Areas Page → Featured Areas, or the page is gone from the ` +
+        `last scrape.`,
     );
   }
-  return { ...entry, label: entry.label ?? area.data.navLabel, href: areaHref(area) };
+  const photo = PHOTOS[entry.areaId];
+  if (!photo) {
+    throw new Error(
+      `FeaturedAreas: no photo for "${entry.areaId}". Add ` +
+        `src/assets/images/practice-areas/pa-${entry.areaId}.jpg and register it in PHOTOS.`,
+    );
+  }
+  const icon = ICONS[entry.icon];
+  if (!icon) throw new Error(`FeaturedAreas: no icon named "${entry.icon}".`);
+  return {
+    ...entry,
+    photo,
+    icon,
+    label: entry.label ?? area.data.navLabel,
+    href: areaHref(area),
+  };
 });
+
 ---
 
 <section class="pax section">
   <div class="container">
     <header class="pax__head">
-      <Eyebrow>What We Do</Eyebrow>
-      <h2 class="pax__title">Every corner of <em>Texas family law.</em></h2>
-      <p class="pax__lead">
-        Steady, experienced counsel across the matters that shape your family's
-        future.
-      </p>
+      <Eyebrow>{copy.eyebrow}</Eyebrow>
+      <h2 class="pax__title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}</h2>
+      <p class="pax__lead">{copy.lead}</p>
     </header>
 
     <ul class="pax__grid">

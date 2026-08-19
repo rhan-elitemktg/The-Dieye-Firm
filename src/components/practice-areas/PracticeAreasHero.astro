@@ -14,6 +14,10 @@
 
 import { Image } from "astro:assets";
 import Eyebrow from "../Eyebrow.astro";
+import { getPracticeAreasPage } from "../../sanity/practiceAreasPage";
+import { tail } from "../../sanity/aboutPage";
+
+const copy = (await getPracticeAreasPage()).hero;
 import storefront from "../../assets/images/hero-practice.jpg";
 ---
 
@@ -36,22 +40,18 @@ import storefront from "../../assets/images/hero-practice.jpg";
 
   <div class="container pxhero__inner">
     <div class="pxhero__content">
-      <Eyebrow light eager>Practice Areas</Eyebrow>
+      <Eyebrow light eager>{copy.eyebrow}</Eyebrow>
 
+      {/* The <em> stays in THIS template: through a renderer it would lose the
+          scope hash and the gold italic would silently go plain. */}
       <h1 class="pxhero__title">
-        How we help <em>Texas families.</em>
+        {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}
       </h1>
 
       {/* The comp's em dash becomes a spaced hyphen, per AGENTS.md. */}
-      <p class="pxhero__lead">
-        From divorce and custody to support and modifications, Papa Dieye guides
-        Pearland and Houston families through every family law matter - with
-        steady, compassionate counsel and honest answers.
-      </p>
+      <p class="pxhero__lead">{copy.lead}</p>
 
-      <a class="btn btn--gold pxhero__cta" href="/contact-us/">
-        Schedule a Consultation
-      </a>
+      <a class="btn btn--gold pxhero__cta" href="/contact-us/">{copy.ctaLabel}</a>
     </div>
   </div>
 </section>

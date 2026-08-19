@@ -14,6 +14,7 @@
     "probe": "node scripts/probe.mjs",
     "diff:baseline": "node scripts/diff-baseline.mjs",
     "check:md-to-pt": "node scripts/checks/md-to-pt.mjs",
+    "check:page-copy": "node scripts/checks/page-copy-scope.mjs",
     "typegen": "sanity schema extract --enforce-required-fields --force && sanity typegen generate",
     "scrape:blog": "node scripts/scrape-blog.mjs",
     "scrape:practice-areas": "node scripts/scrape-practice-areas.mjs",

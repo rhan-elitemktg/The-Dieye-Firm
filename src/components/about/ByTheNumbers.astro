@@ -2,9 +2,9 @@
 // By the Numbers — a navy band of four figures, divided by hairline rules.
 // Deliberately quiet: no icons, no cards, just the numbers.
 
-import { getAboutPage } from "../../sanity/aboutPage";
+import { getStatsBand } from "../../sanity/statsBand";
 
-const { stats } = (await getAboutPage()).byTheNumbers;
+const { stats } = await getStatsBand();
 ---
 
 <section class="nums" aria-label="The Dieye Firm by the numbers">
