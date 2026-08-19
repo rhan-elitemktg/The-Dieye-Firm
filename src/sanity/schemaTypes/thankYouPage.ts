@@ -1,4 +1,4 @@
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
 import { CheckmarkCircleIcon } from "@sanity/icons/CheckmarkCircle";
 
 /* /thank-you/ — where the consultation form lands.
@@ -51,11 +51,11 @@ export const thankYouPage = defineType({
         defineField({
           name: "headingLines",
           title: "Heading",
-          type: "array",
-          of: [defineArrayMember({ type: "string" })],
+          type: "text",
+          rows: 2,
           description:
-            "One entry per line. Each is followed by a line break, and the italic part below opens the line after them.",
-          validation: (rule) => rule.required().min(1),
+            "Press Enter to break the line. Every line gets a break, and the italic part below opens the line after them — unlike the homepage, where the italic finishes the last line.",
+          validation: (rule) => rule.required(),
         }),
         defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
         defineField({

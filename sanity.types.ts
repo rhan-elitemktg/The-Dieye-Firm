@@ -15,6 +15,51 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
+export type ParagraphRun = Array<{
+  children?: Array<{
+    marks?: Array<string>;
+    text?: string;
+    _type: "span";
+    _key: string;
+  }>;
+  style?: "normal";
+  listItem?: never;
+  markDefs?: Array<{
+    href: string;
+    _type: "link";
+    _key: string;
+  }>;
+  level?: number;
+  _type: "block";
+  _key: string;
+}>;
+
+export type AboutBody = Array<
+  | {
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal" | "lead" | "h3";
+      listItem?: "bullet";
+      markDefs?: Array<{
+        href: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }
+  | {
+      quote: string;
+      _type: "pullquote";
+      _key: string;
+    }
+>;
+
 export type BlockContent = Array<{
   children?: Array<{
     marks?: Array<string>;
@@ -62,50 +107,6 @@ export type NavLink = {
   href: string;
 };
 
-export type Video = {
-  _id: string;
-  _type: "video";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  orderRank?: string;
-  title: string;
-  wistiaId: string;
-  label: "The Firm" | "Quick Answer";
-  aspect: "16/9" | "9/16";
-  poster: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
-  reelOrder?: number;
-  reelPoster?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-};
-
 export type Faq = {
   _id: string;
   _type: "faq";
@@ -135,6 +136,22 @@ export type Award = {
     _type: "image";
   };
   alt: string;
+  width: number;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x: number;
+  y: number;
+  height: number;
   width: number;
 };
 
@@ -421,7 +438,7 @@ export type ThankYouPage = {
     title: string;
   };
   band?: {
-    headingLines: Array<string>;
+    headingLines: string;
     headingAccent?: string;
     headingTail?: string;
     lead: string;
@@ -624,7 +641,7 @@ export type AboutPage = {
     headingLead: string;
     headingAccent?: string;
     headingTail?: string;
-    paragraphs: Array<string>;
+    paragraphs: ParagraphRun;
     ctaLabel: string;
   };
   promise?: {
@@ -641,7 +658,7 @@ export type AboutPage = {
       _type: "chip";
       _key: string;
     }>;
-    paragraphs: Array<string>;
+    paragraphs: ParagraphRun;
     milestones: Array<{
       when: string;
       title: string;
@@ -655,9 +672,16 @@ export type AboutPage = {
     headingLead: string;
     headingAccent?: string;
     headingTail?: string;
-    paragraphs: Array<string>;
+    paragraphs: ParagraphRun;
   };
   seo?: Seo;
+};
+
+export type VideoReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "video";
 };
 
 export type HomePage = {
@@ -668,7 +692,7 @@ export type HomePage = {
   _rev: string;
   hero?: {
     eyebrow: string;
-    headingLines: Array<string>;
+    headingLines: string;
     headingAccent?: string;
     lead: string;
     ctaLabel: string;
@@ -685,21 +709,9 @@ export type HomePage = {
     headingAccent?: string;
     videoLabel: string;
     videoCaption: string;
-    lead: string;
-    intro: string;
-    helpHeading: string;
-    helpIntro: string;
-    checklist: Array<{
-      lead: string;
-      text: string;
-      _type: "item";
-      _key: string;
-    }>;
+    video: VideoReference;
     pullQuote: TestimonialReference;
-    whyHeading: string;
-    whyParagraphs: Array<string>;
-    servingHeading: string;
-    servingParagraph: string;
+    body: AboutBody;
     ctaLabel: string;
   };
   practiceAreas?: {
@@ -726,7 +738,7 @@ export type HomePage = {
   featuredAttorney?: {
     eyebrow: string;
     quote: string;
-    paragraphs: Array<string>;
+    paragraphs: ParagraphRun;
     ctaLabel: string;
     badgeYears: number;
     badgeLabelLines: Array<string>;
@@ -756,13 +768,18 @@ export type HomePage = {
     eyebrow: string;
     headingLead: string;
     headingAccent?: string;
+    picks: Array<
+      {
+        _key: string;
+      } & VideoReference
+    >;
     ctaLabel: string;
   };
   community?: {
     eyebrow: string;
     headingLead: string;
     headingAccent?: string;
-    paragraphs: Array<string>;
+    paragraphs: ParagraphRun;
     ctaLabel: string;
     tileTitle: string;
     tileText: string;
@@ -794,6 +811,33 @@ export type Testimonial = {
   body: string;
   name: string;
   matter: string;
+};
+
+export type Video = {
+  _id: string;
+  _type: "video";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  orderRank?: string;
+  title: string;
+  wistiaId: string;
+  label: "The Firm" | "Quick Answer";
+  aspect: "16/9" | "9/16";
+  poster: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  reelPoster?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
 };
 
 export type FirmDetails = {
@@ -944,15 +988,16 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | ParagraphRun
+  | AboutBody
   | BlockContent
   | SanityImageAssetReference
   | Seo
   | NavLink
-  | Video
-  | SanityImageCrop
-  | SanityImageHotspot
   | Faq
   | Award
+  | SanityImageCrop
+  | SanityImageHotspot
   | BlogPost
   | Slug
   | LocationPageReference
@@ -980,8 +1025,10 @@ export type AllSanitySchemaTypes =
   | BlogPage
   | PracticeAreasPage
   | AboutPage
+  | VideoReference
   | HomePage
   | Testimonial
+  | Video
   | FirmDetails
   | SanityImagePaletteSwatch
   | SanityImagePalette
@@ -1059,7 +1106,7 @@ export type ABOUT_PAGE_QUERY_RESULT =
         headingLead: string;
         headingAccent: string | null;
         headingTail: string | null;
-        paragraphs: Array<string>;
+        paragraphs: ParagraphRun;
         ctaLabel: string;
       } | null;
       promise: {
@@ -1074,7 +1121,7 @@ export type ABOUT_PAGE_QUERY_RESULT =
           value: string;
           label: string;
         }>;
-        paragraphs: Array<string>;
+        paragraphs: ParagraphRun;
         milestones: Array<{
           when: string;
           title: string;
@@ -1086,7 +1133,7 @@ export type ABOUT_PAGE_QUERY_RESULT =
         headingLead: string;
         headingAccent: string | null;
         headingTail: string | null;
-        paragraphs: Array<string>;
+        paragraphs: ParagraphRun;
       } | null;
     }
   | null;
@@ -1371,7 +1418,7 @@ export type FIRM_DETAILS_QUERY_RESULT =
 
 // Source: src/sanity/homePage.ts
 // Variable: HOME_PAGE_QUERY
-// Query: *[_id == "homePage"][0]{    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },    about{      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, lead, intro,      helpHeading, helpIntro, checklist[]{ lead, text },      whyHeading, whyParagraphs, servingHeading, servingParagraph, ctaLabel    },    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },    faq{ eyebrow, headingLead, headingAccent },    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },    blog{ eyebrow, headingLead, headingAccent, ctaLabel }  }
+// Query: *[_id == "homePage"][0]{    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },    about{      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, body, ctaLabel,      video->{ "id": wistiaId, title, poster{ asset, "dimensions": asset->metadata.dimensions } }    },    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },    faq{ eyebrow, headingLead, headingAccent },    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },    blog{ eyebrow, headingLead, headingAccent, ctaLabel }  }
 export type HOME_PAGE_QUERY_RESULT =
   | {
       hero: null;
@@ -1426,7 +1473,7 @@ export type HOME_PAGE_QUERY_RESULT =
   | {
       hero: {
         eyebrow: string;
-        headingLines: Array<string>;
+        headingLines: string;
         headingAccent: string | null;
         lead: string;
         ctaLabel: string;
@@ -1441,19 +1488,16 @@ export type HOME_PAGE_QUERY_RESULT =
         headingAccent: string | null;
         videoLabel: string;
         videoCaption: string;
-        lead: string;
-        intro: string;
-        helpHeading: string;
-        helpIntro: string;
-        checklist: Array<{
-          lead: string;
-          text: string;
-        }>;
-        whyHeading: string;
-        whyParagraphs: Array<string>;
-        servingHeading: string;
-        servingParagraph: string;
+        body: AboutBody;
         ctaLabel: string;
+        video: {
+          id: string;
+          title: string;
+          poster: {
+            asset: SanityImageAssetReference | null;
+            dimensions: SanityImageDimensions | null;
+          };
+        };
       } | null;
       practiceAreas: {
         eyebrow: string;
@@ -1477,7 +1521,7 @@ export type HOME_PAGE_QUERY_RESULT =
       featuredAttorney: {
         eyebrow: string;
         quote: string;
-        paragraphs: Array<string>;
+        paragraphs: ParagraphRun;
         ctaLabel: string;
         badgeYears: number;
         badgeLabelLines: Array<string>;
@@ -1511,7 +1555,7 @@ export type HOME_PAGE_QUERY_RESULT =
         eyebrow: string;
         headingLead: string;
         headingAccent: string | null;
-        paragraphs: Array<string>;
+        paragraphs: ParagraphRun;
         ctaLabel: string;
         tileTitle: string;
         tileText: string;
@@ -1869,13 +1913,12 @@ export type TESTIMONIALS_PAGE_QUERY_RESULT =
 
 // Source: src/sanity/videos.ts
 // Variable: VIDEOS_QUERY
-// Query: *[_type == "video"] | order(orderRank){    "id": wistiaId,    title,    label,    aspect,    reelOrder,    poster{ asset, "dimensions": asset->metadata.dimensions },    reelPoster{ asset, "dimensions": asset->metadata.dimensions }  }
+// Query: *[_type == "video"] | order(orderRank){    "id": wistiaId,    title,    label,    aspect,    poster{ asset, "dimensions": asset->metadata.dimensions },    reelPoster{ asset, "dimensions": asset->metadata.dimensions }  }
 export type VIDEOS_QUERY_RESULT = Array<{
   id: string;
   title: string;
   label: "Quick Answer" | "The Firm";
   aspect: "16/9" | "9/16";
-  reelOrder: number | null;
   poster: {
     asset: SanityImageAssetReference | null;
     dimensions: SanityImageDimensions | null;
@@ -1885,6 +1928,11 @@ export type VIDEOS_QUERY_RESULT = Array<{
     dimensions: SanityImageDimensions | null;
   } | null;
 }>;
+
+// Source: src/sanity/videos.ts
+// Variable: REEL_PICKS_QUERY
+// Query: *[_id == "homePage"][0].videoReels.picks[]->wistiaId
+export type REEL_PICKS_QUERY_RESULT = Array<string> | null;
 
 // Source: src/sanity/whatDrivesUs.ts
 // Variable: WHAT_DRIVES_US_QUERY
@@ -1927,7 +1975,7 @@ declare module "@sanity/client" {
     '\n  *[_id == "contactPage"][0]{\n    hero{ eyebrow, title, lead },\n    findUs{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': CONTACT_PAGE_QUERY_RESULT;
     '\n  *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }\n': FAQS_QUERY_RESULT;
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
-    '\n  *[_id == "homePage"][0]{\n    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },\n    about{\n      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, lead, intro,\n      helpHeading, helpIntro, checklist[]{ lead, text },\n      whyHeading, whyParagraphs, servingHeading, servingParagraph, ctaLabel\n    },\n    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },\n    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },\n    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },\n    faq{ eyebrow, headingLead, headingAccent },\n    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },\n    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },\n    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },\n    blog{ eyebrow, headingLead, headingAccent, ctaLabel }\n  }\n': HOME_PAGE_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0]{\n    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },\n    about{\n      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, body, ctaLabel,\n      video->{ "id": wistiaId, title, poster{ asset, "dimensions": asset->metadata.dimensions } }\n    },\n    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },\n    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },\n    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },\n    faq{ eyebrow, headingLead, headingAccent },\n    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },\n    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },\n    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },\n    blog{ eyebrow, headingLead, headingAccent, ctaLabel }\n  }\n': HOME_PAGE_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
     '\n  *[_id == "practiceAreasPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    featured{\n      eyebrow, headingLead, headingAccent, headingTail, lead,\n      cards[]{ areaId, label, icon, text }\n    },\n    allAreas{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': PRACTICE_AREAS_PAGE_QUERY_RESULT;
@@ -1938,7 +1986,8 @@ declare module "@sanity/client" {
     '\n  *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }\n': TESTIMONIALS_PULL_QUOTE_QUERY_RESULT;
     '\n  *[_id == "testimonialsBand"][0]{\n    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,\n    "picks": picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_BAND_QUERY_RESULT;
     '\n  *[_id == "testimonialsPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    wall{ eyebrow, headingLead, headingAccent, headingTail, lead, cardKicker }\n  }\n': TESTIMONIALS_PAGE_QUERY_RESULT;
-    '\n  *[_type == "video"] | order(orderRank){\n    "id": wistiaId,\n    title,\n    label,\n    aspect,\n    reelOrder,\n    poster{ asset, "dimensions": asset->metadata.dimensions },\n    reelPoster{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': VIDEOS_QUERY_RESULT;
+    '\n  *[_type == "video"] | order(orderRank){\n    "id": wistiaId,\n    title,\n    label,\n    aspect,\n    poster{ asset, "dimensions": asset->metadata.dimensions },\n    reelPoster{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': VIDEOS_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0].videoReels.picks[]->wistiaId\n': REEL_PICKS_QUERY_RESULT;
     '\n  *[_id == "whatDrivesUs"][0]{\n    eyebrow,\n    headingLead,\n    headingAccent,\n    values[]{ icon, title, text }\n  }\n': WHAT_DRIVES_US_QUERY_RESULT;
   }
 }

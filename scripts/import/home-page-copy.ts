@@ -28,10 +28,7 @@ const client = getCliClient({ apiVersion: "2025-08-15" });
 const SECTIONS = {
   "hero": {
     "eyebrow": "Pearland & Houston Family Law",
-    "headingLines": [
-      "When family life",
-      "changes,"
-    ],
+    "headingLines": "When family life\nchanges,",
     "headingAccent": "we're with you.",
     "lead": "Compassionate, steady guidance through divorce, custody, and the moments that matter most, from an attorney who treats you like a neighbor, not a case number.",
     "ctaLabel": "Get in Touch",

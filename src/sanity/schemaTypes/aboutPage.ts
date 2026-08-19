@@ -107,8 +107,7 @@ export const aboutPage = defineType({
         defineField({
           name: "paragraphs",
           title: "Paragraphs",
-          type: "array",
-          of: [defineArrayMember({ type: "text", rows: 5 })],
+          type: "paragraphRun",
           validation: (rule) => rule.required().min(1),
         }),
         defineField({
@@ -196,8 +195,7 @@ export const aboutPage = defineType({
         defineField({
           name: "paragraphs",
           title: "Biography",
-          type: "array",
-          of: [defineArrayMember({ type: "text", rows: 5 })],
+          type: "paragraphRun",
           validation: (rule) => rule.required().min(1),
         }),
         defineField({
@@ -246,8 +244,7 @@ export const aboutPage = defineType({
         defineField({
           name: "paragraphs",
           title: "Paragraphs",
-          type: "array",
-          of: [defineArrayMember({ type: "text", rows: 5 })],
+          type: "paragraphRun",
           validation: (rule) => rule.required().min(1),
         }),
       ],

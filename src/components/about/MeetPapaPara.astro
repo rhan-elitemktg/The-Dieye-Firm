@@ -1,0 +1,13 @@
+---
+/* One paragraph of meet__para's run. Exists only to put the class back on: see the
+   `block` prop note in prose/ParagraphRun.astro. The class is load-bearing twice: .meet__quote + .meet__para sets the top margin of the first one. */
+interface Props {
+  node?: unknown;
+  index?: number;
+  isInline?: boolean;
+}
+
+const { node, index, isInline, ...attrs } = Astro.props;
+---
+
+<p class="meet__para" {...attrs}><slot /></p>

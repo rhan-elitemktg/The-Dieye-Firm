@@ -83,11 +83,11 @@ export const homePage = defineType({
         defineField({
           name: "headingLines",
           title: "Heading",
-          type: "array",
-          of: [defineArrayMember({ type: "string" })],
+          type: "text",
+          rows: 2,
           description:
-            "One entry per line — they are joined with a line break. The italic part below is added to the END of the last line, so \"changes,\" plus \"we\u2019re with you.\" reads as one sentence across two lines.",
-          validation: (rule) => rule.required().min(1),
+            "Press Enter to break the line — at this size the headline is set to wrap where the sentence does, not where the window happens to end it. The italic part below is added to the END of the last line, so \"changes,\" plus \"we’re with you.\" reads as one sentence across two lines.",
+          validation: (rule) => rule.required(),
         }),
         defineField({
           name: "headingAccent",
@@ -158,59 +158,31 @@ export const homePage = defineType({
         }),
         defineField({ name: "videoCaption", title: "Video card — caption", type: "string", validation: (rule) => rule.required() }),
         defineField({
-          name: "lead",
-          title: "Opening paragraph",
-          type: "text",
-          rows: 5,
-          description: "Set larger than the rest of the section.",
+          name: "video",
+          title: "Video card — which video",
+          type: "reference",
+          to: [{ type: "video" }],
+          description:
+            "The video the tile plays, and the still it shows. Both come from the video's own document, so changing this here swaps the poster with it.",
           validation: (rule) => rule.required(),
-        }),
-        defineField({ name: "intro", title: "Second paragraph", type: "text", rows: 5, validation: (rule) => rule.required() }),
-        defineField({ name: "helpHeading", title: "\"How we help\" — heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "helpIntro", title: "\"How we help\" — paragraph", type: "text", rows: 3, validation: (rule) => rule.required() }),
-        defineField({
-          name: "checklist",
-          title: "Checklist",
-          type: "array",
-          description: "The ticked list under that paragraph. Each row opens with its bold lead-in and runs on into the sentence.",
-          validation: (rule) => rule.required().min(1),
-          of: [
-            defineArrayMember({
-              type: "object",
-              name: "item",
-              fields: [
-                defineField({
-                  name: "lead",
-                  title: "Bold lead-in",
-                  type: "string",
-                  description: "Shown bold, then the text below continues on the same line.",
-                  validation: (rule) => rule.required(),
-                }),
-                defineField({ name: "text", title: "Text", type: "text", rows: 3, validation: (rule) => rule.required() }),
-              ],
-              preview: { select: { title: "lead", subtitle: "text" } },
-            }),
-          ],
         }),
         defineField({
           name: "pullQuote",
-          title: "Pull quote",
+          title: "Review to quote",
           type: "reference",
           to: [{ type: "testimonial" }],
           description:
-            "The review quoted beside the video. Pick a SHORT one — past about 50 words it pushes the video tile below the fold. Choose one that isn't also in Success Stories below, or the same words appear twice on this page.",
+            "The short review under the video tile. Keep it short — the aside is one column beside two of copy, and a 50-word quote pushes the video tile off the fold. It must not be one of the six in Success Stories, or the same review prints twice on this page.",
           validation: (rule) => rule.required(),
         }),
-        defineField({ name: "whyHeading", title: "\"Why you need a lawyer\" — heading", type: "string", validation: (rule) => rule.required() }),
         defineField({
-          name: "whyParagraphs",
-          title: "\"Why you need a lawyer\" — paragraphs",
-          type: "array",
-          of: [defineArrayMember({ type: "text", rows: 5 })],
+          name: "body",
+          title: "Body",
+          type: "aboutBody",
+          description:
+            "The whole right-hand column, from the opening paragraph to the last one before the button. Use Lead for the opening paragraph, Checklist for the gold-tick list, and Pull quote for the quotation with Papa's photo.",
           validation: (rule) => rule.required().min(1),
         }),
-        defineField({ name: "servingHeading", title: "\"Serving families\" — heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "servingParagraph", title: "\"Serving families\" — paragraph", type: "text", rows: 5, validation: (rule) => rule.required() }),
         defineField({ name: "ctaLabel", title: "Button label", type: "string", validation: (rule) => rule.required() }),
       ],
     }),
@@ -301,8 +273,7 @@ export const homePage = defineType({
         defineField({
           name: "paragraphs",
           title: "Paragraphs",
-          type: "array",
-          of: [defineArrayMember({ type: "text", rows: 5 })],
+          type: "paragraphRun",
           validation: (rule) => rule.required().min(1),
         }),
         defineField({
@@ -410,7 +381,6 @@ export const homePage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          description: "The videos are not here — they are Collections → Videos, ordered by their homepage position.",
           validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
         }),
         defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
@@ -419,6 +389,16 @@ export const homePage = defineType({
           title: "Heading — italic part",
           type: "string",
           description: "Rendered in gold italic. Leave empty for none.",
+        }),
+        defineField({
+          name: "picks",
+          title: "Videos to show",
+          type: "array",
+          of: [{ type: "reference", to: [{ type: "video" }] }],
+          description:
+            "The carousel, in the order they should appear. This order is NOT the /video-center/ grid order and is not meant to match it — four portrait posters cover six slides, and both orders exist to keep a repeated photograph from landing twice in one view. Reordering here is a design decision: check the repeats still separate at 1000px and 650px. Every video picked needs a portrait Homepage poster on its own document.",
+          validation: (rule) =>
+            rule.required().min(1).unique(),
         }),
         defineField({
           name: "ctaLabel",
@@ -452,8 +432,7 @@ export const homePage = defineType({
         defineField({
           name: "paragraphs",
           title: "Paragraphs",
-          type: "array",
-          of: [defineArrayMember({ type: "text", rows: 4 })],
+          type: "paragraphRun",
           validation: (rule) => rule.required().min(1),
         }),
         defineField({

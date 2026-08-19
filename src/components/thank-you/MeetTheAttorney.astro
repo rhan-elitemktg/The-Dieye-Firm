@@ -17,7 +17,7 @@
 import { Image } from "astro:assets";
 import papa from "../../assets/images/papa-tan-wide.jpg";
 import { getThankYouPage } from "../../sanity/thankYouPage";
-import { tail } from "../../sanity/aboutPage";
+import { tail, headingLines } from "../../sanity/aboutPage";
 
 const copy = (await getThankYouPage()).band;
 ---
@@ -46,7 +46,7 @@ const copy = (await getThankYouPage()).band;
             every line gets its own break and the accent opens the line after
             them. The <em> stays in this template so it keeps the scope hash. */}
         <h2 class="tyband__title" id="tyband-title">
-          {copy.headingLines.map((line) => (<>{line}<br /></>))}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}
+          {headingLines(copy.headingLines).map((line) => (<>{line}<br /></>))}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}
         </h2>
 
         <span class="tyband__rule" aria-hidden="true"></span>

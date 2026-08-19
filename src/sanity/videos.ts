@@ -6,8 +6,9 @@ import type { SanityImage } from "./image";
  *
  * Two surfaces, two shapes: the /video-center/ grid takes all nine in drag
  * order with their landscape posters, and the homepage carousel takes the ones
- * carrying a `reelOrder`, in that order, with their portrait posters. The two
- * orders are deliberately different; the schema header says why.
+ * picked in `homePage.videoReels.picks`, in THAT array's order, with their
+ * portrait posters. The two orders are deliberately different; the field
+ * descriptions on both say why.
  *
  * ═══ Runtime ═══
  *
@@ -23,7 +24,6 @@ const VIDEOS_QUERY = defineQuery(`
     title,
     label,
     aspect,
-    reelOrder,
     poster{ asset, "dimensions": asset->metadata.dimensions },
     reelPoster{ asset, "dimensions": asset->metadata.dimensions }
   }
@@ -34,7 +34,6 @@ export type Video = {
   title: string;
   label: string;
   aspect: "16/9" | "9/16";
-  reelOrder?: number;
   poster: SanityImage;
   reelPoster?: SanityImage;
   /** From Wistia at build time; null when the request fails or is slow. */
@@ -83,16 +82,45 @@ export function getVideos(): Promise<Video[]> {
   return all();
 }
 
-/** The ones with a homepage position, in that order — the homepage carousel. */
+const REEL_PICKS_QUERY = defineQuery(`
+  *[_id == "homePage"][0].videoReels.picks[]->wistiaId
+`);
+
+/** The ones picked on the homepage, in THAT array's order — the carousel.
+ *
+ * The picks live on `homePage` rather than on the videos, so an editor choosing
+ * what the homepage shows does it on the homepage. The ORDER is the array's, not
+ * the grid's, and the two are deliberately unequal — see the field description.
+ *
+ * Ordering is done here rather than in GROQ because a `picks[]->` projection
+ * returns documents in the array's order, but `all()` is one cached fetch for
+ * both surfaces and is sorted by `orderRank` for the grid. So this asks for the
+ * ids only, and re-orders the cached list to match. */
 export async function getReels(): Promise<Video[]> {
-  const picked = (await all()).filter((video) => typeof video.reelOrder === "number");
-  const missing = picked.find((video) => !video.reelPoster?.asset);
-  if (missing) {
-    /* Schema validation is a warning an editor can publish through, and the
-       cost here is a carousel slide with no artwork on the homepage. */
+  const ids = (await sanityClient.fetch(REEL_PICKS_QUERY)) as string[] | null;
+  if (!ids?.length) {
     throw new Error(
-      `The video "${missing.title}" has a homepage position but no portrait poster.`,
+      "homePage.videoReels.picks is empty — the homepage carousel has no videos. " +
+        "Set it in the Studio under Pages → Home Page → Video Reels.",
     );
   }
-  return picked.sort((a, b) => a.reelOrder! - b.reelOrder!);
+  const byId = new Map((await all()).map((v) => [v.id, v]));
+  const picked = ids.map((id) => {
+    const video = byId.get(id);
+    if (!video) {
+      throw new Error(
+        `homePage.videoReels.picks points at a video that no longer exists (wistiaId ${id}).`,
+      );
+    }
+    return video;
+  });
+  const missing = picked.find((video) => !video.reelPoster?.asset);
+  if (missing) {
+    /* Schema validation cannot see this: the pick is on another document. The
+       cost of letting it through is a carousel slide with no artwork. */
+    throw new Error(
+      `The video "${missing.title}" is picked for the homepage but has no portrait poster.`,
+    );
+  }
+  return picked;
 }

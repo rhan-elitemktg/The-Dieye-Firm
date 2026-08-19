@@ -7,6 +7,8 @@ import birdGold from "../../assets/images/logo-bird-gold.png";
 import portrait from "../../assets/images/papa-storefront.jpg";
 import { getAttorney } from "../../sanity/siteWide";
 import { getHomePage } from "../../sanity/homePage";
+import ParagraphRun from "../prose/ParagraphRun.astro";
+import FeaturedAttorneyText from "./FeaturedAttorneyText.astro";
 
 const copy = (await getHomePage()).featuredAttorney;
 
@@ -56,7 +58,7 @@ const attorney = await getAttorney();
 
         <blockquote class="fa__quote">{copy.quote}</blockquote>
 
-        {copy.paragraphs.map((text) => <p class="fa__text">{text}</p>)}
+        <ParagraphRun value={copy.paragraphs} block={FeaturedAttorneyText} />
 
         <footer class="fa__foot">
           <a class="btn btn--gold" href="/about-us/">{copy.ctaLabel}</a>
@@ -239,7 +241,7 @@ const attorney = await getAttorney();
     color: var(--navy-700);
   }
 
-  .fa__text {
+  .fa__card :global(.fa__text) {
     margin-bottom: 18px;
     color: var(--ink-500);
   }

@@ -1,0 +1,16 @@
+---
+/* The opening paragraph, set larger and darker than the rest of the section.
+ *
+ * A custom block STYLE rather than "the first block", because the two are not
+ * the same thing: an editor who adds a paragraph above the lead would silently
+ * promote it. The style travels with the paragraph it belongs to. */
+interface Props {
+  node?: unknown;
+  index?: number;
+  isInline?: boolean;
+}
+
+const { node, index, isInline, ...attrs } = Astro.props;
+---
+
+<p class="about__lead" {...attrs}><slot /></p>

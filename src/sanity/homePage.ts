@@ -1,5 +1,7 @@
 import { sanityClient } from "sanity:client";
 import { defineQuery } from "groq";
+import type { PortableTextBlock } from "@portabletext/types";
+import type { SanityImage } from "./image";
 
 /* The homepage's own copy.
  *
@@ -16,9 +18,8 @@ const HOME_PAGE_QUERY = defineQuery(`
   *[_id == "homePage"][0]{
     hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },
     about{
-      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, lead, intro,
-      helpHeading, helpIntro, checklist[]{ lead, text },
-      whyHeading, whyParagraphs, servingHeading, servingParagraph, ctaLabel
+      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, body, ctaLabel,
+      video->{ "id": wistiaId, title, poster{ asset, "dimensions": asset->metadata.dimensions } }
     },
     practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },
     featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },
@@ -37,7 +38,7 @@ type Card = { icon: string; title: string; text: string };
 export type HomePage = {
   hero: {
     eyebrow: string;
-    headingLines: string[];
+    headingLines: string;
     headingAccent?: string;
     lead: string;
     ctaLabel: string;
@@ -46,15 +47,12 @@ export type HomePage = {
   about: Accent & {
     videoLabel: string;
     videoCaption: string;
-    lead: string;
-    intro: string;
-    helpHeading: string;
-    helpIntro: string;
-    checklist: { lead: string; text: string }[];
-    whyHeading: string;
-    whyParagraphs: string[];
-    servingHeading: string;
-    servingParagraph: string;
+    /* The tile's video. `pullQuote` is a reference too but is read by
+       src/sanity/testimonials.ts, which resolves it to the review itself. */
+    video: { id: string; title: string; poster: SanityImage };
+    /* One rich-text field for the whole right-hand column. Rendered by
+       home/AboutBody.astro, NOT by ProseBody - see that file's header. */
+    body: PortableTextBlock[];
     ctaLabel: string;
   };
   practiceAreas: Accent & {
@@ -65,7 +63,7 @@ export type HomePage = {
   featuredAttorney: {
     eyebrow: string;
     quote: string;
-    paragraphs: string[];
+    paragraphs: PortableTextBlock[];
     ctaLabel: string;
     badgeYears: number;
     badgeLabelLines: string[];
@@ -74,7 +72,7 @@ export type HomePage = {
   faq: Accent;
   videoReels: Accent & { ctaLabel: string };
   community: Accent & {
-    paragraphs: string[];
+    paragraphs: PortableTextBlock[];
     ctaLabel: string;
     tileTitle: string;
     tileText: string;

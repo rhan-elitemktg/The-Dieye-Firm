@@ -112,36 +112,19 @@ export const video = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "reelOrder",
-      title: "Homepage position",
-      type: "number",
-      description:
-        "Fill this in to put the video in the homepage carousel, numbering from 1. Leave it empty to keep it on /video-center/ only. The homepage order is deliberately not the grid order — both are arranged around which posters repeat.",
-      validation: (rule) => rule.min(1).integer(),
-    }),
-    defineField({
       name: "reelPoster",
       title: "Homepage poster (portrait)",
       type: "image",
       options: { hotspot: true },
       description:
-        "The portrait still for the homepage carousel. Needed only for videos with a homepage position.",
-      validation: (rule) =>
-        rule.custom((value, context) => {
-          const doc = context.document as { reelOrder?: number } | undefined;
-          if (doc?.reelOrder && !value) {
-            return "This video has a homepage position, so it needs a portrait poster.";
-          }
-          return true;
-        }),
+        "The portrait still for the homepage carousel. Needed only if this video is picked in Pages → Home Page → Video Reels. The build fails naming the video if one is picked without it — schema validation cannot see the pick, because it lives on another document.",
     }),
   ],
+  /* The homepage pick is NOT shown here. It lives on `homePage.videoReels.picks`
+     and a preview cannot follow a reference backwards, so a subtitle claiming to
+     know would go stale the moment the picks changed. */
   preview: {
-    select: { title: "title", label: "label", reelOrder: "reelOrder", media: "poster" },
-    prepare: ({ title, label, reelOrder, media }) => ({
-      title,
-      subtitle: reelOrder ? `${label} · homepage #${reelOrder}` : label,
-      media,
-    }),
+    select: { title: "title", label: "label", media: "poster" },
+    prepare: ({ title, label, media }) => ({ title, subtitle: label, media }),
   },
 });

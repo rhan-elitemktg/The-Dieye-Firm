@@ -21,9 +21,7 @@ const DOC = {
     "title": "Thank You"
   },
   "band": {
-    "headingLines": [
-      "Your Family Law"
-    ],
+    "headingLines": "Your Family Law",
     "headingAccent": "Attorney",
     "headingTail": "in Pearland.",
     "lead": "While you wait, take a moment to learn how our firm walks alongside Texas families through their most difficult seasons. From divorce and child custody to support, property division, and modifications, Papa Dieye brings steady, plain-spoken counsel and a genuine commitment to protecting the people who matter most to you. Every case is handled personally, with the care and attention your family deserves at each step of the way.",

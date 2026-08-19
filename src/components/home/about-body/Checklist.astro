@@ -1,0 +1,16 @@
+---
+/* The gold-tick list.
+ *
+ * This is the `bullet` list type, re-rendered. In the Studio the button reads
+ * "Checklist" for that reason - there is no plain bulleted list in this
+ * section, so the two cannot be confused. */
+interface Props {
+  node?: unknown;
+  index?: number;
+  isInline?: boolean;
+}
+
+const { node, index, isInline, ...attrs } = Astro.props;
+---
+
+<ul class="checklist" {...attrs}><slot /></ul>

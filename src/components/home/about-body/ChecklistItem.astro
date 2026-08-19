@@ -1,0 +1,32 @@
+---
+/* One checklist row: the gold tick, then the sentence.
+ *
+ * The tick is inlined rather than imported so it inherits `currentColor` from
+ * the row - the same reason the three value icons on /about-us/ are a picker
+ * rather than an upload.
+ *
+ * The bold lead-in is not a field. It is a `strong` mark on the opening words,
+ * which is what lets an editor decide how far it runs. */
+interface Props {
+  node?: unknown;
+  index?: number;
+  isInline?: boolean;
+}
+
+const { node, index, isInline, ...attrs } = Astro.props;
+---
+
+<li {...attrs}>
+  <span class="checklist__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path
+        d="M5 12.5l4.5 4.5L19 7.5"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </span>
+  <span><slot /></span>
+</li>
