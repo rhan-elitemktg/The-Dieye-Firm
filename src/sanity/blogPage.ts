@@ -6,7 +6,11 @@ const BLOG_PAGE_QUERY = defineQuery(`
   *[_id == "blogPage"][0]{ header{ eyebrow, title, intro } }
 `);
 
-export type BlogPage = { header: { eyebrow: string; title: string; intro: string } };
+/* Shared with faqPage and videoCenterPage: three pages render the same
+   BlogHeader with their own three strings. */
+export type PageHeader = { eyebrow: string; title: string; intro: string };
+
+export type BlogPage = { header: PageHeader };
 
 let cache: Promise<BlogPage> | undefined;
 

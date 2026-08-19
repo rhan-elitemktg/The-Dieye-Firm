@@ -6,16 +6,21 @@
 // so the office is embedded once, not twice.
 
 import Eyebrow from "../Eyebrow.astro";
+import { getContactPage } from "../../sanity/contactPage";
+import { tail } from "../../sanity/aboutPage";
 import { getFirmDetails } from "../../sanity/firmDetails";
 
 const { address } = await getFirmDetails();
+const copy = (await getContactPage()).findUs;
 ---
 
 <section class="findus section">
   <div class="container">
     <header class="findus__head">
-      <Eyebrow>Find Us</Eyebrow>
-      <h2 class="findus__title">Visit our <em>Pearland office.</em></h2>
+      <Eyebrow>{copy.eyebrow}</Eyebrow>
+      {/* The <em> stays in THIS template: through a renderer it would lose the
+          scope hash and the gold italic would silently go plain. */}
+      <h2 class="findus__title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}</h2>
     </header>
 
     {/* The comp hardcodes a different suite number than the firmDetails

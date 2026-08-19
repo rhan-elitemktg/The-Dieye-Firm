@@ -11,19 +11,19 @@
 // and the comp could not see it — the section is an opaque import there.
 
 import Eyebrow from "../Eyebrow.astro";
+import { getContactPage } from "../../sanity/contactPage";
+
+const copy = (await getContactPage()).hero;
 ---
 
 <section class="chero">
   <div class="container chero__inner">
-    <Eyebrow eager>Contact Us</Eyebrow>
+    <Eyebrow eager>{copy.eyebrow}</Eyebrow>
 
-    <h1 class="chero__title">Let's Talk</h1>
+    <h1 class="chero__title">{copy.title}</h1>
 
     {/* The comp's em dash becomes a spaced hyphen, per AGENTS.md. */}
-    <p class="chero__lead">
-      One conversation can bring clarity. Reach out for a free, confidential
-      consultation - Papa reviews every inquiry personally.
-    </p>
+    <p class="chero__lead">{copy.lead}</p>
   </div>
 </section>
 

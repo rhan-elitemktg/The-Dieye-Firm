@@ -6,22 +6,24 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-19, on the `sanity_blog_testimonials` branch._
+_Last rewritten: 2026-08-19, on the `sanity_contact_faq_video` branch._
 
 ---
 
 ## Start here
 
-**The Sanity content-modelling pass is underway.** Phases 0–4 and the first
-three page singletons are **merged to `master`** (PRs #31–#34). Phase 5 continues
-on `sanity_blog_testimonials`, branched from master: `/blog/` and
-`/testimonials/` are done and **uncommitted**; 9 page singletons are left.
+**The Sanity content-modelling pass is underway.** Phases 0–4 and the first five
+page singletons are **merged to `master`** (PRs #31–#35). Phase 5 continues on
+`sanity_contact_faq_video`, branched from master: `/contact-us/`, `/faq/` and
+`/video-center/` are done and **uncommitted**; 6 page singletons are left, all
+of them thin.
 
 Build green at 95 pages. Every one of the 80 pages of ingested client prose
 renders from Sanity, plus the reviews, the consultation section, the sidebar
 enquiry card, the attorney, the What Drives Us band, the awards strip, the nine
-FAQs, the nine videos — and the homepage's eleven bands of copy, `/about-us/`'s
-five, `/practice-areas/`'s three, `/blog/`'s one and `/testimonials/`'s two.
+FAQs, the nine videos — and eight pages' own copy: the homepage's eleven bands,
+`/about-us/`'s five, `/practice-areas/`'s three, `/testimonials/`'s two, and one
+apiece for `/blog/`, `/contact-us/`, `/faq/` and `/video-center/`.
 
 The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`. Read it
 before continuing — it holds the phase order, the reasoning behind the model,
@@ -118,7 +120,8 @@ the collections plus `homePage` and missed the four Site Settings singletons.)
 | Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` · `testimonialsBand` · `statsBand` |
 
 Pages: `homePage` · `aboutPage` · `practiceAreasPage` · `blogPage` ·
-`testimonialsPage`, with 9 more to come.
+`testimonialsPage` · `contactPage` · `faqPage` · `videoCenterPage`, with 6 more
+to come.
 
 Four collections are drag-ordered in the Studio — `testimonial`, `award`, `faq`
 and `video`. Nothing about those documents would reproduce their order, and for
@@ -150,6 +153,11 @@ filtered out of the global ＋Create menu.
   videos on 2. Four surfaces gained images in Sanity — 7 badges and 13 posters —
   so those four pages differ from the frozen baseline only by CDN image URLs.
 
+- **5 (in flight) `/contact-us/` + `/faq/` + `/video-center/`.** Two bands and
+  two headers. 93 of 94 pages byte-identical; `/contact-us/` differs by one
+  entity escape ("Let's Talk") and the other two by nothing at all.
+  `/faq/` and `/video-center/` reuse `blogPage`'s `PageHeader` type — three
+  pages, one shared `BlogHeader`, one shape.
 - **5 (in flight) `/blog/` + `/testimonials/`.** One band and two. Both pages
   came out **100% byte-identical, all 94 pages** — the first migration in this
   phase with no entity escaping at all, because none of the copy carried an
@@ -176,11 +184,10 @@ filtered out of the global ＋Create menu.
 
 ## What is left
 
-- **Phase 5** — 5 of 14 page singletons done (the homepage, `/about-us/`,
-  `/practice-areas/`, `/blog/`, `/testimonials/`). The other 9:
-  `/about-us/choosing-a-family-law-attorney/` · `/contact-us/` · `/faq/` ·
-  `/video-center/` · `/client-portal/` · `/privacy-policy/` · `/sitemap/` ·
-  `/thank-you/` · `404`. All 18 accent headings are done.
+- **Phase 5** — 8 of 14 page singletons done. The other 6, all thin:
+  `/about-us/choosing-a-family-law-attorney/` · `/client-portal/` ·
+  `/privacy-policy/` · `/sitemap/` · `/thank-you/` · `404`. All 18 accent
+  headings are done. `/sitemap/`'s rows stay DERIVED from the collections.
   `/sitemap/`'s rows stay DERIVED from the collections — modelling them would
   replace something self-maintaining with something that goes stale.
 - **Phase 6** — Studio polish: icon audit, previews, field descriptions naming
