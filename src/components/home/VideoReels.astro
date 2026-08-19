@@ -5,59 +5,27 @@
 
 import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
-import posterPearland from "../../assets/images/reels/papa-reel-pearland.jpg";
-import posterStorefront from "../../assets/images/reels/papa-reel-storefront.jpg";
-import posterSky from "../../assets/images/reels/papa-reel-sky.jpg";
-import posterPortico from "../../assets/images/reels/papa-reel-portico.jpg";
+import { responsiveImage } from "../../sanity/image";
+import { getReels } from "../../sanity/videos";
 
-/* Posters are shot portraits rather than Wistia's auto-generated stills — the
+/* Posters are shot portraits rather than Wistia's auto-generated stills - the
    Wistia frames are mid-sentence and carry burned-in social captions, which
    fought the card's own title. Four posters cover six videos; the two repeats
    are placed so a duplicate never appears twice in the same view at any
-   breakpoint.
+   breakpoint, which is what "Homepage position" in the Studio is arranging.
 
-   Titles are curated here rather than taken from the Wistia API for the same
-   reason the About section does it: the API titles carry em dashes, emoji and
-   hashtag phrasing ("...Divorced…But Here's Why You Might Want One 👀"). */
-const reels = [
-  { id: "lfabb7o3i4", title: "What judges really look at in custody", poster: posterPearland },
-  { id: "bu44cm272t", title: "Dating before your divorce is final", poster: posterStorefront },
-  { id: "hf0aygaziw", title: "How fast can you get divorced in Texas?", poster: posterSky },
-  { id: "9d4t97fstd", title: "Is legal separation a thing in Texas?", poster: posterPortico },
-  { id: "bc4fv4m4oz", title: "Sometimes \"I'm done\" is all it takes", poster: posterPearland },
-  { id: "aed5yc9gn0", title: "Do you really need a divorce lawyer?", poster: posterStorefront },
-];
+   Titles are ours rather than the Wistia API's, which carry em dashes, emoji
+   and hashtag phrasing ("...Divorced…But Here's Why You Might Want One 👀").
+   They live on the video document now: these six also appear on
+   /video-center/, and the title used to be written out in both components. */
+const reels = await getReels();
 
-/* Runtime comes from Wistia at build time, wrapped so an outage degrades to a
-   card with no duration pill rather than failing the build. */
-const videos = await Promise.all(
-  reels.map(async (reel) => {
-    const mediaUrl = "https://home.wistia.com/medias/" + reel.id;
-    const oembedUrl = "https://fast.wistia.com/oembed?url=" + encodeURIComponent(mediaUrl);
-
-    let duration: number | null = null;
-
-    try {
-      const response = await fetch(oembedUrl);
-      if (response.ok) {
-        const data = await response.json();
-        duration = typeof data.duration === "number" ? data.duration : null;
-      }
-    } catch (error) {
-      duration = null;
-    }
-
-    const runtime = duration
-      ? `${Math.floor(duration / 60)}:${String(Math.round(duration % 60)).padStart(2, "0")}`
-      : null;
-
-    return {
-      ...reel,
-      runtime,
-      label: runtime ? `Play video: ${reel.title} (${runtime})` : `Play video: ${reel.title}`,
-    };
-  }),
-);
+const videos = reels.map((reel) => ({
+  ...reel,
+  label: reel.runtime
+    ? `Play video: ${reel.title} (${reel.runtime})`
+    : `Play video: ${reel.title}`,
+}));
 ---
 
 <section class="reels section" aria-labelledby="reels-title" data-reels>
@@ -88,14 +56,11 @@ const videos = await Promise.all(
             data-video-title={video.title}
             data-video-aspect="9/16"
           >
-            <Image
+            <img
               class="reel__poster"
-              src={video.poster}
+              {...responsiveImage(video.reelPoster!, [220, 300, 420, 540])}
               alt=""
-              widths={[220, 300, 420, 540]}
               sizes="(max-width: 650px) 46vw, (max-width: 1000px) 30vw, 24vw"
-              format="webp"
-              quality={78}
               loading="lazy"
               decoding="async"
             />

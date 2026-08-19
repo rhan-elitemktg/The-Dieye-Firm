@@ -6,30 +6,37 @@
 import { Image } from "astro:assets";
 import Eyebrow from "../Eyebrow.astro";
 import street from "../../assets/images/papa-old-town-pearland.png";
+import { getWhatDrivesUs } from "../../sanity/whatDrivesUs";
 
 /* Inlined rather than linked so they cost no extra request and take their
-   colour from the card via `currentColor`. */
+   colour from the card via `currentColor`. An uploaded asset could not do the
+   second thing — it would arrive as an <img> — which is why the glyph stays in
+   code and Sanity only names which of the three a value uses. */
 import compassionIcon from "../../assets/icons/compassionate-approach.svg?raw";
 import personalIcon from "../../assets/icons/client-focused.svg?raw";
 import experienceIcon from "../../assets/icons/experienced.svg?raw";
 
-const values = [
-  {
-    icon: compassionIcon,
-    title: "Compassionate Approach",
-    text: "We meet you with empathy first, because this is your life, not just a case. You are heard here before anything else.",
-  },
-  {
-    icon: personalIcon,
-    title: "Direct, Personal Attention",
-    text: "You work with Papa himself, the attorney who knows your name, your story, and your goals, not a rotating cast of associates.",
-  },
-  {
-    icon: experienceIcon,
-    title: "Honest Counsel",
-    text: "Realistic expectations and straight answers, so you can make informed decisions about your family's future. No false promises.",
-  },
-];
+const ICONS: Record<string, string> = {
+  "compassionate-approach": compassionIcon,
+  "client-focused": personalIcon,
+  experienced: experienceIcon,
+};
+
+const copy = await getWhatDrivesUs();
+
+/* A name the schema's list doesn't offer can only arrive by editing the list
+   without adding the glyph, so it fails the build rather than rendering a card
+   with an empty square where the icon goes — on 8 pages, silently. */
+const values = copy.values.map((value) => {
+  const icon = ICONS[value.icon];
+  if (!icon) {
+    throw new Error(
+      `whatDrivesUs: no icon named "${value.icon}". Add the SVG to src/assets/icons/ ` +
+        `and register it in ICONS, or pick one of: ${Object.keys(ICONS).join(", ")}.`,
+    );
+  }
+  return { ...value, icon };
+});
 ---
 
 <section class="drives" aria-labelledby="drives-title">
@@ -50,8 +57,12 @@ const values = [
 
   <div class="container drives__inner">
     <header class="drives__head">
-      <Eyebrow light>What Drives Us</Eyebrow>
-      <h2 class="drives__title" id="drives-title">The standard <em>we hold.</em></h2>
+      <Eyebrow light>{copy.eyebrow}</Eyebrow>
+      {/* The <em> stays in THIS template: through a renderer it would lose the
+          scope hash and the gold italic would silently go plain on 8 pages. */}
+      <h2 class="drives__title" id="drives-title">
+        {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}
+      </h2>
     </header>
 
     <ul class="drives__grid">

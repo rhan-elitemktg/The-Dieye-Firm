@@ -13,11 +13,7 @@
 import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import headshot from "../../assets/images/papa-headshot.jpg";
-
-export interface FaqItem {
-  q: string;
-  a: string;
-}
+import { getHomeFaqs, type FaqItem } from "../../sanity/faqs";
 
 interface Props {
   /* Defaults to the homepage's six, so <Faq /> is unchanged. */
@@ -27,43 +23,19 @@ interface Props {
   head?: boolean;
 }
 
-/* Condensed by us from the client's published answers — the full versions run
-   to 136 words and a homepage section cannot carry them. /faq/ has those. */
-const HOME_FAQS: FaqItem[] = [
-  {
-    q: "What is the difference between a contested and an uncontested case?",
-    a: "A contested case means the spouses can't agree on one or more issues, which may require document exchanges, hearings, and mediation before it's finalized. An uncontested case means you've agreed on everything, from property to children's issues, and is usually resolved quickly.",
-  },
-  {
-    q: "What is the difference between joint custody and sole custody?",
-    a: "In Texas, joint managing conservatorship is the default: both parents share rights and duties, though some rights may go to one parent. Sole custody gives one parent the exclusive right to make most decisions, and is only granted when joint custody wouldn't serve the child's best interest.",
-  },
-  {
-    q: "When is a party entitled to receive spousal support?",
-    a: "Texas courts are generally reluctant to award spousal support. It's typically available only when the marriage lasted ten years or longer and the requesting spouse can't meet their minimum reasonable needs, or in cases involving family violence or a qualifying disability.",
-  },
-  {
-    q: "What factors does the court look at when awarding custody?",
-    a: "The paramount consideration is always the best interest of the child. Courts weigh the child's age, the relationship with each parent, the parents' ability to cooperate, any abuse or neglect, and even the child's preference. There's no fixed limit on what they may consider.",
-  },
-  {
-    q: "How much spousal support will the court order?",
-    a: "Support can't exceed 20% of the paying spouse's gross income or $5,000 per month, whichever is lower. Duration depends on the length of the marriage: up to five years for marriages of 10 to 20 years, seven years for 20 to 30 years, and up to ten years for marriages over 30 years.",
-  },
-  {
-    q: "How much is child support if it is ordered?",
-    a: "Texas uses a formula based on the paying parent's gross income and the number of children. The possession schedule and the other parent's income don't factor in, because child support is the right of the child, and the formula is a guideline.",
-  },
-];
+const { items, head = true } = Astro.props;
 
-const { items = HOME_FAQS, head = true } = Astro.props;
+/* The six condensed answers, unless a page passes its own set. /faq/ passes the
+   nine full ones - the two wordings are deliberately different, and the schema
+   header says why. */
+const faqs = items ?? (await getHomeFaqs());
 
 /* FAQPage structured data, generated from the same source as the markup so
    the two can't drift apart. */
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: items.map((item) => ({
+  mainEntity: faqs.map((item) => ({
     "@type": "Question",
     name: item.q,
     acceptedAnswer: { "@type": "Answer", text: item.a },
@@ -90,7 +62,7 @@ const faqSchema = {
     )}
 
     <ul class="faq__list">
-      {items.map((item, i) => (
+      {faqs.map((item, i) => (
         <li>
           <details class="faq__item" name="faq" open={i === 0}>
             <summary class="faq__q">

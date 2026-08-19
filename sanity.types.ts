@@ -62,6 +62,82 @@ export type NavLink = {
   href: string;
 };
 
+export type Video = {
+  _id: string;
+  _type: "video";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  orderRank?: string;
+  title: string;
+  wistiaId: string;
+  label: "The Firm" | "Quick Answer";
+  aspect: "16/9" | "9/16";
+  poster: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  reelOrder?: number;
+  reelPoster?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+};
+
+export type Faq = {
+  _id: string;
+  _type: "faq";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  orderRank?: string;
+  question: string;
+  answer: string;
+  showOnHomepage?: boolean;
+  shortAnswer?: string;
+  note?: string;
+};
+
+export type Award = {
+  _id: string;
+  _type: "award";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  orderRank?: string;
+  image: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  alt: string;
+  width: number;
+};
+
 export type BlogPost = {
   _id: string;
   _type: "blogPost";
@@ -88,22 +164,6 @@ export type BlogPost = {
   body: BlockContent;
   legacyPath?: string;
   seo?: Seo;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x: number;
-  y: number;
-  height: number;
-  width: number;
 };
 
 export type Slug = {
@@ -186,6 +246,33 @@ export type Attorney = {
     crop?: SanityImageCrop;
     _type: "image";
   };
+};
+
+export type AwardsBand = {
+  _id: string;
+  _type: "awardsBand";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  heading: string;
+};
+
+export type WhatDrivesUs = {
+  _id: string;
+  _type: "whatDrivesUs";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  eyebrow: string;
+  headingLead: string;
+  headingAccent?: string;
+  values: Array<{
+    icon: "compassionate-approach" | "client-focused" | "experienced";
+    title: string;
+    text: string;
+    _type: "value";
+    _key: string;
+  }>;
 };
 
 export type CaseEvaluationForm = {
@@ -411,15 +498,20 @@ export type AllSanitySchemaTypes =
   | SanityImageAssetReference
   | Seo
   | NavLink
-  | BlogPost
+  | Video
   | SanityImageCrop
   | SanityImageHotspot
+  | Faq
+  | Award
+  | BlogPost
   | Slug
   | LocationPageReference
   | LocationPage
   | PracticeAreaReference
   | PracticeArea
   | Attorney
+  | AwardsBand
+  | WhatDrivesUs
   | CaseEvaluationForm
   | ConsultForm
   | TestimonialReference
@@ -434,6 +526,22 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint;
+
+// Source: src/sanity/awards.ts
+// Variable: AWARDS_QUERY
+// Query: {  "heading": *[_id == "awardsBand"][0].heading,  "badges": *[_type == "award"] | order(orderRank){    "id": _id,    alt,    width,    image{ asset, "dimensions": asset->metadata.dimensions }  }}
+export type AWARDS_QUERY_RESULT = {
+  heading: null | string;
+  badges: Array<{
+    id: string;
+    alt: string;
+    width: number;
+    image: {
+      asset: SanityImageAssetReference | null;
+      dimensions: SanityImageDimensions | null;
+    };
+  }>;
+};
 
 // Source: src/sanity/blogPosts.ts
 // Variable: BLOG_POSTS_ALL_QUERY
@@ -487,6 +595,16 @@ export type CONSULT_FORM_QUERY_RESULT =
       } | null;
     }
   | null;
+
+// Source: src/sanity/faqs.ts
+// Variable: FAQS_QUERY
+// Query: *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }
+export type FAQS_QUERY_RESULT = Array<{
+  question: string;
+  answer: string;
+  shortAnswer: string | null;
+  showOnHomepage: boolean | null;
+}>;
 
 // Source: src/sanity/firmDetails.ts
 // Variable: FIRM_DETAILS_QUERY
@@ -612,6 +730,12 @@ export type SITE_WIDE_CASE_EVALUATION_QUERY_RESULT =
     }
   | {
       heading: string;
+      intro: null;
+      submitLabel: null;
+      privacyNote: null;
+    }
+  | {
+      heading: string;
       intro: string;
       submitLabel: string;
       privacyNote: string;
@@ -679,12 +803,55 @@ export type TESTIMONIALS_HOME_QUERY_RESULT =
     }
   | null;
 
+// Source: src/sanity/videos.ts
+// Variable: VIDEOS_QUERY
+// Query: *[_type == "video"] | order(orderRank){    "id": wistiaId,    title,    label,    aspect,    reelOrder,    poster{ asset, "dimensions": asset->metadata.dimensions },    reelPoster{ asset, "dimensions": asset->metadata.dimensions }  }
+export type VIDEOS_QUERY_RESULT = Array<{
+  id: string;
+  title: string;
+  label: "Quick Answer" | "The Firm";
+  aspect: "16/9" | "9/16";
+  reelOrder: number | null;
+  poster: {
+    asset: SanityImageAssetReference | null;
+    dimensions: SanityImageDimensions | null;
+  };
+  reelPoster: {
+    asset: SanityImageAssetReference | null;
+    dimensions: SanityImageDimensions | null;
+  } | null;
+}>;
+
+// Source: src/sanity/whatDrivesUs.ts
+// Variable: WHAT_DRIVES_US_QUERY
+// Query: *[_id == "whatDrivesUs"][0]{    eyebrow,    headingLead,    headingAccent,    values[]{ icon, title, text }  }
+export type WHAT_DRIVES_US_QUERY_RESULT =
+  | {
+      eyebrow: null;
+      headingLead: null;
+      headingAccent: null;
+      values: null;
+    }
+  | {
+      eyebrow: string;
+      headingLead: string;
+      headingAccent: string | null;
+      values: Array<{
+        icon: "client-focused" | "compassionate-approach" | "experienced";
+        title: string;
+        text: string;
+      }>;
+    }
+  | null;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    '{\n  "heading": *[_id == "awardsBand"][0].heading,\n  "badges": *[_type == "award"] | order(orderRank){\n    "id": _id,\n    alt,\n    width,\n    image{ asset, "dimensions": asset->metadata.dimensions }\n  }\n}': AWARDS_QUERY_RESULT;
     '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
     '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
+    '\n  *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }\n': FAQS_QUERY_RESULT;
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
@@ -692,5 +859,7 @@ declare module "@sanity/client" {
     '\n  *[_id == "attorney"][0]{\n    name,\n    role,\n    photo{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': SITE_WIDE_ATTORNEY_QUERY_RESULT;
     '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
     '\n  *[_id == "homePage"][0]{\n    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },\n    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_HOME_QUERY_RESULT;
+    '\n  *[_type == "video"] | order(orderRank){\n    "id": wistiaId,\n    title,\n    label,\n    aspect,\n    reelOrder,\n    poster{ asset, "dimensions": asset->metadata.dimensions },\n    reelPoster{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': VIDEOS_QUERY_RESULT;
+    '\n  *[_id == "whatDrivesUs"][0]{\n    eyebrow,\n    headingLead,\n    headingAccent,\n    values[]{ icon, title, text }\n  }\n': WHAT_DRIVES_US_QUERY_RESULT;
   }
 }

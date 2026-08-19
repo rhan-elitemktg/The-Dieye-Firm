@@ -12,11 +12,12 @@ _Last rewritten: 2026-08-19, on the `sanity_setup` branch._
 
 ## Start here
 
-**The Sanity content-modelling pass is underway.** Phases 0–4b of eight are
-committed on `sanity_setup`, 14 commits, working tree clean, build green at 95
+**The Sanity content-modelling pass is underway.** Phases 0–4 of eight are
+committed on `sanity_setup`, 15 commits, working tree clean, build green at 95
 pages. Every one of the 80 pages of ingested client prose now renders from
-Sanity, plus the reviews, the consultation section, the sidebar enquiry card and
-the attorney.
+Sanity, plus the reviews, the consultation section, the sidebar enquiry card,
+the attorney, the What Drives Us band, the awards strip, the nine FAQs and the
+nine videos. **What is left is page copy, not shared records.**
 
 The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`. Read it
 before continuing — it holds the phase order, the reasoning behind the model,
@@ -75,17 +76,32 @@ CDN image URLs, `&#39;` escaping of editor-supplied apostrophes, the
 `.pfaq__a :global(p)` selector, and two blog posts whose reading time went 6 min
 → 5 (a bug fix — it used to count `##` and `-` as words).
 
+Phase 4c added two more of the same kind, on `/`, `/about-us/`, `/thank-you/`
+and `/video-center/`. Both were checked rather than assumed:
+
+- **`alt` → `alt=""`.** Astro emits a bare `alt` for an empty one; a plain
+  `<img>` emits `alt=""`. Identical to HTML and to a screen reader.
+- **Poster `width`/`height` now describe the largest REQUESTED size, not the
+  source file** (1500×835 → 920×512, the same ratio to a rounding error). Every
+  one of those images is `position: absolute; inset: 0; object-fit: cover`, so
+  the attributes carry an aspect ratio and nothing else. Nothing moved.
+
 ---
 
 ## What is in Sanity
 
-**Nine document types, 95 documents.**
+**Fourteen document types, 126 documents.** (The old count of "95" here was
+the collections plus `homePage` and missed the four Site Settings singletons.)
 
 | | |
 |---|---|
 | Pages | `homePage` (grown one phase at a time — currently the About pull-quote and the six Success Stories picks) |
-| Collections | `practiceArea` 32 · `locationPage` 32 · `blogPost` 16 · `testimonial` 14 |
-| Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` |
+| Collections | `practiceArea` 32 · `locationPage` 32 · `blogPost` 16 · `testimonial` 14 · `video` 9 · `faq` 9 · `award` 7 |
+| Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` |
+
+Four collections are drag-ordered in the Studio — `testimonial`, `award`, `faq`
+and `video`. Nothing about those documents would reproduce their order, and for
+the videos the order is load-bearing twice over (below).
 
 The Studio desk is three folders — **Pages**, **Collections**, **Site Settings**
 — with a catch-all so a new type is never silently orphaned, and singletons
@@ -93,7 +109,7 @@ filtered out of the global ＋Create menu.
 
 ---
 
-## Where we are — phases 0–4b done
+## Where we are — phases 0–4 done
 
 - **0 Foundations.** Baseline frozen, both proof tools built, TypeGen wired,
   `blockContent` and `seo` object types, `getFirmDetails()` cache made
@@ -108,13 +124,17 @@ filtered out of the global ＋Create menu.
   homepage and `/about-us/` — so retitling him in the Studio moves every one.
   His **name** is still literal in three of those four, deliberately: the
   question was asked and scoped to the title.
+- **4c `whatDrivesUs`, `awardsBand` + `award`, `faq`, `video`.** The band on 8
+  pages (byte-identical), the strip on 3, the nine questions on 2, the nine
+  videos on 2. Four surfaces gained images in Sanity — 7 badges and 13 posters —
+  so those four pages differ from the frozen baseline only by CDN image URLs.
 
 ## What is left
 
-- **Phase 4 remainder** — `whatDrivesUs` (8 pages), the `award` collection and
-  its band (3 pages), the `faq` collection (9), the `video` collection (9).
 - **Phase 5** — the 14 page singletons. The most tedious phase and the least
-  risky; this is where the 22 accent headings land.
+  risky; this is where the 22 accent headings land. It now also picks up the
+  FAQ section's own eyebrow and heading, and the reels section's, which stayed
+  in code because they are homepage copy rather than shared records.
 - **Phase 6** — Studio polish: icon audit, previews, field descriptions naming
   the desk path an editor sees, warning-only length caps.
 - **Phase 7** — retire the old layer. Delete `src/content/` and
@@ -138,6 +158,29 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   drift the field was added to end, rebuilt with a CMS behind half of it. The
   type's header lists every field against its consumers so both halves stay
   checkable.
+- **Reordering the videos now moves their posters, and it did not before.**
+  The nine grid tiles are cut from six shoots, so three photographs appear
+  twice, and the old arrays kept posters POSITIONAL while ordering the videos
+  editorially — the two were allowed to disagree, and when "About The Dieye
+  Firm" moved to the front the videos swapped and the posters stayed put. A
+  poster travelling on its video document is the only model an editor can add
+  a tenth video to, so that trick is gone. A reorder is now a design decision:
+  check the repeated pairs still separate at 1000px and 650px. The working is
+  in `VideoGrid.astro` and the schema header.
+- **The homepage carousel has its own order, not a filter of the grid's.**
+  `reelOrder` numbers it; `orderRank` orders the grid. They genuinely differ
+  (the carousel's first video is the grid's fifth), because four portrait
+  posters cover six slides and no repeat may land twice in one view.
+- **Wistia is asked for the runtime, never for a title, and never at runtime.**
+  Durations come from oEmbed at build time and are not fields — a typed-in
+  runtime goes stale the first time a video is re-cut and looks right while it
+  does. The API's own titles carry em dashes, emoji and hashtags, so titles are
+  ours. `src/sanity/videos.ts` asks once per video per build; the two
+  components used to ask about the six shorts twice.
+- **The three value icons are a picker, not an upload.** They are inlined SVGs
+  taking their colour from the card through `currentColor`; an uploaded file
+  arrives as an `<img>` and loses it. Adding a fourth glyph is a code change,
+  which is honest — someone has to draw it.
 - **The line between editable and chrome.** Editable is what a reader perceives
   as the firm's voice — headings, leads, body copy, pull-quotes, CTA labels,
   stat figures, alt text carrying factual claims. Chrome stays in code: `Read
@@ -155,6 +198,12 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   That is why `TreeNav`, both sidebars and the ten helpers in `blog.ts` needed
   no edits across 33 routes — which is what made "the menu is identical"
   provable rather than argued.
+- **The two FAQ wordings live on ONE document.** `answer` is the client's
+  published answer, verbatim; `shortAnswer` is ours, condensed, for the
+  homepage, which cannot hold 136 words. `showOnHomepage` picks the six. Two
+  collections would have let someone edit one wording believing they had edited
+  both; one document with two fields makes the pairing visible. AGENTS.md
+  forbids unifying them and the schema header says why.
 - **Categories stay slug strings.** Their slugs are baked into the index's
   client-side filter, into CSS `FilterBoot` generates per slug, and into each
   card's `data-cats`. Documents would ripple through eight components to make
@@ -215,6 +264,17 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
 - **A running dev server never sees a Sanity content edit — unless the helper
   skips its cache.** Every fetch helper takes the `if (import.meta.env.PROD)`
   form for this reason. `getFirmDetails()` was converted in phase 0.
+- **`npm run typegen` is not `npx sanity typegen generate`.** The npm script
+  runs `sanity schema extract` FIRST. Running the generate step alone
+  regenerates the file from a stale schema snapshot and silently omits every new
+  type while printing a success line — five types were missing from
+  `sanity.types.ts` that way and the build stayed green, because nothing in the
+  build reads it.
+- **`@sanity/icons` has no trophy.** There are 236 glyphs in the map and the
+  obvious name for an awards band is not among them; `sanity.icons` also drops
+  named root exports, so a wrong guess is `undefined` rather than an error.
+  Check with `node -e "import('@sanity/icons').then(m => console.log(m.icons))"`
+  before using one. The awards band uses `diamond`.
 - **`/admin` needs a hard reload after every schema change.** Vite re-optimises
   deps and the browser holds a stale module. The server is fine; the tab isn't.
 - **`sanity documents get` can show a document mid-write.** It reported the
@@ -242,27 +302,32 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
    reader navigating by heading skips all nine.
 6. **`VideoObject` markup needs data only the firm has** — upload date, a
    one-line description per video, and ideally a real frame as the thumbnail.
-7. **The `/testimonials/` video tile is still a placeholder** — stock-photo
+7. **The videos and awards can now be reordered in the Studio, with a catch.**
+   Dragging a video moves its poster with it, and the grid's order exists to
+   keep three repeated photographs apart at three column counts. It is worth
+   knowing before the first reorder; the schema field descriptions say so where
+   an editor will see them.
+8. **The `/testimonials/` video tile is still a placeholder** — stock-photo
    poster, generic label. The poster question was closed 2026-08-18; the label
    was not.
-8. **Authored strings with no comp behind them** — `/client-portal/` in full,
+9. **Authored strings with no comp behind them** — `/client-portal/` in full,
    `/sitemap/`'s and `/faq/`'s kickers and decks, the 404's copy, and the titles
    and meta descriptions on `/thank-you/`, `/testimonials/`, `/contact-us/` and
    `/about-us/choosing-a-family-law-attorney/`.
-9. **26 of 32 practice areas and 26 of 32 location pages close with a "come talk
+10. **26 of 32 practice areas and 26 of 32 location pages close with a "come talk
    to us" section.** Kept deliberately — six end on real content that must
    survive. Trivial to strip later, impossible to recover if dropped.
-10. **FAQ answers were flattened by the scrape, not by this migration.** Their
+11. **FAQ answers were flattened by the scrape, not by this migration.** Their
     paragraph structure is not recoverable from the markdown. Modelling `answer`
     as Portable Text does not fix it — but it turns the fix from a component
     change on 64 routes into a re-import of 140 field values.
-11. **The source FAQ headings on the practice-area pages are more specific than
+12. **The source FAQ headings on the practice-area pages are more specific than
     the rendered one.** A `faqsHeading` field would fix it.
-12. **`modifications-enforcement` is 290 words**, the thinnest practice area and
+13. **`modifications-enforcement` is 290 words**, the thinnest practice area and
     the only one where the sidebar overhangs the article.
-13. **The August blog post is categorised by us, not the client**, and still has
+14. **The August blog post is categorised by us, not the client**, and still has
     no artwork.
-14. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
+15. **Two near-duplicate blog posts** — `understanding-child-custody-laws`
     (2025-01) and `understanding-child-custody-laws-in-pearland-texas` (2026-07).
 
 ---

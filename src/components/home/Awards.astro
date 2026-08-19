@@ -6,44 +6,32 @@
 // are more than the seven that currently fit), so it stays a static centred
 // row until it needs to be anything else.
 
-import { Image } from "astro:assets";
-import avPreeminent from "../../assets/images/awards/av-preeminent.png";
-import avvoSuperb from "../../assets/images/awards/avvo-superb.png";
-import nationalTop100 from "../../assets/images/awards/national-top-100-black-lawyers.png";
-import avvoTopAttorney from "../../assets/images/awards/avvo-top-attorney.png";
-import avvoReviews from "../../assets/images/awards/avvo-reviews.png";
-import avvoClientsChoice from "../../assets/images/awards/avvo-clients-choice.png";
-import texasBarCollege from "../../assets/images/awards/texas-bar-college.png";
+import { urlFor } from "../../sanity/image";
+import { getAwards } from "../../sanity/awards";
 
 /* `width` caps the generated file at roughly 2x the largest rendered size
    (190px), which mainly matters for the Texas Bar lockup — its source is
    1024px wide for a badge that never renders above 190. The rest are already
-   at or under the cap, so they're only re-encoded, never upscaled. */
-const awards = [
-  {
-    src: avPreeminent,
-    width: 256,
-    alt: "Martindale-Hubbell AV Preeminent, peer rated for the highest level of professional excellence",
-  },
-  { src: avvoSuperb, width: 155, alt: "Avvo Rating 10.0 Superb, Top Lawyer" },
-  { src: nationalTop100, width: 175, alt: "The National Top 100 Black Lawyers" },
-  {
-    src: avvoTopAttorney,
-    width: 263,
-    alt: "Avvo Rating 10.0, Papa Magaye Dieye, Top Attorney",
-  },
-  {
-    src: avvoReviews,
-    width: 242,
-    alt: "Avvo Reviews, 4.5 stars out of 17 reviews for Papa Magaye Dieye",
-  },
-  {
-    src: avvoClientsChoice,
-    width: 313,
-    alt: "Avvo Clients' Choice Award 2016, Papa Magaye Dieye",
-  },
-  { src: texasBarCollege, width: 380, alt: "Proud member of the Texas Bar College" },
-];
+   at or under the cap, so they're only re-encoded, never upscaled.
+
+   It travels on the badge rather than living here because it is a property of
+   the source file, and the whole point of the collection is that the next badge
+   arrives without a developer. */
+const { heading, badges } = await getAwards();
+
+/* Built here rather than through `responsiveImage`: a badge renders at one
+   fixed size, so a srcset of one entry would be noise. Height comes from the
+   asset's own dimensions so the strip reserves its space before the image
+   lands - seven badges shifting on load is the CLS this avoids. */
+const awards = badges.map((award) => {
+  const ratio = award.image.dimensions?.aspectRatio;
+  return {
+    alt: award.alt,
+    width: award.width,
+    height: ratio ? Math.round(award.width / ratio) : undefined,
+    src: urlFor(award.image).width(award.width).auto("format").quality(82).url(),
+  };
+});
 
 interface Props {
   /* The strip is a white band on the page's bone ground everywhere but
@@ -64,7 +52,7 @@ const { tone = "white" } = Astro.props;
   data-awards
 >
   <div class="container">
-    <h2 class="awards__title" id="awards-title">Awards &amp; Recognition</h2>
+    <h2 class="awards__title" id="awards-title">{heading}</h2>
 
     <div class="awards__viewport">
       <ul
@@ -76,12 +64,11 @@ const { tone = "white" } = Astro.props;
       >
         {awards.map((award) => (
           <li class="awards__item">
-            <Image
+            <img
               src={award.src}
               alt={award.alt}
               width={award.width}
-              format="webp"
-              quality={82}
+              height={award.height}
               loading="lazy"
               decoding="async"
             />

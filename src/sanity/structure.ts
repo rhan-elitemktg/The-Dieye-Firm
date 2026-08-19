@@ -36,11 +36,13 @@ export const SINGLETONS = [
   "consultForm",
   "caseEvaluationForm",
   "attorney",
+  "whatDrivesUs",
+  "awardsBand",
 ];
 
 /* Repeatable types with a curated list below. Kept beside SINGLETONS so the
    catch-all knows what has already been placed. */
-const COLLECTIONS = ["blogPost", "practiceArea", "locationPage", "testimonial"];
+const COLLECTIONS = ["blogPost", "practiceArea", "locationPage", "testimonial", "award", "faq", "video"];
 
 /* Everything placed explicitly. Anything NOT here falls through to the
    catch-all. */
@@ -109,6 +111,35 @@ export const structure: StructureResolver = (S, context) =>
                 S,
                 context,
               }),
+              /* Drag-ordered for the same reason: the strip's sequence is
+                 editorial and nothing about a badge would reproduce it. */
+              orderableDocumentListDeskItem({
+                type: "award",
+                title: "Awards",
+                icon: icons.star,
+                S,
+                context,
+              }),
+              /* Drag-ordered too: /faq/ publishes these in the client's own
+                 sequence, and the homepage renders its six as a filter over it
+                 rather than carrying an order of its own. */
+              orderableDocumentListDeskItem({
+                type: "faq",
+                title: "FAQs",
+                icon: icons["help-circle"],
+                S,
+                context,
+              }),
+              /* Drag-ordered, and the order carries the poster with it — the
+                 grid's sequence exists to keep repeated photographs apart at
+                 three column counts. VideoGrid.astro holds the working. */
+              orderableDocumentListDeskItem({
+                type: "video",
+                title: "Videos",
+                icon: icons.play,
+                S,
+                context,
+              }),
             ]),
         ),
 
@@ -127,6 +158,8 @@ export const structure: StructureResolver = (S, context) =>
                  not a page, they are something every page ends with. */
               page(S, "consultForm", "Consultation Section", icons.envelope),
               page(S, "caseEvaluationForm", "Sidebar Enquiry Card", icons.case),
+              page(S, "whatDrivesUs", "What Drives Us Band", icons.heart),
+              page(S, "awardsBand", "Awards Band", icons.diamond),
               /* Global SEO Settings lands here as a FOLDER when the SEO layer
                  does — sitewide defaults alongside the editor-managed redirect
                  list. Reserved as a folder from the start because adding one
