@@ -29,8 +29,10 @@ import { areaHref, buildTree, byLabel } from "../components/practice-areas/pract
 import { locationHref, pagesIn, rootOf } from "../components/locations/locations";
 import { formatDate } from "../components/blog/blog";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getSitemapPage } from "../sanity/sitemapPage";
 
 const firm = await getFirmDetails();
+const { header } = await getSitemapPage();
 
 const canonical = new URL("/sitemap/", Astro.site ?? Astro.url).href;
 
@@ -103,10 +105,12 @@ const schema = {
   <Header />
 
   <InteriorShell>
+    {/* {count} is filled in from the list below, so the number can never
+        disagree with what the page actually shows. */}
     <InteriorHeader
-      title="Site Map"
-      kicker={{ label: "Legal" }}
-      deck={`Every page on this site - ${total} of them - in one list.`}
+      title={header.title}
+      kicker={{ label: header.kicker }}
+      deck={header.deckTemplate.replace("{count}", String(total))}
     />
 
     <div class="sm">

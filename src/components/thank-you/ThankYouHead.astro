@@ -5,13 +5,16 @@
 // This is the only h1 on the page; the band below it opens on an h2.
 
 import Eyebrow from "../Eyebrow.astro";
+import { getThankYouPage } from "../../sanity/thankYouPage";
+
+const copy = (await getThankYouPage()).head;
 ---
 
 <section class="tyhead">
   <div class="container tyhead__inner">
-    <Eyebrow eager>Message Received</Eyebrow>
+    <Eyebrow eager>{copy.eyebrow}</Eyebrow>
 
-    <h1 class="tyhead__title">Thank You</h1>
+    <h1 class="tyhead__title">{copy.title}</h1>
   </div>
 </section>
 

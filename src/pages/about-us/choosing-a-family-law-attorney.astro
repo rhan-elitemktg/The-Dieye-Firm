@@ -39,6 +39,8 @@
 // title/navLabel split every practice-area page already carries.
 
 import { getPracticeAreas } from "../../sanity/practiceAreas";
+import { getHiringGuidePage } from "../../sanity/hiringGuidePage";
+import ProseBody from "../../components/prose/ProseBody.astro";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/header/Header.astro";
 import InteriorShell from "../../components/interior/InteriorShell.astro";
@@ -68,42 +70,8 @@ const description =
    Paragraphs carry inline HTML for the one link and render through set:html.
    That is safe here precisely because .prose is unscoped in global.css; a
    scoped rule would never reach set:html output. */
-const sections = [
-  {
-    heading: "Start Planning Before You File",
-    paragraphs: [
-      `One of the smartest decisions you can make if you decide to <a href="/family-law/divorce/">file for divorce</a> is hiring an attorney. Planning ahead before filing gives you an advantage. How do you decide which attorney is the best one for you? There are several steps you should take before you retain a lawyer, and always follow your instincts.`,
-    ],
-  },
-  {
-    heading: "Decide Where You Want Your Lawyer Based",
-    paragraphs: [
-      `First, determine where you want your attorney to be. If you live near the place your divorce is being handled, then your decision is easier. However, if your divorce is far away from where you live, you will need to decide if you want a lawyer close to you or close to the courthouse. If a lawyer is close to you, then it is more convenient for meetings and dropping items or documents off. However, you will have to pay them more in travel time whenever they have a hearing or mediation to attend on your behalf. If the lawyer is closer to the courthouse and from that jurisdiction, then they are probably at an advantage. They will know how particular judges operate, what their preferences are, and the basic procedures of the local court. An &ldquo;out-of-town&rdquo; lawyer will be less familiar, which can make a difference.`,
-    ],
-  },
-  {
-    heading: "Research Before You Call",
-    paragraphs: [
-      `Once you decide where you want your lawyer based, try to do some research. The internet is a great place to start, but take everything you read with a grain of salt. Reviews&mdash;good and bad&mdash;can be exaggerated by clients. Try to find a professional rating, such as Avvo or Martindale-Hubbell. See if there are any reviews from the Better Business Bureau. And finally, check the State Bar of Texas website to see if there is any disciplinary history on that lawyer. One of the best ways of finding a lawyer is through word of mouth. If any of your family or friends have gone through a divorce, ask them who their lawyer was and if they had a good experience with them.`,
-    ],
-  },
-  {
-    heading: "Treat the Consultation as an Interview",
-    paragraphs: [
-      /* "Lawyer" -> "lawyers" twice in this paragraph. Deviation 1 above. */
-      `Once you&rsquo;ve found a few lawyers you like, call to see if you can make an appointment for a consultation. Many lawyers will offer a free or discounted initial consultation. You can use this opportunity to ask some basic questions about your case and get a feel for how that lawyer operates. Pay attention to everything. Is there a receptionist who answers the phone? How is their demeanor? Were you put on hold for a long time? When you come into the office, is it clean and organized? How big is it? When you meet with the lawyer, pay attention to how they behave. Have they reviewed your notes? Are they taking notes when speaking to you and asking questions? Or are they on their computer, or taking calls from other people?`,
-      `Remember to use this opportunity as a job interview for them. Ask them if they&rsquo;ve ever had cases similar to yours and what the outcome was. Find out who can handle your case if the attorney you retain is unavailable (such as if they have a long trial or go on vacation). Maybe they know your spouse&rsquo;s attorney and have a good working relationship with them. Most consultations will be limited in time &ndash; usually half an hour. So come prepared with a list of questions and notebook to write down important points.`,
-    ],
-  },
-  {
-    heading: "Weigh the Cost Without Letting It Decide",
-    paragraphs: [
-      /* The live paragraph links "choosing an attorney" to this very page.
-         Deviation 3 above — the words stay, the link goes. */
-      `Try not to let cost be the sole factor in choosing an attorney. Of course, fees are important &ndash; you need to make sure you can actually afford the representation you choose. However, you often get what you pay for. Attorneys who charge you a minimal amount may not be comfortable in using all the resources at their disposal in pursuing your case. However, attorneys who charge a huge retainer might also not be worth the money. This is where listening to your instincts can pay off. If something seems too good to be true, it probably is. No matter how much your attorney charges, make sure you sign a contract and understand the terms of their services. Find out how they bill, what their hourly rate is, and how often you&rsquo;ll be expected to pay. Learn as much as you can up front before retaining a lawyer. And do not forget that if your lawyer does not live up to your expectations, you can always hire another one. (Just remember, hiring a lawyer to start over in the middle of your case can be expensive and difficult!)`,
-    ],
-  },
-];
+const { header, sections } = await getHiringGuidePage();
+
 
 /* Article, not FAQPage and not another LegalService. The FAQ block on the live
    page is sitewide boilerplate that is not reproduced here, so FAQPage would
@@ -148,8 +116,8 @@ const schema = {
 
   <InteriorShell>
     <InteriorHeader
-      title="Choosing a Texas Family Law Attorney"
-      kicker={{ label: "About Us", href: "/about-us/" }}
+      title={header.title}
+      kicker={{ label: header.kicker, href: header.kickerHref }}
     />
 
     {/* .prose lives unscoped in global.css, which is also why the paragraphs
@@ -160,10 +128,10 @@ const schema = {
       {
         sections.map((section) => (
           <>
+            {/* Plain <h2>, not a Portable Text heading: through ProseHeading it
+                would gain an id these never had. */}
             <h2>{section.heading}</h2>
-            {section.paragraphs.map((html) => (
-              <p set:html={html} />
-            ))}
+            <ProseBody value={section.body} />
           </>
         ))
       }

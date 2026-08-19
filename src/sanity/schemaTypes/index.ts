@@ -11,6 +11,12 @@ import { testimonialsPage } from "./testimonialsPage";
 import { contactPage } from "./contactPage";
 import { faqPage } from "./faqPage";
 import { videoCenterPage } from "./videoCenterPage";
+import { sitemapPage } from "./sitemapPage";
+import { thankYouPage } from "./thankYouPage";
+import { notFoundPage } from "./notFoundPage";
+import { hiringGuidePage } from "./hiringGuidePage";
+import { privacyPolicyPage } from "./privacyPolicyPage";
+import { clientPortalPage } from "./clientPortalPage";
 import { testimonial } from "./testimonial";
 import { practiceArea } from "./practiceArea";
 import { locationPage } from "./locationPage";
@@ -41,6 +47,12 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   contactPage,
   faqPage,
   videoCenterPage,
+  clientPortalPage,
+  sitemapPage,
+  thankYouPage,
+  notFoundPage,
+  hiringGuidePage,
+  privacyPolicyPage,
   consultForm,
   caseEvaluationForm,
   whatDrivesUs,

@@ -16,6 +16,10 @@
 
 import { Image } from "astro:assets";
 import papa from "../../assets/images/papa-tan-wide.jpg";
+import { getThankYouPage } from "../../sanity/thankYouPage";
+import { tail } from "../../sanity/aboutPage";
+
+const copy = (await getThankYouPage()).band;
 ---
 
 <section class="tyband" aria-labelledby="tyband-title">
@@ -38,24 +42,18 @@ import papa from "../../assets/images/papa-tan-wide.jpg";
       </div>
 
       <div class="tyband__content">
+        {/* The only heading on the site whose break falls BEFORE the italic:
+            every line gets its own break and the accent opens the line after
+            them. The <em> stays in this template so it keeps the scope hash. */}
         <h2 class="tyband__title" id="tyband-title">
-          Your Family Law<br /><em>Attorney</em> in Pearland.
+          {copy.headingLines.map((line) => (<>{line}<br /></>))}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}
         </h2>
 
         <span class="tyband__rule" aria-hidden="true"></span>
 
-        <p class="tyband__lead">
-          While you wait, take a moment to learn how our firm walks alongside Texas
-          families through their most difficult seasons. From divorce and child custody
-          to support, property division, and modifications, Papa Dieye brings steady,
-          plain-spoken counsel and a genuine commitment to protecting the people who
-          matter most to you. Every case is handled personally, with the care and
-          attention your family deserves at each step of the way.
-        </p>
+        <p class="tyband__lead">{copy.lead}</p>
 
-        <a class="btn btn--gold tyband__cta" href="/about-us/">
-          Meet the Attorney
-        </a>
+        <a class="btn btn--gold tyband__cta" href="/about-us/">{copy.ctaLabel}</a>
       </div>
     </div>
   </div>
