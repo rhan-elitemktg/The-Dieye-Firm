@@ -1,4 +1,5 @@
 ---
+import { getFaqPage } from "../sanity/faqPage";
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/header/Header.astro";
 import BlogHeader from "../components/blog/BlogHeader.astro";
@@ -17,12 +18,7 @@ import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
    not duplicates of each other. */
 const faqs = await getFaqs();
 
-/* Authored, like /video-center/'s: the live page has a bare "FAQ" banner and
-   no intro copy at all. Spaced hyphen rather than an em dash, per AGENTS.md,
-   because this is copy we wrote. */
-const title = "Frequently Asked Questions";
-const intro =
-  "The questions Texas families ask most about divorce, custody and support - answered plainly, before you ever pick up the phone.";
+const { header } = await getFaqPage();
 
 const canonical = new URL("/faq/", Astro.site ?? Astro.url).href;
 ---
@@ -36,7 +32,7 @@ const canonical = new URL("/faq/", Astro.site ?? Astro.url).href;
       the same as /blog/ and /video-center/. */}
   <Header />
 
-  <BlogHeader title={title} intro={intro} eyebrow="Common Questions" />
+  <BlogHeader title={header.title} intro={header.intro} eyebrow={header.eyebrow} />
 
   {/* head={false}: the header above is already a kicker and a heading, and the
       component's own eyebrow + h2 under it would read as a stutter. The

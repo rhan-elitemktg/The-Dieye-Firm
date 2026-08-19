@@ -1,17 +1,12 @@
 ---
+import { getVideoCenterPage } from "../sanity/videoCenterPage";
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/header/Header.astro";
 import BlogHeader from "../components/blog/BlogHeader.astro";
 import VideoGrid from "../components/video-center/VideoGrid.astro";
 import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
 
-/* "Video Center" is the live site's own h1, so it keeps it. The kicker and the
-   deck are authored — there is no comp for this page, and the live one carries
-   no intro copy. Spaced hyphen rather than an em dash, per AGENTS.md, because
-   this is copy we wrote. */
-const title = "Video Center";
-const intro =
-  "Straight answers on divorce, custody, and what to expect in a Texas courtroom - from Papa Dieye himself.";
+const { header } = await getVideoCenterPage();
 
 const canonical = new URL("/video-center/", Astro.site ?? Astro.url).href;
 
@@ -42,7 +37,7 @@ const schema = {
       white. */}
   <Header />
 
-  <BlogHeader title={title} intro={intro} eyebrow="Watch & Learn" />
+  <BlogHeader title={header.title} intro={header.intro} eyebrow={header.eyebrow} />
 
   <VideoGrid />
 

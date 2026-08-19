@@ -8,6 +8,9 @@ import { aboutPage } from "./aboutPage";
 import { practiceAreasPage } from "./practiceAreasPage";
 import { blogPage } from "./blogPage";
 import { testimonialsPage } from "./testimonialsPage";
+import { contactPage } from "./contactPage";
+import { faqPage } from "./faqPage";
+import { videoCenterPage } from "./videoCenterPage";
 import { testimonial } from "./testimonial";
 import { practiceArea } from "./practiceArea";
 import { locationPage } from "./locationPage";
@@ -35,6 +38,9 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   practiceAreasPage,
   blogPage,
   testimonialsPage,
+  contactPage,
+  faqPage,
+  videoCenterPage,
   consultForm,
   caseEvaluationForm,
   whatDrivesUs,
