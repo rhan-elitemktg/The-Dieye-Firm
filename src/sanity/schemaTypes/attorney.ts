@@ -1,20 +1,33 @@
 import { defineType, defineField } from "sanity";
 import { UserIcon } from "@sanity/icons/User";
 
-/* The firm's attorney. One document today — Papa Dieye.
+/* The firm's attorney — Papa Dieye. A SINGLETON: this firm has one.
  *
- * ═══ Why a document type and not fields on Firm Details ═══
+ * ═══ Why a singleton, not a collection ═══
  *
- * His name, role and photo appear in five separate places: the "Reviewed by"
- * card on 85 pages, the homepage attorney band, /about-us/, the homepage About
- * pull-quote's attribution, and the thank-you page. Each of those had its own
- * copy of the strings, which is how the firm ended up describing him two
- * different ways (see below). One document ends that.
+ * It started as a collection on the reasoning that a second attorney is a
+ * realistic hire. That was designing for a firm that doesn't exist yet, at the
+ * cost of the one that does: an editor got a list with a single row in it and a
+ * "＋" that could spawn a second Papa nobody would ever see, because every
+ * consumer takes the first record. One firm, one attorney, one document.
  *
- * It is a document rather than a singleton because a second attorney is a
- * realistic hire, and the difference then is adding a record rather than
- * reshaping the schema. The Studio pins nothing, so a second one just appears
- * in the list.
+ * If the firm ever hires, this becomes a collection again — but that change
+ * should come with the real question it raises, which is whose byline goes on
+ * which article. A list of one answers nothing in advance.
+ *
+ * ═══ Every field here is read by the site ═══
+ *
+ * That is a rule, not an observation. The first version of this type carried a
+ * `photo` and a `rating` that nothing consumed — an editor could upload a new
+ * headshot, publish, and watch the site not change. A field that does nothing
+ * is worse than an absent one: it looks like the CMS is broken, and the only
+ * way to find out otherwise is to read the code.
+ *
+ * Consumers, so this stays checkable:
+ *   name    -> AuthorCard (85 pages)
+ *   role    -> AuthorCard (85 pages)
+ *   photo   -> AuthorCard, MeetPapa (/about-us/), GuideRequest (homepage)
+ *   rating  -> MeetPapa (/about-us/)
  *
  * ═══ ONE role, resolved ═══
  *
@@ -32,7 +45,7 @@ import { UserIcon } from "@sanity/icons/User";
  */
 export const attorney = defineType({
   name: "attorney",
-  title: "Attorneys",
+  title: "Attorney",
   type: "document",
   icon: UserIcon,
   fields: [
@@ -48,7 +61,7 @@ export const attorney = defineType({
       title: "Title",
       type: "string",
       description:
-        'Shown under the name — on the article byline, the homepage band and the About page. One value, used everywhere: the site previously said "Founding Attorney" in some places and "Principal & Founder" in others.',
+        'Shown under the name on the article byline. One value, used everywhere: the site previously said "Founding Attorney" in some places and "Principal & Founder" in others.',
       validation: (rule) => rule.required().max(40),
     }),
     defineField({
@@ -56,7 +69,7 @@ export const attorney = defineType({
       title: "Photo",
       type: "image",
       description:
-        "The headshot used on the article byline and beside the enquiry forms. A square crop works best.",
+        "Used on the article byline (every blog post, practice area and location page), on the About page, and beside the guide offer on the homepage. A SQUARE crop works best — the byline renders it as a 160px circle.",
       options: { hotspot: true },
       fields: [
         defineField({
@@ -72,7 +85,6 @@ export const attorney = defineType({
       title: "Google rating",
       type: "object",
       options: { collapsible: true, collapsed: true },
-      description: undefined,
       fields: [
         defineField({
           name: "score",
@@ -92,5 +104,10 @@ export const attorney = defineType({
   ],
   preview: {
     select: { title: "name", subtitle: "role", media: "photo" },
+    prepare: ({ title, subtitle, media }) => ({
+      title: title ?? "Attorney",
+      subtitle,
+      media,
+    }),
   },
 });

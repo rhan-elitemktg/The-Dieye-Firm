@@ -1,5 +1,6 @@
 import { sanityClient } from "sanity:client";
 import { defineQuery } from "groq";
+import type { SanityImage } from "./image";
 
 /* Records that belong to the site rather than to any page.
  *
@@ -17,7 +18,7 @@ const SITE_WIDE_CASE_EVALUATION_QUERY = defineQuery(`
 `);
 
 const SITE_WIDE_ATTORNEY_QUERY = defineQuery(`
-  *[_type == "attorney"] | order(name asc)[0]{
+  *[_id == "attorney"][0]{
     name,
     role,
     photo{ asset, alt, "dimensions": asset->metadata.dimensions },
@@ -35,7 +36,12 @@ export type CaseEvaluationForm = {
 export type Attorney = {
   name: string;
   role: string;
-  photo?: { asset?: { _ref?: string }; alt?: string; dimensions?: { aspectRatio: number } };
+  /* Optional so a dataset without a photo still builds: every consumer falls
+     back to the headshot in src/assets. The field is wired in all three of
+     them — AuthorCard, MeetPapa and GuideRequest — so uploading one in the
+     Studio changes the site. It did not always, which is the whole reason this
+     comment exists. */
+  photo?: SanityImage;
   rating?: { score?: string; caption?: string };
 };
 
@@ -61,10 +67,6 @@ export function getCaseEvaluationForm(): Promise<CaseEvaluationForm> {
 
 async function fetchAttorney(): Promise<Attorney> {
   const doc = (await sanityClient.fetch(SITE_WIDE_ATTORNEY_QUERY)) as Attorney | null;
-  /* Takes the first attorney by name, which is total while there is one. A
-     second hire makes "whose byline is this" a real question rather than a
-     default — at which point the article byline should reference an attorney
-     rather than assume one, and this helper should stop existing. */
   if (!doc?.name) {
     throw new Error(
       "No attorney document in Sanity. Import it with:\n" +

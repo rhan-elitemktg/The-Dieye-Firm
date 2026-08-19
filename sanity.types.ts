@@ -605,6 +605,55 @@ export type PRACTICE_AREAS_ALL_QUERY_RESULT = Array<{
   _updatedAt: string;
 }>;
 
+// Source: src/sanity/siteWide.ts
+// Variable: SITE_WIDE_CASE_EVALUATION_QUERY
+// Query: *[_id == "caseEvaluationForm"][0]{ heading, intro, submitLabel, privacyNote }
+export type SITE_WIDE_CASE_EVALUATION_QUERY_RESULT =
+  | {
+      heading: null;
+      intro: null;
+      submitLabel: null;
+      privacyNote: null;
+    }
+  | {
+      heading: string;
+      intro: string;
+      submitLabel: string;
+      privacyNote: string;
+    }
+  | null;
+
+// Source: src/sanity/siteWide.ts
+// Variable: SITE_WIDE_ATTORNEY_QUERY
+// Query: *[_id == "attorney"][0]{    name,    role,    photo{ asset, alt, "dimensions": asset->metadata.dimensions },    rating{ score, caption }  }
+export type SITE_WIDE_ATTORNEY_QUERY_RESULT =
+  | {
+      name: null;
+      role: null;
+      photo: null;
+      rating: null;
+    }
+  | {
+      name: string;
+      role: null;
+      photo: null;
+      rating: null;
+    }
+  | {
+      name: string;
+      role: string;
+      photo: {
+        asset: SanityImageAssetReference | null;
+        alt: string | null;
+        dimensions: SanityImageDimensions | null;
+      } | null;
+      rating: {
+        score: string | null;
+        caption: string | null;
+      } | null;
+    }
+  | null;
+
 // Source: src/sanity/testimonials.ts
 // Variable: TESTIMONIALS_ALL_QUERY
 // Query: *[_type == "testimonial"] | order(orderRank) {    _id, lead, body, name, matter  }
@@ -651,6 +700,8 @@ declare module "@sanity/client" {
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
+    '\n  *[_id == "caseEvaluationForm"][0]{ heading, intro, submitLabel, privacyNote }\n': SITE_WIDE_CASE_EVALUATION_QUERY_RESULT;
+    '\n  *[_id == "attorney"][0]{\n    name,\n    role,\n    photo{ asset, alt, "dimensions": asset->metadata.dimensions },\n    rating{ score, caption }\n  }\n': SITE_WIDE_ATTORNEY_QUERY_RESULT;
     '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
     '\n  *[_id == "homePage"][0]{\n    "pullQuote": about.pullQuote->{ _id, lead, body, name, matter },\n    "picks": testimonials.picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_HOME_QUERY_RESULT;
   }

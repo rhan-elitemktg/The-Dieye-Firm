@@ -12,18 +12,29 @@
  * Rhan chose "Founding Attorney" on 2026-08-18, so the byline changes on 85
  * pages. That is a content decision, not a regression.
  *
- * The photo is NOT uploaded here. papa-headshot-square.jpg is a design asset
- * that also appears in three non-attorney contexts, so it stays in src/assets
- * and the component keeps using it; the field exists for the day the firm wants
- * to swap it, and for a second attorney who would have no code asset at all.
+ * The photo IS uploaded here. An earlier version of this script left it out on
+ * the reasoning that papa-headshot-square.jpg was a shared design asset — that
+ * was simply wrong. All three places it appears are Papa in an attorney
+ * context: the article byline, the About page and the homepage guide offer. The
+ * result was a `photo` field in the Studio that nothing read, so uploading a new
+ * headshot changed nothing and looked like a broken CMS.
  */
 
 import { getCliClient } from "sanity/cli";
+import { createReadStream } from "node:fs";
+import { join } from "node:path";
 import { waitForPublic } from "./lib/wait-for-public";
 
 const client = getCliClient({ apiVersion: "2025-08-15" });
 
 async function run() {
+  const headshot = await client.assets.upload(
+    "image",
+    createReadStream(join(process.cwd(), "src/assets/images/papa-headshot-square.jpg")),
+    { filename: "papa-headshot-square.jpg" },
+  );
+  console.log(`   uploaded headshot  ${headshot._id}`);
+
   const tx = client.transaction();
 
   tx.createOrReplace({
@@ -37,10 +48,14 @@ async function run() {
   });
 
   tx.createOrReplace({
-    _id: "attorney-papa-dieye",
+    _id: "attorney",
     _type: "attorney",
     name: "Papa Dieye",
     role: "Founding Attorney",
+    photo: {
+      _type: "image",
+      asset: { _type: "reference", _ref: headshot._id },
+    },
     rating: {
       score: "5.0",
       caption: "Over 150 five-star Google reviews",
@@ -51,7 +66,7 @@ async function run() {
   console.log("✓ caseEvaluationForm + attorney written");
 
   await waitForPublic(
-    'count(*[_id in ["caseEvaluationForm", "attorney-papa-dieye"]])',
+    'count(*[_id in ["caseEvaluationForm", "attorney"]])',
     2,
     "the sidebar card and the attorney record",
   );
