@@ -6,88 +6,37 @@
 
 import VideoTile from "./VideoTile.astro";
 
-import posterStorefront from "../../assets/images/papa-storefront.jpg";
-import posterOldTown from "../../assets/images/papa-old-town-portrait.jpg";
-import posterTable from "../../assets/images/hero-testimonials.jpg";
-import posterCommunity from "../../assets/images/community/comm-n1.jpg";
-import posterWaterTower from "../../assets/images/papa-water-tower.jpg";
-import posterTanWide from "../../assets/images/papa-tan-wide.jpg";
-import posterTanTrees from "../../assets/images/papa-hero-b.jpg";
-import posterSidewalk from "../../assets/images/hero-practice.jpg";
-import posterStreetTalk from "../../assets/images/community/comm-n2.jpg";
+import { getVideos } from "../../sanity/videos";
 
-/* Titles for the three studio pieces are the live site's own labels on
-   /video-center/, which is where their search equity sits — the Wistia API
-   titles differ ("How to Find Family Law Lawyer Houston Texas" for
-   e15abitkx1). Titles for the six shorts are the curated ones already used by
-   home/VideoReels.astro, for the reason stated there: the API titles carry em
-   dashes, emoji and hashtag phrasing.
-
-   Posters are photographs from src/assets/images/, never Wistia's stills.
-   btxq2ysibw's still is Papa mid-sentence and e15abitkx1 is a whiteboard
-   explainer whose still is a near-blank white frame.
-
-   ORDER IS LOAD-BEARING. Nine distinct files but only six distinct shoots, so
-   three shoots appear twice and the grid has to hold each pair apart at three
-   different column counts: 3-up above 1000, 2-up above 650, and a single
-   column below it, where DOM order IS the visual order. Positions 4 and 9 are
-   the only pairing that separates at all three widths at once, and it goes to
-   the tan-jacket pair — papa-tan-wide and papa-hero-b are two crops of one
-   frame and the only pair that reads as a mistake. They were consecutive on
-   mobile before this order; that is what it exists to fix. The storefront pair
-   takes 1 and 8, two rows apart at 3-up and seven cards apart on mobile. That
-   leaves the community pair at 5 and 7, diagonally adjacent at 3-up, which
-   costs nothing: they are genuinely different photographs (different bow tie,
-   tent versus sidewalk).
+/* ORDER IS LOAD-BEARING, and it now travels with the video in Sanity rather
+   than living here. Nine cards are cut from only six shoots, so three
+   photographs appear twice and the grid has to hold each pair apart at three
+   column counts at once: 3-up above 1000, 2-up above 650, and a single column
+   below it, where DOM order IS the visual order. Positions 4 and 9 are the only
+   pairing that separates at all three widths, and it goes to the tan-jacket
+   pair - papa-tan-wide and papa-hero-b are two crops of one frame and the only
+   pair that reads as a mistake. The storefront pair takes 1 and 8, two rows
+   apart at 3-up and seven cards apart on mobile. That leaves the community pair
+   at 5 and 7, diagonally adjacent at 3-up, which costs nothing: they are
+   genuinely different photographs (different bow tie, tent versus sidewalk).
 
    The custody short sits at 5 rather than 4 so it keeps comm-n1, the community
-   day with families and children. Wanting that pairing AND that poster order
-   is the only reason the video order differs from the list on the live site.
+   day with families and children.
 
-   When "About The Dieye Firm" was moved to the front, the two VIDEOS swapped
-   and the two POSTERS stayed put, deliberately. Moving the posters as well
-   would have put the storefront pair in positions 2 and 8 — the same column at
-   3-up — for no gain. Posters are placed by the geometry above; videos are
-   ordered editorially, and the two orders are allowed to disagree. */
-const videos = [
-  { id: "xnom95l12h", title: "About The Dieye Firm",                     label: "The Firm",     aspect: "16/9", poster: posterStorefront },
-  { id: "btxq2ysibw", title: "What Makes Us Different",                  label: "The Firm",     aspect: "16/9", poster: posterOldTown },
-  { id: "e15abitkx1", title: "Choosing An Attorney",                     label: "The Firm",     aspect: "16/9", poster: posterTable },
-  { id: "bu44cm272t", title: "Dating before your divorce is final",      label: "Quick Answer", aspect: "9/16", poster: posterTanWide },
-  { id: "lfabb7o3i4", title: "What judges really look at in custody",    label: "Quick Answer", aspect: "9/16", poster: posterCommunity },
-  { id: "hf0aygaziw", title: "How fast can you get divorced in Texas?",  label: "Quick Answer", aspect: "9/16", poster: posterWaterTower },
-  { id: "9d4t97fstd", title: "Is legal separation a thing in Texas?",    label: "Quick Answer", aspect: "9/16", poster: posterStreetTalk },
-  { id: "bc4fv4m4oz", title: "Sometimes \"I'm done\" is all it takes",   label: "Quick Answer", aspect: "9/16", poster: posterSidewalk },
-  { id: "aed5yc9gn0", title: "Do you really need a divorce lawyer?",     label: "Quick Answer", aspect: "9/16", poster: posterTanTrees },
-] as const;
+   What changed when this moved to Sanity: dragging a video now moves its poster
+   with it. In the old arrays the posters were positional and the videos were
+   ordered editorially, and the two were allowed to disagree - when "About The
+   Dieye Firm" was moved to the front, the videos swapped and the posters stayed
+   put. That trick is gone, so a reorder is a design decision: check the pairs
+   still separate at 1000px and 650px.
 
-/* Runtime comes from Wistia at build time, wrapped so an outage degrades to a
-   card with no duration pill rather than failing the build. Same shape as
-   home/VideoReels.astro, which is where this pattern was set. */
-const tiles = await Promise.all(
-  videos.map(async (video) => {
-    const mediaUrl = "https://home.wistia.com/medias/" + video.id;
-    const oembedUrl = "https://fast.wistia.com/oembed?url=" + encodeURIComponent(mediaUrl);
+   Titles and runtimes: see src/sanity/videos.ts. Wistia is asked for the
+   runtime once per video per build, not once per surface.
 
-    let duration: number | null = null;
-
-    try {
-      const response = await fetch(oembedUrl);
-      if (response.ok) {
-        const data = await response.json();
-        duration = typeof data.duration === "number" ? data.duration : null;
-      }
-    } catch (error) {
-      duration = null;
-    }
-
-    const runtime = duration
-      ? `${Math.floor(duration / 60)}:${String(Math.round(duration % 60)).padStart(2, "0")}`
-      : null;
-
-    return { ...video, runtime };
-  }),
-);
+   Posters are photographs, never Wistia's stills. btxq2ysibw's still is Papa
+   mid-sentence and e15abitkx1 is a whiteboard explainer whose still is a
+   near-blank white frame. */
+const tiles = await getVideos();
 ---
 
 <section class="vg" aria-label="Videos">

@@ -2,66 +2,20 @@
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/header/Header.astro";
 import BlogHeader from "../components/blog/BlogHeader.astro";
-import Faq, { type FaqItem } from "../components/home/Faq.astro";
+import Faq from "../components/home/Faq.astro";
+import { getFaqs } from "../sanity/faqs";
 import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
 
-/* The nine questions the client publishes at /faq/, in their own words. Their
-   prose is left alone — curly apostrophes, "$5,000.00", "20 percent" and all —
-   because it is theirs and it carries the equity. The one exception is item 2
-   and it is documented on the item itself.
+/* The nine questions the client publishes at /faq/, in their own words, from
+   the `faq` collection. Their prose is left alone - curly apostrophes,
+   "$5,000.00", "20 percent" and all - because it is theirs and it carries the
+   equity. The one question that departs from the live page carries its own
+   `note` field saying why, and is logged in docs/live-site-corrections.md.
 
-   The homepage renders six of these nine, condensed by us to fit a homepage
-   section; those live in Faq.astro. The two sets deliberately differ, so the
-   pages are not duplicates of each other. */
-const faqs: FaqItem[] = [
-  {
-    q: "What is the difference between a contested and an uncontested case?",
-    a: "Contested cases mean that the spouses cannot agree on something (or sometimes, on anything). Depending on how contentious the case is, this might require a formal exchange of documents, multiple hearings, and attempts at mediation before the case can be finalized. An uncontested divorce means the couple has agreed on everything, from the division of their property to children’s issues. These divorce cases are usually disposed of quickly.",
-  },
-  {
-    /* TWO EDITS, and the only place this file departs from the live page.
-       The live question is "What factors does the court look at in determining
-       the division of assets?", which its own answer does not answer: the
-       answer opens "Not necessarily." and is plainly replying to a question
-       about a 50/50 split that appears nowhere on the page. The question is
-       therefore recast to the one the answer is already giving.
-       The answer's third sentence, "All the factors mentioned above are
-       considered to determine how the property will be divided.", is dropped
-       for the same reason - no factors are mentioned above it. Nothing else in
-       the answer is touched. Logged as correction 3 in
-       docs/live-site-corrections.md so the firm can fix the live page too. */
-    q: "Is marital property always divided 50/50?",
-    a: "Not necessarily. The property will be divided in a way that is fair and equitable, which does not necessarily mean a 50/50 split. Usually, courts will divide property in a way that is close to the 50/50 mark, but often one spouse will receive slightly more. Splits of 45-55 are very common, while it would be highly unusual for a court to divide an estate in a more lopsided way, such as 30-70.",
-  },
-  {
-    q: "What is the difference between joint custody and sole custody?",
-    a: "In Texas, joint managing conservatorship is the default position of the courts. Usually, it is in the best interest of the child to have both parents equally involved in their lives. Joint managing conservatorship means both parents will have joint rights and duties as it relates to the children although some rights may be given exclusively to one parent (education and medical for example). Sole custody means that only one parent will get the exclusive right to make most decisions for the children but the other parent will still have visitation rights. In order to get sole managing conservatorship, a party must demonstrate that it will not be in the best interest of the child to have joint custody. Usually, this involves showing the court that there has been some abuse or neglect by a parent.",
-  },
-  {
-    q: "When is a party entitled to receive spousal support?",
-    a: "In Texas, courts are generally reluctant to award spousal support. A party will only receive court-ordered spousal support if the marriage has lasted ten years or longer and the spouse made diligent efforts to either earn sufficient income or to develop necessary skills while the divorce is pending to meet his or her minimum reasonable needs; or the other spouse has committed family violence; or the requesting spouse has an incapacitating disability that arose during marriage; or a child of the marriage (of any age) has a physical or mental disability that prevents the spouse who cares for and supervises the child from earning sufficient income.",
-  },
-  {
-    q: "What factors does the court look at when awarding custody?",
-    a: "The paramount consideration for the court is always the best interest of the child, but this can be a nebulous concept. Courts will look at a multitude of factors: the age of the child, the relationship the child has with each parent, the ability of the parents to cooperate, the existence of any abuse or neglect, and even the child’s preference. There is no limit as to what the court can consider when it comes to determining custody.",
-  },
-  {
-    q: "How much spousal support will the court order?",
-    a: "While the amount and duration of spousal support will always depend on the facts of your case, there are certain limitations the court has when ordering spousal support. First, it cannot be over 20 percent of a paying party’s gross income, or $5,000.00 each month, whichever is lower. Next, the duration of support will depend on the length of the marriage. For marriages of 10-20 years, spousal support can be up to five years. Marriages between 20-30 years could have seven years of support, while marriages over 30 years could have spousal support ordered for up to ten years.",
-  },
-  {
-    q: "What is the Standard Possession Order?",
-    a: "This is the default schedule that courts use when determining a visitation schedule. It’s a great place for couples to start if they’d like to customize their own schedule. The non-primary parent will get the children every first, third and fifth Friday of the month until the following Sunday. They will usually get a midweek period of possession, Thursday, and it can be overnight. The couples will swap holidays. The parent who gets Thanksgiving will not get Christmas, but this will alternate every year. Finally, the non-primary conservator usually gets the whole month of July, although there are some variations to this schedule.",
-  },
-  {
-    q: "What are the factors a court considers when determining spousal support?",
-    a: "The overriding principle is the needs of the recipient party balanced with the ability of the other spouse's ability to pay. There is no exhaustive list for a judge to use, but they should consider the financial situation of both spouses, the contribution of each spouse to the marriage (including whether or not one party sacrificed their career to raise children), the age, employment history, education, health and earning capacity of the spouse requesting support, spousal violence, and any fault in the break-up of the marriage.",
-  },
-  {
-    q: "How much is child support if it is ordered?",
-    a: "Texas uses a specific formula to determine the amount of child support. It is based on a parent's gross income and the number of children that the parent has. The possession schedule has no bearing on child support, nor does the recipient spouse's income. That is because child support is the right of the child and not the other parent. It is important to remember that the formula is merely a guideline.",
-  },
-];
+   The homepage renders six of these nine condensed by us; those are the same
+   documents' `shortAnswer`. The two sets deliberately differ, so the pages are
+   not duplicates of each other. */
+const faqs = await getFaqs();
 
 /* Authored, like /video-center/'s: the live page has a bare "FAQ" banner and
    no intro copy at all. Spaced hyphen rather than an em dash, per AGENTS.md,

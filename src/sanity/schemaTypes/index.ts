@@ -11,6 +11,11 @@ import { blogPost } from "./blogPost";
 import { consultForm } from "./consultForm";
 import { caseEvaluationForm } from "./caseEvaluationForm";
 import { attorney } from "./attorney";
+import { whatDrivesUs } from "./whatDrivesUs";
+import { awardsBand } from "./awardsBand";
+import { award } from "./award";
+import { faq } from "./faq";
+import { video } from "./video";
 
 /* Grouped the way the Studio sidebar groups them (see src/sanity/structure.ts),
    so a new type has an obvious place to go. Anything added here that is NOT
@@ -22,12 +27,17 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   homePage,
   consultForm,
   caseEvaluationForm,
+  whatDrivesUs,
+  awardsBand,
   // Documents
   attorney,
   practiceArea,
   locationPage,
   blogPost,
   testimonial,
+  award,
+  faq,
+  video,
   // Objects
   navLink,
   seo,

@@ -8,13 +8,13 @@
 // tint, bottom scrim, caption left / gold badge right) with the duration pill
 // from `.reel` in home/VideoReels.astro.
 
-import { Image } from "astro:assets";
+import { responsiveImage, type SanityImage } from "../../sanity/image";
 
 interface Props {
   id: string;
   title: string;
   label: string;
-  poster: ImageMetadata;
+  poster: SanityImage;
   /* The VIDEO's shape, not the card's. Every card is 16:9; this rides through
      to the modal so a vertical short opens 9:16 rather than letterboxed. */
   aspect: "16/9" | "9/16";
@@ -35,14 +35,11 @@ const playLabel = runtime ? `Play video: ${title} (${runtime})` : `Play video: $
   data-video-title={title}
   data-video-aspect={aspect}
 >
-  <Image
+  <img
     class="vc-tile__img"
-    src={poster}
+    {...responsiveImage(poster, [460, 700, 920])}
     alt=""
-    widths={[460, 700, 920]}
     sizes="(max-width: 650px) 92vw, (max-width: 1000px) 46vw, 31vw"
-    format="webp"
-    quality={78}
     loading="lazy"
     decoding="async"
   />
