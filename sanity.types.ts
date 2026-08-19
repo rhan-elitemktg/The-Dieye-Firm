@@ -347,6 +347,133 @@ export type ConsultForm = {
   };
 };
 
+export type PrivacyPolicyPage = {
+  _id: string;
+  _type: "privacyPolicyPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  header?: {
+    kicker: string;
+    title: string;
+  };
+  intro: BlockContent;
+  sections: Array<{
+    heading: string;
+    body: BlockContent;
+    contactNote?: string;
+    _type: "section";
+    _key: string;
+  }>;
+  seo?: Seo;
+};
+
+export type HiringGuidePage = {
+  _id: string;
+  _type: "hiringGuidePage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  header?: {
+    kicker: string;
+    kickerHref?: string;
+    title: string;
+  };
+  sections: Array<{
+    heading: string;
+    body: BlockContent;
+    _type: "section";
+    _key: string;
+  }>;
+  seo?: Seo;
+};
+
+export type NotFoundPage = {
+  _id: string;
+  _type: "notFoundPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  header?: {
+    kicker: string;
+    title: string;
+    deck: string;
+  };
+  routes: Array<{
+    label: string;
+    href: string;
+    note: string;
+    _type: "route";
+    _key: string;
+  }>;
+  callLead: string;
+  seo?: Seo;
+};
+
+export type ThankYouPage = {
+  _id: string;
+  _type: "thankYouPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  head?: {
+    eyebrow: string;
+    title: string;
+  };
+  band?: {
+    headingLines: Array<string>;
+    headingAccent?: string;
+    headingTail?: string;
+    lead: string;
+    ctaLabel: string;
+  };
+  seo?: Seo;
+};
+
+export type SitemapPage = {
+  _id: string;
+  _type: "sitemapPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  header?: {
+    kicker: string;
+    title: string;
+    deckTemplate: string;
+  };
+  seo?: Seo;
+};
+
+export type ClientPortalPage = {
+  _id: string;
+  _type: "clientPortalPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  header?: {
+    kicker: string;
+    title: string;
+    deck: string;
+  };
+  groups: Array<{
+    heading: string;
+    blurb: string;
+    actions: Array<{
+      label: string;
+      note: string;
+      href: string;
+      style: "btn--gold" | "btn--outline";
+      external?: boolean;
+      download?: boolean;
+      _type: "action";
+      _key: string;
+    }>;
+    _type: "group";
+    _key: string;
+  }>;
+  seo?: Seo;
+};
+
 export type VideoCenterPage = {
   _id: string;
   _type: "videoCenterPage";
@@ -840,6 +967,12 @@ export type AllSanitySchemaTypes =
   | WhatDrivesUs
   | CaseEvaluationForm
   | ConsultForm
+  | PrivacyPolicyPage
+  | HiringGuidePage
+  | NotFoundPage
+  | ThankYouPage
+  | SitemapPage
+  | ClientPortalPage
   | VideoCenterPage
   | FaqPage
   | ContactPage
@@ -983,6 +1116,13 @@ export type BLOG_PAGE_QUERY_RESULT =
     }
   | {
       header: {
+        eyebrow: null;
+        title: string;
+        intro: null;
+      } | null;
+    }
+  | {
+      header: {
         eyebrow: string;
         title: null;
         intro: null;
@@ -1026,12 +1166,82 @@ export type BLOG_POSTS_ALL_QUERY_RESULT = Array<{
   _updatedAt: string;
 }>;
 
+// Source: src/sanity/clientPortalPage.ts
+// Variable: QUERY
+// Query: *[_id == "clientPortalPage"][0]{    header{ kicker, title, deck },    groups[]{ heading, blurb, actions[]{ label, note, href, style, external, download } }  }
+export type QUERY_RESULT =
+  | {
+      header: {
+        kicker: string;
+        title: string;
+        deck: string;
+      } | null;
+      groups: Array<{
+        heading: string;
+        blurb: string;
+        actions: Array<{
+          label: string;
+          note: string;
+          href: string;
+          style: "btn--gold" | "btn--outline";
+          external: boolean | null;
+          download: boolean | null;
+        }>;
+      }>;
+    }
+  | {
+      header: null;
+      groups: null;
+    }
+  | {
+      header: {
+        kicker: null;
+        title: null;
+        deck: null;
+      } | null;
+      groups: null;
+    }
+  | {
+      header: {
+        kicker: null;
+        title: string;
+        deck: null;
+      } | null;
+      groups: null;
+    }
+  | {
+      header: {
+        kicker: string;
+        title: string;
+        deck: null;
+      } | null;
+      groups: null;
+    }
+  | {
+      header: {
+        kicker: string;
+        title: string;
+        deck: string;
+      } | null;
+      groups: null;
+    }
+  | null;
+
 // Source: src/sanity/consultForm.ts
 // Variable: CONSULT_FORM_QUERY
 // Query: *[_id == "consultForm"][0]{    header{ eyebrow, headingLead, headingAccent, leadLines },    form{ cardTitle, cardIntro, submitLabel, privacyNote }  }
 export type CONSULT_FORM_QUERY_RESULT =
   | {
       header: null;
+      form: null;
+    }
+  | {
+      header: {
+        eyebrow: null;
+        headingLead: null;
+        headingAccent: null;
+        leadLines: null;
+      } | null;
       form: null;
     }
   | {
@@ -1086,29 +1296,6 @@ export type CONTACT_PAGE_QUERY_RESULT =
         headingLead: string;
         headingAccent: string | null;
         headingTail: string | null;
-      } | null;
-    }
-  | null;
-
-// Source: src/sanity/faqPage.ts
-// Variable: QUERY
-// Query: *[_id == "faqPage"][0]{ header{ eyebrow, title, intro } }
-export type QUERY_RESULT =
-  | {
-      header: null;
-    }
-  | {
-      header: {
-        eyebrow: string;
-        title: null;
-        intro: null;
-      } | null;
-    }
-  | {
-      header: {
-        eyebrow: string;
-        title: string;
-        intro: string;
       } | null;
     }
   | null;
@@ -1486,6 +1673,12 @@ export type PRACTICE_AREAS_PAGE_QUERY_RESULT =
 export type SITE_WIDE_CASE_EVALUATION_QUERY_RESULT =
   | {
       heading: null;
+      intro: BlockContent;
+      submitLabel: null;
+      privacyNote: null;
+    }
+  | {
+      heading: null;
       intro: null;
       submitLabel: null;
       privacyNote: null;
@@ -1729,9 +1922,9 @@ declare module "@sanity/client" {
     '{\n  "heading": *[_id == "awardsBand"][0].heading,\n  "badges": *[_type == "award"] | order(orderRank){\n    "id": _id,\n    alt,\n    width,\n    image{ asset, "dimensions": asset->metadata.dimensions }\n  }\n}': AWARDS_QUERY_RESULT;
     '\n  *[_id == "blogPage"][0]{ header{ eyebrow, title, intro } }\n': BLOG_PAGE_QUERY_RESULT;
     '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
+    '\n  *[_id == "clientPortalPage"][0]{\n    header{ kicker, title, deck },\n    groups[]{ heading, blurb, actions[]{ label, note, href, style, external, download } }\n  }\n': QUERY_RESULT;
     '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
     '\n  *[_id == "contactPage"][0]{\n    hero{ eyebrow, title, lead },\n    findUs{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': CONTACT_PAGE_QUERY_RESULT;
-    '\n  *[_id == "faqPage"][0]{ header{ eyebrow, title, intro } }\n': QUERY_RESULT;
     '\n  *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }\n': FAQS_QUERY_RESULT;
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
     '\n  *[_id == "homePage"][0]{\n    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },\n    about{\n      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, lead, intro,\n      helpHeading, helpIntro, checklist[]{ lead, text },\n      whyHeading, whyParagraphs, servingHeading, servingParagraph, ctaLabel\n    },\n    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },\n    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },\n    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },\n    faq{ eyebrow, headingLead, headingAccent },\n    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },\n    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },\n    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },\n    blog{ eyebrow, headingLead, headingAccent, ctaLabel }\n  }\n': HOME_PAGE_QUERY_RESULT;

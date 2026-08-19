@@ -34,6 +34,7 @@ import InteriorShell from "../components/interior/InteriorShell.astro";
 import InteriorHeader from "../components/interior/InteriorHeader.astro";
 import AboutSidebar from "../components/about/AboutSidebar.astro";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getClientPortalPage } from "../sanity/clientPortalPage";
 
 const firm = await getFirmDetails();
 
@@ -42,44 +43,8 @@ const canonical = new URL("/client-portal/", Astro.site ?? Astro.url).href;
 const description =
   "Download the New Client Information form, sign in to your case, or make a payment - the three things clients of The Dieye Firm come here to do.";
 
-/* Named arrays, so the Sanity sweep is a query and a map. `external` drives the
-   target/rel pair rather than each entry repeating it, so a future link cannot
-   be added without one. `download` marks the one same-origin asset. */
-const groups = [
-  {
-    heading: "New clients",
-    blurb: `If you have not met with us yet, start here. Print the form, fill it in, and bring it to your consultation or email it back ahead of time - it covers the details we would otherwise spend your first appointment collecting.`,
-    actions: [
-      {
-        label: "Download the New Client Form",
-        note: "PDF, 6 pages",
-        href: "/documents/Client-Intake-for-website.pdf",
-        style: "btn--gold",
-        download: true,
-      },
-    ],
-  },
-  {
-    heading: "Existing clients",
-    blurb: `Your case file, documents and messages live in MyCase. Both links below open MyCase in a new tab, and you will sign in there.`,
-    actions: [
-      {
-        label: "Access Your Case",
-        note: "Sign in to MyCase",
-        href: "https://auth.mycase.com/login_sessions/new?response_type=code&client_id=tCEM8hNY7GaC2c8P&redirect_uri=https%3A%2F%2Fdieylaw.mycase.com%2Fuser_sessions%2Fo_auth_callback&login_required=true",
-        style: "btn--gold",
-        external: true,
-      },
-      {
-        label: "Pay Now",
-        note: "Secure payment through MyCase",
-        href: "https://dieyelaw.mycase.com/paypage/r2nqKsLn4tKLrBcbbySRmkrg",
-        style: "btn--outline",
-        external: true,
-      },
-    ],
-  },
-];
+const { header, groups } = await getClientPortalPage();
+
 
 /* WebPage, matching /privacy-policy/. Not a Service and not a LegalService:
    this is a utility page for people who are already clients, and every
@@ -101,11 +66,7 @@ const schema = {
   <Header />
 
   <InteriorShell>
-    <InteriorHeader
-      title="Client Portal"
-      kicker={{ label: "Clients" }}
-      deck="Everything you need to get started with us, or to keep an existing case moving."
-    />
+    <InteriorHeader title={header.title} kicker={{ label: header.kicker }} deck={header.deck} />
 
     <div class="cp">
       {

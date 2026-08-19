@@ -24,18 +24,11 @@ import InteriorShell from "../components/interior/InteriorShell.astro";
 import InteriorHeader from "../components/interior/InteriorHeader.astro";
 import AboutSidebar from "../components/about/AboutSidebar.astro";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getNotFoundPage } from "../sanity/notFoundPage";
 
 const firm = await getFirmDetails();
 
-/* The four a lost visitor is most likely to have been looking for, plus the one
-   page that lists everything else. Kept as a named array for the Sanity sweep. */
-const routes = [
-  { label: "Practice Areas", href: "/practice-areas/", note: "All 32 areas of family law we handle" },
-  { label: "Service Areas", href: "/harris-county-family-law-attorney/", note: "Harris County, League City, Sugar Land and Pasadena" },
-  { label: "Blog", href: "/blog/", note: "Articles on divorce, custody and support in Texas" },
-  { label: "FAQs", href: "/faq/", note: "The questions we are asked most often" },
-  { label: "Site Map", href: "/sitemap/", note: "Every page on this site, in one list" },
-];
+const { header, routes, callLead } = await getNotFoundPage();
 ---
 
 <Layout
@@ -47,11 +40,7 @@ const routes = [
   <Header />
 
   <InteriorShell>
-    <InteriorHeader
-      title="We couldn't find that page"
-      kicker={{ label: "404" }}
-      deck="The link may be out of date, or the address may have a typo in it. Here is the way back."
-    />
+    <InteriorHeader title={header.title} kicker={{ label: header.kicker }} deck={header.deck} />
 
     <div class="nf">
       <ul class="nf__routes">
@@ -66,7 +55,7 @@ const routes = [
       </ul>
 
       <p class="nf__call">
-        If you would rather just speak to someone, call us at{" "}
+        {callLead}{" "}
         <a href={firm.phone.href}>{firm.phone.display}</a>.
       </p>
     </div>

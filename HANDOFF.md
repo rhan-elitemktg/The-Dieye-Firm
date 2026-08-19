@@ -6,24 +6,25 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-19, on the `sanity_contact_faq_video` branch._
+_Last rewritten: 2026-08-19, on the `sanity_last_pages` branch._
 
 ---
 
 ## Start here
 
-**The Sanity content-modelling pass is underway.** Phases 0–4 and the first five
-page singletons are **merged to `master`** (PRs #31–#35). Phase 5 continues on
-`sanity_contact_faq_video`, branched from master: `/contact-us/`, `/faq/` and
-`/video-center/` are done and **uncommitted**; 6 page singletons are left, all
-of them thin.
+**PHASE 5 IS COMPLETE — all 14 page singletons.** Phases 0–4 and the first
+eight pages are **merged to `master`** (PRs #31–#36); the last six are done and
+**uncommitted** on `sanity_last_pages`.
+
+Every word a reader sees on this site now comes from Sanity, apart from the
+chrome the decisions below keep in code deliberately. What is left is phase 6
+(Studio polish), phase 7 (retire the old layer, wire the publish webhook), and
+then `/new-seo-setup`.
 
 Build green at 95 pages. Every one of the 80 pages of ingested client prose
 renders from Sanity, plus the reviews, the consultation section, the sidebar
 enquiry card, the attorney, the What Drives Us band, the awards strip, the nine
-FAQs, the nine videos — and eight pages' own copy: the homepage's eleven bands,
-`/about-us/`'s five, `/practice-areas/`'s three, `/testimonials/`'s two, and one
-apiece for `/blog/`, `/contact-us/`, `/faq/` and `/video-center/`.
+FAQs, the nine videos — and all fourteen pages' own copy.
 
 The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`. Read it
 before continuing — it holds the phase order, the reasoning behind the model,
@@ -119,9 +120,10 @@ the collections plus `homePage` and missed the four Site Settings singletons.)
 | Collections | `practiceArea` 32 · `locationPage` 32 · `blogPost` 16 · `testimonial` 14 · `video` 9 · `faq` 9 · `award` 7 |
 | Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` · `testimonialsBand` · `statsBand` |
 
-Pages: `homePage` · `aboutPage` · `practiceAreasPage` · `blogPage` ·
-`testimonialsPage` · `contactPage` · `faqPage` · `videoCenterPage`, with 6 more
-to come.
+Pages, all 14: `homePage` · `aboutPage` · `practiceAreasPage` · `blogPage` ·
+`testimonialsPage` · `contactPage` · `faqPage` · `videoCenterPage` ·
+`hiringGuidePage` · `clientPortalPage` · `privacyPolicyPage` · `sitemapPage` ·
+`thankYouPage` · `notFoundPage`.
 
 Four collections are drag-ordered in the Studio — `testimonial`, `award`, `faq`
 and `video`. Nothing about those documents would reproduce their order, and for
@@ -153,6 +155,16 @@ filtered out of the global ＋Create menu.
   videos on 2. Four surfaces gained images in Sanity — 7 badges and 13 posters —
   so those four pages differ from the frozen baseline only by CDN image URLs.
 
+- **5 (in flight) the last six pages.** `/client-portal/`, `/sitemap/`,
+  `/thank-you/` and `404` came out 94/94 byte-identical. The two PROSE pages —
+  `/privacy-policy/` and the hiring guide — are the only ones in phase 5
+  modelled as **Portable Text**, because their sentences carry bold and links
+  and a plain string field would have handed a lawyer a box with tags in it.
+  Their diff is two overlapping expected classes and nothing else: entities
+  became real characters, and the `<p>` tags lost the page's scope hash because
+  they now come from `ProseBody`. With both normalised, ZERO differences remain,
+  and computed styles are identical on both pages — 18px/30px, same colour, same
+  list metrics.
 - **5 (in flight) `/contact-us/` + `/faq/` + `/video-center/`.** Two bands and
   two headers. 93 of 94 pages byte-identical; `/contact-us/` differs by one
   entity escape ("Let's Talk") and the other two by nothing at all.
@@ -184,10 +196,7 @@ filtered out of the global ＋Create menu.
 
 ## What is left
 
-- **Phase 5** — 8 of 14 page singletons done. The other 6, all thin:
-  `/about-us/choosing-a-family-law-attorney/` · `/client-portal/` ·
-  `/privacy-policy/` · `/sitemap/` · `/thank-you/` · `404`. All 18 accent
-  headings are done. `/sitemap/`'s rows stay DERIVED from the collections.
+- ~~**Phase 5**~~ — done, 14 of 14.
   `/sitemap/`'s rows stay DERIVED from the collections — modelling them would
   replace something self-maintaining with something that goes stale.
 - **Phase 6** — Studio polish: icon audit, previews, field descriptions naming
@@ -249,6 +258,18 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   number (facts about the firm, not the page). Two documents describing one line
   disagree eventually and the page picks one. The rule is written into the
   `homePage` header, which is the file the next 13 pages will be copied from.
+- **Portable Text only where a sentence carries markup.** Thirteen of the
+  fourteen page documents hold plain strings, because their copy is plain. The
+  privacy policy and the hiring guide hold `blockContent`, because bold and
+  links sit INSIDE their sentences and a string field would mean an editor
+  hand-typing `<strong>` and `<a href>` on a legal page and on the one page
+  whose job is cross-linking. Do not convert the other twelve to rich text to
+  be consistent; a rich-text box for a button label is worse than a string.
+- **Headings stay OUT of the rich text on those two pages.** A Portable Text
+  heading renders through `ProseHeading`, which stamps an id on every one —
+  right for an article body an anchor might point into, wrong for eight
+  headings that never had ids. Each section keeps its heading as a plain string
+  beside its body.
 - **The line between editable and chrome.** Editable is what a reader perceives
   as the firm's voice — headings, leads, body copy, pull-quotes, CTA labels,
   stat figures, alt text carrying factual claims. Chrome stays in code: `Read
@@ -332,12 +353,25 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
 - **A running dev server never sees a Sanity content edit — unless the helper
   skips its cache.** Every fetch helper takes the `if (import.meta.env.PROD)`
   form for this reason. `getFirmDetails()` was converted in phase 0.
+- **An import that asserts with the SAME regex it parses with cannot fail.**
+  The privacy policy's list items were dropped silently because the multi-line
+  `ul:` block did not match a one-line regex; the count check used that same
+  regex, so it agreed with itself. The fixed check counts the source's own
+  markers independently, and the real proof is still the byte-diff after the
+  build.
 - **`scripts/import/home-page.ts` REPLACES the whole homepage document.** It is
   phase 2's, it sets the two reference fields, and since phase 5 it would delete
   eleven sections of copy if anyone re-ran it. Phase 5's is a separate file —
   `home-page-copy.ts` — and it PATCHES with dotted paths so the references
   survive. Both scripts now say so at the top. This was found the hard way: the
   phase-5 script was written to the phase-2 filename and overwrote it.
+- **Moving prose into `ProseBody` takes the page's scope hash off its `<p>`
+  tags.** That is fine when the page's scoped rule targets the WRAPPER — both
+  prose pages set `.pp__body`/`.cfa__body { font-size: 18px }` on the div, which
+  is still in the page's own template, and the paragraphs inherit. It would NOT
+  be fine for a rule like `.pp__body p { … }`, which would silently stop
+  matching. The byte-diff cannot tell those two apart, so check computed styles
+  on the page — that is what `scripts/checks/prose-styles.js` is for.
 - **A DEFAULT PROP hides page copy from the check.** `/blog/`'s kicker lived as
   `eyebrow = "News & Insights"` in `BlogHeader`, which /faq/ and /video-center/
   also render. `check:page-copy` reads imports, not defaults, so it saw nothing.
