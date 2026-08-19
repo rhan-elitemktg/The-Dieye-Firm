@@ -4,6 +4,7 @@ import { navLink } from "./navLink";
 import { seo } from "./seo";
 import { blockContent } from "./blockContent";
 import { homePage } from "./homePage";
+import { aboutPage } from "./aboutPage";
 import { testimonial } from "./testimonial";
 import { practiceArea } from "./practiceArea";
 import { locationPage } from "./locationPage";
@@ -13,6 +14,7 @@ import { caseEvaluationForm } from "./caseEvaluationForm";
 import { attorney } from "./attorney";
 import { whatDrivesUs } from "./whatDrivesUs";
 import { awardsBand } from "./awardsBand";
+import { testimonialsBand } from "./testimonialsBand";
 import { award } from "./award";
 import { faq } from "./faq";
 import { video } from "./video";
@@ -25,10 +27,12 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Singletons
   firmDetails,
   homePage,
+  aboutPage,
   consultForm,
   caseEvaluationForm,
   whatDrivesUs,
   awardsBand,
+  testimonialsBand,
   // Documents
   attorney,
   practiceArea,

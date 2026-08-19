@@ -5,38 +5,13 @@
 
 import { Image } from "astro:assets";
 import { getAttorney } from "../../sanity/siteWide";
+import { getAboutPage } from "../../sanity/aboutPage";
 import { responsiveImage } from "../../sanity/image";
 import Eyebrow from "../Eyebrow.astro";
 import headshot from "../../assets/images/papa-headshot-square.jpg";
 
-const chips = [
-  { value: "17+ Years", label: "Texas Family Law", icon: "scales" },
-  { value: "5.0 Stars", label: "Google Reviews", icon: "star" },
-  { value: "500+", label: "Families Helped", icon: "heart" },
-];
-
-const milestones = [
-  {
-    when: "Then",
-    title: "A Calling to Serve",
-    text: "Answered a calling to family law, the area where steady counsel matters most.",
-  },
-  {
-    when: "Now",
-    title: "Rooted in Pearland",
-    text: "Serving neighbors across the greater Houston area, right here from Old Town Pearland.",
-  },
-  {
-    when: "Always",
-    title: "People First",
-    text: "Plain-language advice, realistic expectations, and empathy on every single matter.",
-  },
-  {
-    when: "With You",
-    title: "To Resolution",
-    text: "Standing beside your family from the first call through the final signed order.",
-  },
-];
+const copy = (await getAboutPage()).meetPapa;
+const { chips, milestones } = copy;
 
 const attorney = await getAttorney();
 ---
@@ -107,9 +82,9 @@ const attorney = await getAttorney();
       </div>
 
       <div class="meet__body">
-        <Eyebrow>Meet the Attorney</Eyebrow>
+        <Eyebrow>{copy.eyebrow}</Eyebrow>
 
-        <h2 class="meet__name" id="meet-title">Papa Dieye</h2>
+        <h2 class="meet__name" id="meet-title">{attorney.name}</h2>
         <p class="meet__role">{attorney.role}</p>
 
         <ul class="meet__chips">
@@ -158,21 +133,11 @@ const attorney = await getAttorney();
           their hardest day."
         </blockquote>
 
-        <p class="meet__para">
-          For more than seventeen years, Papa Dieye has guided families across
-          Pearland and the greater Houston area through divorce, custody, and
-          support. He built this firm on a simple belief: that people in crisis
-          deserve a lawyer who treats them with dignity, answers honestly, and
-          fights thoughtfully for what matters most.
-        </p>
-        <p class="meet__para">
-          As a solo practitioner, Papa works with you directly. No handoffs, no
-          shuffle. Just one experienced attorney who knows your story.
-        </p>
+        {copy.paragraphs.map((text) => <p class="meet__para">{text}</p>)}
 
         <div class="meet__foot">
           <a class="btn btn--gold" href="/contact-us/">Get in Touch</a>
-          <span class="meet__sign" aria-hidden="true">Papa Dieye</span>
+          <span class="meet__sign" aria-hidden="true">{attorney.name}</span>
         </div>
       </div>
     </div>

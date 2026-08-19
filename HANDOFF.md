@@ -14,13 +14,14 @@ _Last rewritten: 2026-08-19, on the `sanity_homepage` branch._
 
 **The Sanity content-modelling pass is underway.** Phases 0–4 are **merged to
 `master`** (PRs #31 and #32). Phase 5 is in flight on `sanity_homepage`, branched
-from master, **uncommitted**: the homepage is done, the other 13 page singletons
-are not.
+from master: the homepage and `/about-us/` are done and pushed, the other 12
+page singletons are not.
 
 Build green at 95 pages. Every one of the 80 pages of ingested client prose
 renders from Sanity, plus the reviews, the consultation section, the sidebar
 enquiry card, the attorney, the What Drives Us band, the awards strip, the nine
-FAQs, the nine videos — and now the homepage's own eleven bands of copy.
+FAQs, the nine videos — and now the homepage's eleven bands of copy and
+`/about-us/`'s six.
 
 The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`. Read it
 before continuing — it holds the phase order, the reasoning behind the model,
@@ -105,7 +106,9 @@ the collections plus `homePage` and missed the four Site Settings singletons.)
 |---|---|
 | Pages | `homePage` (grown one phase at a time — currently the About pull-quote and the six Success Stories picks) |
 | Collections | `practiceArea` 32 · `locationPage` 32 · `blogPost` 16 · `testimonial` 14 · `video` 9 · `faq` 9 · `award` 7 |
-| Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` |
+| Site Settings | `firmDetails` · `attorney` · `consultForm` · `caseEvaluationForm` · `whatDrivesUs` · `awardsBand` · `testimonialsBand` |
+
+Pages: `homePage` · `aboutPage`, with 12 more to come.
 
 Four collections are drag-ordered in the Studio — `testimonial`, `award`, `faq`
 and `video`. Nothing about those documents would reproduce their order, and for
@@ -137,6 +140,11 @@ filtered out of the global ＋Create menu.
   videos on 2. Four surfaces gained images in Sanity — 7 badges and 13 posters —
   so those four pages differ from the frozen baseline only by CDN image URLs.
 
+- **5 (in flight) `/about-us/`.** Six bands on a new `aboutPage` singleton, and
+  the Success Stories band moved OUT of `homePage` into its own record — it
+  renders on this page too, which the rule below forbids a page document from
+  owning. Two headings here put their italic mid-sentence, so accents grew a
+  third part; see `tail()` in `src/sanity/aboutPage.ts`.
 - **5 (in flight) the homepage.** Eleven bands of copy on the `homePage`
   singleton, which had held only two reference fields. Every string extracted
   from the components and diffed, never retyped. 92 of 94 pages byte-identical;
@@ -145,11 +153,11 @@ filtered out of the global ＋Create menu.
 
 ## What is left
 
-- **Phase 5** — 1 of 14 page singletons done (the homepage). The other 13:
-  `/about-us/` · `/about-us/choosing-a-family-law-attorney/` · `/practice-areas/`
-  · `/blog/` · `/testimonials/` · `/contact-us/` · `/faq/` · `/video-center/` ·
+- **Phase 5** — 2 of 14 page singletons done (the homepage, `/about-us/`). The
+  other 12: `/about-us/choosing-a-family-law-attorney/` · `/practice-areas/` ·
+  `/blog/` · `/testimonials/` · `/contact-us/` · `/faq/` · `/video-center/` ·
   `/client-portal/` · `/privacy-policy/` · `/sitemap/` · `/thank-you/` · `404`.
-  9 of the 18 remaining accent headings went with the homepage; 9 are left.
+  12 of the 18 accent headings are done; 6 are left.
   `/sitemap/`'s rows stay DERIVED from the collections — modelling them would
   replace something self-maintaining with something that goes stale.
 - **Phase 6** — Studio polish: icon audit, previews, field descriptions naming
@@ -198,8 +206,14 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   taking their colour from the card through `currentColor`; an uploaded file
   arrives as an `<img>` and loses it. Adding a fourth glyph is a code change,
   which is honest — someone has to draw it.
-- **Record or page copy: count the pages it renders on.** More than one, it is
-  a record in Site Settings; exactly one, it belongs to that page's document.
+- **Record or page copy: count the pages the FIELDS reach, not the pages the
+  component does.** More than one, it is a record in Site Settings; exactly one,
+  it belongs to that page's document. The refinement is not academic — it is
+  what separates the two components that render on two pages each. Success
+  Stories renders identically on the homepage and `/about-us/`, so it is a
+  record. The FAQ section renders on the homepage and `/faq/`, but `/faq/`
+  passes `head={false}` and its own nine questions, so the eyebrow and heading
+  modelled on `homePage` really do appear once.
   This is why the homepage document has no awards heading (3 pages), no
   consultation copy (93), no What Drives Us (8), and no attorney name or phone
   number (facts about the firm, not the page). Two documents describing one line
@@ -294,10 +308,11 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
   `home-page-copy.ts` — and it PATCHES with dotted paths so the references
   survive. Both scripts now say so at the top. This was found the hard way: the
   phase-5 script was written to the phase-2 filename and overwrote it.
-- **A section that renders on several pages is NOT page copy.** The homepage
-  shows twelve bands and its document holds eleven. Reaching for the twelfth
-  (the awards heading) is the natural mistake and puts two documents on one
-  line.
+- **A section that renders on several pages is NOT page copy**, and the miss is
+  easy: Success Stories sat in `homePage` for one commit before `/about-us/`
+  surfaced it. Before modelling a component, `grep -rl "home/<Name>.astro"
+  src/pages/` — more than one hit means it is a record, unless the second page
+  passes props that suppress the fields in question.
 - **`npm run typegen` is not `npx sanity typegen generate`.** The npm script
   runs `sanity schema extract` FIRST. Running the generate step alone
   regenerates the file from a stale schema snapshot and silently omits every new
@@ -389,6 +404,13 @@ Then `/new-seo-setup` for sitemap, robots, redirects and the JSON-LD builders.
 - **The office map is a bare Google embed on 92 pages**, loading at parse time
   and setting third-party cookies sitewide. The last holdout of the
   click-to-load rule.
+- **The SEO tab is dead on both page singletons.** `homePage.seo` and
+  `aboutPage.seo` exist and nothing reads them — an editor can fill in a meta
+  title and watch the page not change, which is the exact failure the attorney's
+  `photo` and `rating` were removed for. They are reserved for `/new-seo-setup`,
+  which wires them alongside sitemap, robots and the JSON-LD builders. Either
+  bring that pass forward or drop the tab until it lands; leaving it is the one
+  place this migration knowingly breaks its own rule.
 - **`og:image` is on 16 of 95 pages.** Better solved by the SEO pass, where a
   per-page image field and a sitewide default supply it.
 - **10 pages skip a heading level** (h1 → h3): 8 practice areas, one location

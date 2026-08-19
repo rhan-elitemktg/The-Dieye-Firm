@@ -41,6 +41,13 @@ import { iconList } from "./iconOptions";
  * What Drives Us band are all absent too. Two documents describing one line is
  * the failure this avoids: they disagree eventually, and the page picks one.
  *
+ * The Success Stories band is absent for the same reason and was moved out
+ * after one commit here: it renders on /about-us/ too, so it is
+ * `testimonialsBand`. Count the pages the FIELDS reach, not the pages the
+ * component does — the FAQ section below renders on two pages as well, but
+ * /faq/ passes `head={false}`, so this eyebrow and heading really do appear
+ * once.
+ *
  * Facts about the FIRM rather than the page are also absent. The attorney's name
  * and title come from the `attorney` record even though they render here, and
  * the phone number comes from `firmDetails` — modelling either again would
@@ -319,57 +326,6 @@ export const homePage = defineType({
           of: [defineArrayMember({ type: "string" })],
           description: "One entry per line, joined with a line break. Two short lines fit the badge; one long one overflows it.",
           validation: (rule) => rule.required().min(1),
-        }),
-      ],
-    }),
-    defineField({
-      name: "testimonials",
-      title: "Success Stories",
-      type: "object",
-      group: "content",
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        defineField({
-          name: "eyebrow",
-          title: "Eyebrow",
-          type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
-        }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({
-          name: "headingAccent",
-          title: "Heading — italic part",
-          type: "string",
-          description: "Rendered in gold italic. Leave empty for none.",
-        }),
-        defineField({ name: "lead", title: "Lead", type: "text", rows: 2, validation: (rule) => rule.required() }),
-        defineField({
-          name: "cardKicker",
-          title: "Card kicker",
-          type: "string",
-          description: "The small line at the top of every review card.",
-          validation: (rule) => rule.required(),
-        }),
-        defineField({
-          name: "picks",
-          title: "Reviews to show",
-          type: "array",
-          of: [{ type: "reference", to: [{ type: "testimonial" }] }],
-          description:
-            "Six reviews, in the order they should appear. Prefer ones whose pull quote isn't repeated word-for-word inside the review — on three cards side by side that repetition is the first thing the eye catches.",
-          validation: (rule) =>
-            rule
-              .required()
-              .length(6)
-              .error("The band is built for exactly six cards.")
-              .unique(),
-        }),
-        defineField({
-          name: "ctaLabel",
-          title: "Button label",
-          type: "string",
-          description: "Under the cards. It points at /testimonials/.",
-          validation: (rule) => rule.required(),
         }),
       ],
     }),

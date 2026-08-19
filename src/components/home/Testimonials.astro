@@ -41,17 +41,15 @@ import birdGold from "../../assets/images/logo-bird-gold.png";
    There is no Child Support review because no real review names child support.
    The matter is simply absent rather than filled with something that doesn't
    say it. */
-import { getHomeTestimonials } from "../../sanity/testimonials";
-import { getHomePage } from "../../sanity/homePage";
-
-const copy = (await getHomePage()).testimonials;
+import { getTestimonialsBand } from "../../sanity/testimonials";
 
 /* Which six, and their order, is set on the Home Page document
    (Pages -> Home Page -> Success Stories) rather than chosen here. It used to be
    a `pick(name, matter)` lookup into a compiled-in array that threw on a miss;
    the references replace both the lookup and the throw, and an editor renaming a
    client can no longer fail the build. */
-const { picks: testimonials } = await getHomeTestimonials();
+const copy = await getTestimonialsBand();
+const testimonials = copy.picks;
 ---
 
 <section class="tst section" aria-labelledby="tst-title" data-tst>

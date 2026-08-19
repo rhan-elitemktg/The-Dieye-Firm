@@ -9,9 +9,8 @@ import { defineQuery } from "groq";
  * promise is cached in PROD and deliberately not in dev, like every other helper
  * here, so a Studio edit shows up on refresh.
  *
- * The two reference fields are resolved here rather than by their components:
- * `about.pullQuote` and `testimonials.picks` point at `testimonial` documents,
- * and the components want the review, not the id.
+ * `about.pullQuote` is a reference to a `testimonial`; the component wants the
+ * review, not the id, so src/sanity/testimonials.ts resolves it.
  */
 const HOME_PAGE_QUERY = defineQuery(`
   *[_id == "homePage"][0]{
@@ -23,7 +22,6 @@ const HOME_PAGE_QUERY = defineQuery(`
     },
     practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },
     featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },
-    testimonials{ eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel },
     sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },
     faq{ eyebrow, headingLead, headingAccent },
     videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },
@@ -72,7 +70,6 @@ export type HomePage = {
     badgeYears: number;
     badgeLabelLines: string[];
   };
-  testimonials: Accent & { lead: string; cardKicker: string; ctaLabel: string };
   sellingPoints: Accent & { points: Card[] };
   faq: Accent;
   videoReels: Accent & { ctaLabel: string };

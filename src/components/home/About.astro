@@ -6,7 +6,7 @@ import { Image } from "astro:assets";
 import birdGold from "../../assets/images/logo-bird-gold.png";
 import videoPoster from "../../assets/images/video-poster-pearland.jpg";
 import headshot from "../../assets/images/papa-headshot.jpg";
-import { getHomeTestimonials } from "../../sanity/testimonials";
+import { getAboutPullQuote } from "../../sanity/testimonials";
 import { getAttorney } from "../../sanity/siteWide";
 import { getHomePage } from "../../sanity/homePage";
 
@@ -19,7 +19,7 @@ import { getHomePage } from "../../sanity/homePage";
    Kim's is the shortest of the fourteen that still reads as a complete thought,
    which is what this slot needs: the aside is one column beside two of copy, so
    a 50-word quote pushes the video tile off the fold. */
-const { pullQuote: quote } = await getHomeTestimonials();
+const quote = await getAboutPullQuote();
 
 /* His title comes from the attorney record rather than from this caption. Five
    components render it - the article byline plus four marketing spots - and each

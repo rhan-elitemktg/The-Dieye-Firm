@@ -5,10 +5,12 @@
 import { Image } from "astro:assets";
 import waterTower from "../../assets/images/papa-water-tower.jpg";
 import { getAttorney } from "../../sanity/siteWide";
+import { getAboutPage, tail } from "../../sanity/aboutPage";
 
 /* Title only — the name stays literal here, as it is part of the attribution
    line rather than a field the firm would retitle. */
 const attorney = await getAttorney();
+const copy = (await getAboutPage()).promise;
 ---
 
 <section class="promise">
@@ -30,8 +32,7 @@ const attorney = await getAttorney();
   <figure class="promise__inner">
     <span class="promise__mark" aria-hidden="true">&ldquo;</span>
     <blockquote class="promise__quote">
-      I tell every client the same thing on day one: my job is to protect your
-      family, and to make sure you <em>never feel alone</em> in this process.
+      {copy.quoteLead}{" "}{copy.quoteAccent && <em>{copy.quoteAccent}</em>}{tail(copy.quoteTail)}
     </blockquote>
     <figcaption class="promise__attr">Papa Dieye &middot; {attorney.role}</figcaption>
   </figure>

@@ -6,6 +6,9 @@
 
 import { Image } from "astro:assets";
 import Eyebrow from "../Eyebrow.astro";
+import { getAboutPage, tail } from "../../sanity/aboutPage";
+
+const copy = (await getAboutPage()).hero;
 import street from "../../assets/images/papa-old-town-pearland.png";
 ---
 
@@ -28,21 +31,17 @@ import street from "../../assets/images/papa-old-town-pearland.png";
 
   <div class="container phero__inner">
     <div class="phero__content">
-      <Eyebrow light eager>About The Dieye Firm</Eyebrow>
+      <Eyebrow light eager>{copy.eyebrow}</Eyebrow>
 
+      {/* The <em> stays in THIS template: through a renderer it would lose the
+          scope hash and the gold italic would silently go plain. */}
       <h1 class="phero__title">
-        Treated like a <em>neighbor</em>, not a case number.
+        {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}
       </h1>
 
-      <p class="phero__lead">
-        For more than seventeen years, attorney Papa Dieye has guided Pearland
-        and Houston families through divorce, custody, and the hardest seasons
-        of their lives, with steady counsel and genuine compassion.
-      </p>
+      <p class="phero__lead">{copy.lead}</p>
 
-      <a class="btn btn--gold phero__cta" href="/contact-us/">
-        Schedule a Consultation
-      </a>
+      <a class="btn btn--gold phero__cta" href="/contact-us/">{copy.ctaLabel}</a>
     </div>
   </div>
 </section>
