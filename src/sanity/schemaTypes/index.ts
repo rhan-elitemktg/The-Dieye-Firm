@@ -5,6 +5,7 @@ import { seo } from "./seo";
 import { blockContent } from "./blockContent";
 import { homePage } from "./homePage";
 import { aboutPage } from "./aboutPage";
+import { practiceAreasPage } from "./practiceAreasPage";
 import { testimonial } from "./testimonial";
 import { practiceArea } from "./practiceArea";
 import { locationPage } from "./locationPage";
@@ -15,6 +16,7 @@ import { attorney } from "./attorney";
 import { whatDrivesUs } from "./whatDrivesUs";
 import { awardsBand } from "./awardsBand";
 import { testimonialsBand } from "./testimonialsBand";
+import { statsBand } from "./statsBand";
 import { award } from "./award";
 import { faq } from "./faq";
 import { video } from "./video";
@@ -28,11 +30,13 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   firmDetails,
   homePage,
   aboutPage,
+  practiceAreasPage,
   consultForm,
   caseEvaluationForm,
   whatDrivesUs,
   awardsBand,
   testimonialsBand,
+  statsBand,
   // Documents
   attorney,
   practiceArea,

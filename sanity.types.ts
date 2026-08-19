@@ -248,6 +248,20 @@ export type Attorney = {
   };
 };
 
+export type StatsBand = {
+  _id: string;
+  _type: "statsBand";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  stats: Array<{
+    value: string;
+    label: string;
+    _type: "stat";
+    _key: string;
+  }>;
+};
+
 export type TestimonialReference = {
   _ref: string;
   _type: "reference";
@@ -333,6 +347,50 @@ export type ConsultForm = {
   };
 };
 
+export type PracticeAreasPage = {
+  _id: string;
+  _type: "practiceAreasPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  hero?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+    lead: string;
+    ctaLabel: string;
+  };
+  featured?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+    lead: string;
+    cards: Array<{
+      areaId: string;
+      label?: string;
+      icon:
+        | "divorce"
+        | "child-custody"
+        | "family-law"
+        | "child-support"
+        | "property-division"
+        | "modifications";
+      text: string;
+      _type: "card";
+      _key: string;
+    }>;
+  };
+  allAreas?: {
+    eyebrow: string;
+    headingLead: string;
+    headingAccent?: string;
+    headingTail?: string;
+  };
+  seo?: Seo;
+};
+
 export type AboutPage = {
   _id: string;
   _type: "aboutPage";
@@ -354,14 +412,6 @@ export type AboutPage = {
     headingTail?: string;
     paragraphs: Array<string>;
     ctaLabel: string;
-  };
-  byTheNumbers?: {
-    stats: Array<{
-      value: string;
-      label: string;
-      _type: "stat";
-      _key: string;
-    }>;
   };
   promise?: {
     quoteLead: string;
@@ -696,12 +746,14 @@ export type AllSanitySchemaTypes =
   | PracticeAreaReference
   | PracticeArea
   | Attorney
+  | StatsBand
   | TestimonialReference
   | TestimonialsBand
   | AwardsBand
   | WhatDrivesUs
   | CaseEvaluationForm
   | ConsultForm
+  | PracticeAreasPage
   | AboutPage
   | HomePage
   | Testimonial
@@ -717,12 +769,11 @@ export type AllSanitySchemaTypes =
 
 // Source: src/sanity/aboutPage.ts
 // Variable: ABOUT_PAGE_QUERY
-// Query: *[_id == "aboutPage"][0]{    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },    byTheNumbers{ stats[]{ value, label } },    promise{ quoteLead, quoteAccent, quoteTail },    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }  }
+// Query: *[_id == "aboutPage"][0]{    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },    promise{ quoteLead, quoteAccent, quoteTail },    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }  }
 export type ABOUT_PAGE_QUERY_RESULT =
   | {
       hero: null;
       whoWeAre: null;
-      byTheNumbers: null;
       promise: null;
       meetPapa: null;
       whyFamilyLaw: null;
@@ -737,7 +788,20 @@ export type ABOUT_PAGE_QUERY_RESULT =
         ctaLabel: string;
       } | null;
       whoWeAre: null;
-      byTheNumbers: null;
+      promise: null;
+      meetPapa: null;
+      whyFamilyLaw: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      whoWeAre: null;
       promise: null;
       meetPapa: null;
       whyFamilyLaw: null;
@@ -758,12 +822,6 @@ export type ABOUT_PAGE_QUERY_RESULT =
         headingTail: string | null;
         paragraphs: Array<string>;
         ctaLabel: string;
-      } | null;
-      byTheNumbers: {
-        stats: Array<{
-          value: string;
-          label: string;
-        }>;
       } | null;
       promise: {
         quoteLead: string;
@@ -1129,6 +1187,76 @@ export type PRACTICE_AREAS_ALL_QUERY_RESULT = Array<{
   _updatedAt: string;
 }>;
 
+// Source: src/sanity/practiceAreasPage.ts
+// Variable: PRACTICE_AREAS_PAGE_QUERY
+// Query: *[_id == "practiceAreasPage"][0]{    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },    featured{      eyebrow, headingLead, headingAccent, headingTail, lead,      cards[]{ areaId, label, icon, text }    },    allAreas{ eyebrow, headingLead, headingAccent, headingTail }  }
+export type PRACTICE_AREAS_PAGE_QUERY_RESULT =
+  | {
+      hero: null;
+      featured: null;
+      allAreas: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: null;
+        headingAccent: string | null;
+        headingTail: null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      featured: null;
+      allAreas: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      featured: null;
+      allAreas: null;
+    }
+  | {
+      hero: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        ctaLabel: string;
+      } | null;
+      featured: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+        lead: string;
+        cards: Array<{
+          areaId: string;
+          label: string | null;
+          icon:
+            | "child-custody"
+            | "child-support"
+            | "divorce"
+            | "family-law"
+            | "modifications"
+            | "property-division";
+          text: string;
+        }>;
+      } | null;
+      allAreas: {
+        eyebrow: string;
+        headingLead: string;
+        headingAccent: string | null;
+        headingTail: string | null;
+      } | null;
+    }
+  | null;
+
 // Source: src/sanity/siteWide.ts
 // Variable: SITE_WIDE_CASE_EVALUATION_QUERY
 // Query: *[_id == "caseEvaluationForm"][0]{ heading, intro, submitLabel, privacyNote }
@@ -1174,6 +1302,21 @@ export type SITE_WIDE_ATTORNEY_QUERY_RESULT =
         asset: SanityImageAssetReference | null;
         dimensions: SanityImageDimensions | null;
       } | null;
+    }
+  | null;
+
+// Source: src/sanity/statsBand.ts
+// Variable: STATS_BAND_QUERY
+// Query: *[_id == "statsBand"][0]{ stats[]{ value, label } }
+export type STATS_BAND_QUERY_RESULT =
+  | {
+      stats: Array<{
+        value: string;
+        label: string;
+      }>;
+    }
+  | {
+      stats: null;
     }
   | null;
 
@@ -1298,7 +1441,7 @@ export type WHAT_DRIVES_US_QUERY_RESULT =
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '\n  *[_id == "aboutPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },\n    byTheNumbers{ stats[]{ value, label } },\n    promise{ quoteLead, quoteAccent, quoteTail },\n    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },\n    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }\n  }\n': ABOUT_PAGE_QUERY_RESULT;
+    '\n  *[_id == "aboutPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },\n    promise{ quoteLead, quoteAccent, quoteTail },\n    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },\n    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }\n  }\n': ABOUT_PAGE_QUERY_RESULT;
     '{\n  "heading": *[_id == "awardsBand"][0].heading,\n  "badges": *[_type == "award"] | order(orderRank){\n    "id": _id,\n    alt,\n    width,\n    image{ asset, "dimensions": asset->metadata.dimensions }\n  }\n}': AWARDS_QUERY_RESULT;
     '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
     '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
@@ -1307,8 +1450,10 @@ declare module "@sanity/client" {
     '\n  *[_id == "homePage"][0]{\n    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },\n    about{\n      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, lead, intro,\n      helpHeading, helpIntro, checklist[]{ lead, text },\n      whyHeading, whyParagraphs, servingHeading, servingParagraph, ctaLabel\n    },\n    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },\n    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },\n    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },\n    faq{ eyebrow, headingLead, headingAccent },\n    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },\n    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },\n    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },\n    blog{ eyebrow, headingLead, headingAccent, ctaLabel }\n  }\n': HOME_PAGE_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
+    '\n  *[_id == "practiceAreasPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    featured{\n      eyebrow, headingLead, headingAccent, headingTail, lead,\n      cards[]{ areaId, label, icon, text }\n    },\n    allAreas{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': PRACTICE_AREAS_PAGE_QUERY_RESULT;
     '\n  *[_id == "caseEvaluationForm"][0]{ heading, intro, submitLabel, privacyNote }\n': SITE_WIDE_CASE_EVALUATION_QUERY_RESULT;
     '\n  *[_id == "attorney"][0]{\n    name,\n    role,\n    photo{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': SITE_WIDE_ATTORNEY_QUERY_RESULT;
+    '\n  *[_id == "statsBand"][0]{ stats[]{ value, label } }\n': STATS_BAND_QUERY_RESULT;
     '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
     '\n  *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }\n': TESTIMONIALS_PULL_QUOTE_QUERY_RESULT;
     '\n  *[_id == "testimonialsBand"][0]{\n    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,\n    "picks": picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_BAND_QUERY_RESULT;

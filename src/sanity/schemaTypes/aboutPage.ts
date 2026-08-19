@@ -15,8 +15,11 @@ import { UsersIcon } from "@sanity/icons/Users";
  *     renders on exactly one page    ->  that page's own document
  *
  * The awards strip (3 pages), the Success Stories band (2, this page and the
- * homepage) and the What Drives Us band (8) are all shared. This page was what
- * caught Success Stories sitting in `homePage`, one commit after it went there.
+ * homepage), the By the Numbers strip (2, this page and /practice-areas/) and
+ * the What Drives Us band (8) are all shared. This page caught Success Stories
+ * sitting in `homePage`; /practice-areas/ then caught By the Numbers sitting
+ * HERE, one commit after it went in. `npm run check:page-copy` walks the import
+ * graph and fails on the next one.
  *
  * Papa's name and title are not here either — those are `attorney`, and they
  * render in four places on this page alone.
@@ -114,33 +117,6 @@ export const aboutPage = defineType({
           type: "string",
           description: "It points at /practice-areas/.",
           validation: (rule) => rule.required(),
-        }),
-      ],
-    }),
-    defineField({
-      name: "byTheNumbers",
-      title: "By the Numbers",
-      type: "object",
-      group: "content",
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        defineField({
-          name: "stats",
-          title: "Stats",
-          type: "array",
-          description: "Four, in a row. A fifth wraps onto a second line on its own.",
-          validation: (rule) => rule.required().length(4),
-          of: [
-            defineArrayMember({
-              type: "object",
-              name: "stat",
-              fields: [
-                defineField({ name: "value", title: "Figure", type: "string", validation: (rule) => rule.required() }),
-                defineField({ name: "label", title: "Label", type: "string", validation: (rule) => rule.required() }),
-              ],
-              preview: { select: { title: "value", subtitle: "label" } },
-            }),
-          ],
         }),
       ],
     }),

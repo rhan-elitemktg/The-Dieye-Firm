@@ -11,6 +11,10 @@
 // also balances the three columns without anyone doing arithmetic.
 
 import Eyebrow from "../Eyebrow.astro";
+import { getPracticeAreasPage } from "../../sanity/practiceAreasPage";
+import { tail } from "../../sanity/aboutPage";
+
+const copy = (await getPracticeAreasPage()).allAreas;
 import { areaHref, byLabel, type PracticeArea } from "./practiceAreas";
 
 interface Props {
@@ -25,8 +29,8 @@ const all = [...Astro.props.areas].sort(byLabel);
 <section class="allpa section">
   <div class="container">
     <header class="allpa__head">
-      <Eyebrow>Full Index</Eyebrow>
-      <h2 class="allpa__title">Every practice area, <em>A to Z.</em></h2>
+      <Eyebrow>{copy.eyebrow}</Eyebrow>
+      <h2 class="allpa__title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}</h2>
     </header>
 
     <ul class="allpa__list">
