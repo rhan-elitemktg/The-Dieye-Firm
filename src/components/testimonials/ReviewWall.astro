@@ -51,25 +51,26 @@ const VIDEO = {
 };
 
 import { getTestimonials } from "../../sanity/testimonials";
+import { getTestimonialsPage } from "../../sanity/testimonialsPage";
+import { tail } from "../../sanity/aboutPage";
 
 const reviews = await getTestimonials();
+const copy = (await getTestimonialsPage()).wall;
 ---
 
 <section class="wall section" aria-labelledby="wall-title">
   <div class="container">
     <header class="wall__head">
-      <Eyebrow>In Their Words</Eyebrow>
+      <Eyebrow>{copy.eyebrow}</Eyebrow>
       {/* Not the comp's "What our clients are saying." — the hero's h1 forty
           pixels above already reads "What our clients say.", and the two sat
           on screen together as an obvious slip. This is the comp's own name
           for the page (its nav labels it "Success Stories") and the phrase the
           homepage teaser that links here is titled with, so the click-through
           now lands on the heading it promised. */}
-      <h2 class="wall__title" id="wall-title">Success <em>stories.</em></h2>
+      <h2 class="wall__title" id="wall-title">{copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}{tail(copy.headingTail)}</h2>
       {/* The comp's em dash becomes a spaced hyphen, per AGENTS.md. */}
-      <p class="wall__lead">
-        Real outcomes for real families - shared with care, never as a guarantee.
-      </p>
+      <p class="wall__lead">{copy.lead}</p>
     </header>
 
     {/* Multi-column rather than the comp's three hand-packed <div> columns.
@@ -123,7 +124,7 @@ const reviews = await getTestimonials();
       {reviews.map((review) => (
         <li class="wall__item">
           <figure class="rcard">
-            <p class="rcard__kicker">Testimonial</p>
+            <p class="rcard__kicker">{copy.cardKicker}</p>
 
             <div class="rcard__stars" role="img" aria-label="Five out of five stars">
               {[...Array(5)].map(() => (
