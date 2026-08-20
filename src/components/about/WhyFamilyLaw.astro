@@ -8,6 +8,7 @@ import { getAboutPage, tail } from "../../sanity/aboutPage";
 
 const copy = (await getAboutPage()).whyFamilyLaw;
 import portrait from "../../assets/images/papa-portico-portrait.jpg";
+import ParagraphRun from "../prose/ParagraphRun.astro";
 ---
 
 <section class="why section" aria-labelledby="why-title">
@@ -32,7 +33,7 @@ import portrait from "../../assets/images/papa-portico-portrait.jpg";
       </div>
 
       <div class="why__body">
-        {copy.paragraphs.map((text) => <p>{text}</p>)}
+        <ParagraphRun value={copy.paragraphs} />
       </div>
     </div>
   </div>
@@ -94,7 +95,7 @@ import portrait from "../../assets/images/papa-portico-portrait.jpg";
     filter: var(--photo-filter);
   }
 
-  .why__body p {
+  .why__body :global(p) {
     margin-bottom: 18px;
     font-size: 18px;
     line-height: 30px;
@@ -102,7 +103,7 @@ import portrait from "../../assets/images/papa-portico-portrait.jpg";
     text-wrap: pretty;
   }
 
-  .why__body p:last-child {
+  .why__body :global(p:last-child) {
     margin-bottom: 0;
   }
 
@@ -138,7 +139,7 @@ import portrait from "../../assets/images/papa-portico-portrait.jpg";
       aspect-ratio: 3 / 4;
     }
 
-    .why__body p {
+    .why__body :global(p) {
       font-size: 17px;
       line-height: 29px;
     }

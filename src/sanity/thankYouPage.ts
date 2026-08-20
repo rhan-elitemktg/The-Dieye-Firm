@@ -11,7 +11,7 @@ const QUERY = defineQuery(`
 export type ThankYouPage = {
   head: { eyebrow: string; title: string };
   band: {
-    headingLines: string[];
+    headingLines: string;
     headingAccent?: string;
     headingTail?: string;
     lead: string;

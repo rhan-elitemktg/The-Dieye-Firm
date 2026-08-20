@@ -1,4 +1,4 @@
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
 import { BulbOutlineIcon } from "@sanity/icons/BulbOutline";
 
 /* /about-us/choosing-a-family-law-attorney/ — the hiring guide.
@@ -12,8 +12,12 @@ import { BulbOutlineIcon } from "@sanity/icons/BulbOutline";
  * plain strings an editor would be typing `<a href>` by hand, and a broken one
  * would be a dead cross-link on a page whose whole job is cross-linking.
  *
- * Headings stay outside the rich text — Portable Text headings go through
- * ProseHeading and would gain ids these never had.
+ * ONE field for the whole body, headings included. It was five {heading, body}
+ * sections until 2026-08-20, split that way because Portable Text headings go
+ * through ProseHeading and would have gained ids these never had. That is now
+ * handled where it belongs — the page passes `headingIds={false}` to ProseBody,
+ * so the h2s render bare exactly as they did — and an editor gets one box
+ * instead of five paired fields for what is one continuous 738-word read.
  *
  * The practice-area menu in the sidebar is not modelled: it is the same
  * FamilyLawNav the 32 practice-area pages render, driven by the collection.
@@ -36,32 +40,17 @@ export const hiringGuidePage = defineType({
       options: { collapsible: true, collapsed: true },
       fields: [
         defineField({ name: "kicker", title: "Kicker", type: "string", validation: (rule) => rule.required() }),
-        defineField({
-          name: "kickerHref",
-          title: "Kicker link",
-          type: "string",
-          description: "The kicker is a breadcrumb back to /about-us/. Leave empty to render it as plain text.",
-        }),
         defineField({ name: "title", title: "Title", type: "string", validation: (rule) => rule.required() }),
       ],
     }),
     defineField({
-      name: "sections",
-      title: "Sections",
-      type: "array",
+      name: "body",
+      title: "Body",
+      type: "blockContent",
       group: "content",
+      description:
+        "The whole page under the header. Use Heading 2 for the section headings and Heading 3 beneath them if a section ever needs splitting; links and bold sit inside the sentences.",
       validation: (rule) => rule.required().min(1),
-      of: [
-        defineArrayMember({
-          type: "object",
-          name: "section",
-          fields: [
-            defineField({ name: "heading", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-            defineField({ name: "body", title: "Text", type: "blockContent", validation: (rule) => rule.required() }),
-          ],
-          preview: { select: { title: "heading" } },
-        }),
-      ],
     }),
     defineField({ name: "seo", title: "SEO", type: "seo", group: "seo" }),
   ],

@@ -85,6 +85,7 @@ export const practiceArea = defineType({
       title: "Sits under",
       type: "reference",
       to: [{ type: "practiceArea" }],
+      options: { disableNew: true },
       description:
         "Where this page appears in the sidebar menu. Leave empty for a top-level area. This does NOT change the URL — several pages are grouped under a parent while keeping a top-level address, which is deliberate.",
       group: "content",

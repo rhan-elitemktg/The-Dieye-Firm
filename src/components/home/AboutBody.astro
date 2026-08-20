@@ -1,0 +1,48 @@
+---
+/* The About section's body, rendered from one Portable Text field.
+ *
+ * NOT ProseBody, and the difference matters twice. ProseBody stamps an id on
+ * every heading, which is right for an article body an anchor might point into
+ * and wrong for these three sub-heads, none of which ever had one. And this
+ * section's vocabulary is its own - a lead paragraph, a gold-tick checklist, a
+ * pull-quote object - none of which `.prose` knows about.
+ *
+ * ── Where the styles live ────────────────────────────────────────────────────
+ *
+ * Every rule for this markup stays in home/About.astro, written as
+ * `.about__body :global(...)`. That is deliberate and it is the only form that
+ * works: Astro stamps its scope hash onto the elements in a component's OWN
+ * template, and everything below is rendered by a child, so a plain scoped rule
+ * would match none of it. Wrapping in `.prose` was the other option and was not
+ * taken - `.prose` is the site-wide article style and this section is not an
+ * article, so pointing them at each other would couple 80 pages of client prose
+ * to a homepage band.
+ *
+ * This component emits no wrapper, for the same reason ProseBody doesn't: the
+ * caller's `<div class="about__body">` is authored in About.astro and has to
+ * stay there to keep that file's hash.
+ */
+import { PortableText } from "astro-portabletext";
+import type { PortableTextBlock } from "@portabletext/types";
+import Lead from "./about-body/Lead.astro";
+import Checklist from "./about-body/Checklist.astro";
+import ChecklistItem from "./about-body/ChecklistItem.astro";
+import PullQuote from "./about-body/PullQuote.astro";
+
+interface Props {
+  value: PortableTextBlock[] | null | undefined;
+}
+
+const { value } = Astro.props;
+
+/* `normal` and `h3` are left to the library's defaults, which emit a bare <p>
+   and a bare <h3> - exactly what this section had before. */
+const components = {
+  block: { lead: Lead },
+  list: { bullet: Checklist },
+  listItem: { bullet: ChecklistItem },
+  type: { pullquote: PullQuote },
+};
+---
+
+{value && value.length > 0 && <PortableText value={value} components={components} />}

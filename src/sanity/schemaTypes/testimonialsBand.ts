@@ -1,7 +1,7 @@
 import { defineType, defineField } from "sanity";
 import { BlockquoteIcon } from "@sanity/icons/Blockquote";
 
-/* The Success Stories band — six review cards under a heading. A SINGLETON.
+/* The testimonials band — review cards in a carousel, under a heading. A SINGLETON.
  *
  * ═══ Why this is a record and not the homepage's copy ═══
  *
@@ -23,7 +23,7 @@ import { BlockquoteIcon } from "@sanity/icons/Blockquote";
  */
 export const testimonialsBand = defineType({
   name: "testimonialsBand",
-  title: "Success Stories Band",
+  title: "Testimonials Band",
   type: "document",
   icon: BlockquoteIcon,
   fields: [
@@ -53,11 +53,15 @@ export const testimonialsBand = defineType({
       name: "picks",
       title: "Reviews to show",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "testimonial" }] }],
+      of: [{ type: "reference", to: [{ type: "testimonial" }], options: { disableNew: true } }],
       description:
-        "Six reviews, in the order they should appear. Prefer ones whose pull quote isn't repeated word-for-word inside the review — on three cards side by side that repetition is the first thing the eye catches.",
-      validation: (rule) =>
-        rule.required().length(6).error("The band is built for exactly six cards.").unique(),
+        "The reviews, in the order they should appear. Six or more — the carousel shows three at a time on desktop, two on tablet, one on mobile, and pages through the rest, so six is two full pages at the widest. There is no upper limit. Prefer ones whose pull quote isn't repeated word-for-word inside the review: on three cards side by side that repetition is the first thing the eye catches.",
+      /* Six is a FLOOR, not a count — it was exactly six until 2026-08-20. The
+         carousel never needed a number, since it derives its page width from
+         the slides; what six buys is two full pages at three-per-view, so the
+         last page is never a lone card beside two gaps. `unique` stays, because
+         the same review twice in one carousel is always a mistake. */
+      validation: (rule) => rule.required().min(6).unique(),
     }),
     defineField({
       name: "ctaLabel",
@@ -67,5 +71,5 @@ export const testimonialsBand = defineType({
       validation: (rule) => rule.required(),
     }),
   ],
-  preview: { prepare: () => ({ title: "Success Stories Band" }) },
+  preview: { prepare: () => ({ title: "Testimonials Band" }) },
 });

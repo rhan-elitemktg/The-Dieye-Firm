@@ -114,6 +114,7 @@ export const locationPage = defineType({
       title: "Service area",
       type: "reference",
       to: [{ type: "locationPage" }],
+      options: { disableNew: true },
       description:
         "Which service area's menu this page belongs to. On a service area's own main page, point it at itself.",
       group: "content",
@@ -124,6 +125,7 @@ export const locationPage = defineType({
       title: "Sits under",
       type: "reference",
       to: [{ type: "locationPage" }],
+      options: { disableNew: true },
       description:
         "Only for a third-level page, e.g. Uncontested Divorce under Divorce. Leave empty and this becomes a top-level row of the service area's menu.",
       group: "content",

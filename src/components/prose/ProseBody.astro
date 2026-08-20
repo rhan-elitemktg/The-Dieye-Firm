@@ -43,18 +43,31 @@ interface Props {
   /** The document's complete body. Pass the whole array — the heading slugger
       is per document, so slicing it would change the ids. */
   value: PortableTextBlock[] | null | undefined;
+  /** Opt OUT of heading ids. Default true, and leave it that way for anything
+      an anchor might point into — an article body, a blog post, an FAQ answer.
+      Pass false only where the headings demonstrably never had ids and adding
+      them would change published markup for no one's benefit: today that is
+      /about-us/choosing-a-family-law-attorney/, whose five h2s are ours and
+      whose live source has no headings at all.
+      This is a PROP rather than a second component so the header's rule above
+      still holds — every rich-text field on the site comes through here, and
+      the exception is visible at the call site instead of hidden in an
+      import. */
+  headingIds?: boolean;
 }
 
-const { value } = Astro.props;
-const blocks = withHeadingIds(value);
+const { value, headingIds = true } = Astro.props;
+const blocks = headingIds ? withHeadingIds(value) : (value ?? []);
 
-const components = {
-  block: {
-    h2: ProseHeading,
-    h3: ProseHeading,
-    h4: ProseHeading,
-  },
-};
+const components = headingIds
+  ? {
+      block: {
+        h2: ProseHeading,
+        h3: ProseHeading,
+        h4: ProseHeading,
+      },
+    }
+  : {};
 ---
 
 {blocks.length > 0 && <PortableText value={blocks} components={components} />}

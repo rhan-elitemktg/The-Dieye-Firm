@@ -1,0 +1,41 @@
+---
+/* Renders a `paragraphRun` field - a run of plain paragraphs.
+ *
+ * NOT ProseBody: that one stamps ids on headings, and this type has no
+ * headings. NOT wrapped in `.prose` either, because each of the five sections
+ * that use it styles its paragraphs differently (size, colour, and on the
+ * navy cards, white on dark). `.prose` is the article style; these are section
+ * copy, and pointing them at each other would couple 80 pages of client prose
+ * to a homepage band.
+ *
+ * ── The caller owns the styles, and they must be :global ────────────────────
+ *
+ * Astro stamps its scope hash onto elements in a component's OWN template, so
+ * the <p> tags below never receive the caller's hash and a plain scoped rule
+ * matches none of them. Every caller writes `.container :global(p)` - or
+ * `:global(.some__class)` where it passes `block`, below.
+ *
+ * `block` exists because three of the five sections put a class on their
+ * paragraphs, and astro-portabletext builds component props as
+ * {node, index, isInline} - it does NOT forward extra props through the
+ * components map. So a section that needs a class passes a two-line component
+ * that emits it, which keeps the rendered markup byte-identical to what the
+ * template produced before.
+ *
+ * Emits no wrapper, like ProseBody, so the caller's own container keeps its
+ * hash and its layout.
+ */
+import { PortableText } from "astro-portabletext";
+import type { PortableTextBlock } from "@portabletext/types";
+
+interface Props {
+  value: PortableTextBlock[] | null | undefined;
+  /** Paragraph component, for sections whose <p> carries a class. */
+  block?: any;
+}
+
+const { value, block } = Astro.props;
+const components = block ? { block: { normal: block } } : {};
+---
+
+{value && value.length > 0 && <PortableText value={value} components={components} />}

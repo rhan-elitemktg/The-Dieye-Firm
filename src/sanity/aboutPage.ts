@@ -1,5 +1,6 @@
 import { sanityClient } from "sanity:client";
 import { defineQuery } from "groq";
+import type { PortableTextBlock } from "@portabletext/types";
 
 /* /about-us/ — its own copy, in one fetch for the whole page.
  *
@@ -32,15 +33,15 @@ type Heading = {
 
 export type AboutPage = {
   hero: Heading & { lead: string; ctaLabel: string };
-  whoWeAre: Heading & { paragraphs: string[]; ctaLabel: string };
+  whoWeAre: Heading & { paragraphs: PortableTextBlock[]; ctaLabel: string };
   promise: { quoteLead: string; quoteAccent?: string; quoteTail?: string };
   meetPapa: {
     eyebrow: string;
     chips: { icon: string; value: string; label: string }[];
-    paragraphs: string[];
+    paragraphs: PortableTextBlock[];
     milestones: { when: string; title: string; text: string }[];
   };
-  whyFamilyLaw: Heading & { paragraphs: string[] };
+  whyFamilyLaw: Heading & { paragraphs: PortableTextBlock[] };
 };
 
 let cache: Promise<AboutPage> | undefined;
@@ -71,4 +72,21 @@ export function getAboutPage(): Promise<AboutPage> {
 export function tail(text?: string): string {
   if (!text) return "";
   return /^[,.;:!?)\]]/.test(text) ? text : ` ${text}`;
+}
+
+/* The lines of a heading whose break is a design decision.
+ *
+ * Two heroes control where their headline wraps — the homepage's and
+ * /thank-you/'s — because at 66px an uncontrolled break lands wherever the
+ * viewport puts it. The Studio field is one text box and an editor presses
+ * Enter; this turns that into the lines the template maps over.
+ *
+ * Blank entries are dropped rather than rendered: a trailing newline is
+ * invisible in a text box, and without this the last one would emit a stray
+ * <br> and a gap under the heading that nobody could see the cause of. */
+export function headingLines(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 }

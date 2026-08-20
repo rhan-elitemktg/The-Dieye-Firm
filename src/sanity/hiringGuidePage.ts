@@ -8,21 +8,21 @@ import type { PortableTextBlock } from "@portabletext/types";
  */
 const QUERY = defineQuery(`
   *[_id == "hiringGuidePage"][0]{
-    header{ kicker, kickerHref, title },
-    sections[]{ heading, body }
+    header{ kicker, title },
+    body
   }
 `);
 
 export type HiringGuidePage = {
-  header: { kicker: string; kickerHref?: string; title: string };
-  sections: { heading: string; body: PortableTextBlock[] }[];
+  header: { kicker: string; title: string };
+  body: PortableTextBlock[];
 };
 
 let cache: Promise<HiringGuidePage> | undefined;
 
 async function fetchPage(): Promise<HiringGuidePage> {
   const doc = (await sanityClient.fetch(QUERY)) as HiringGuidePage | null;
-  if (!doc?.sections?.length) {
+  if (!doc?.body?.length) {
     throw new Error(
       "The hiringGuidePage document is missing. Import it with:\n" +
         "  npx sanity exec scripts/import/hiring-guide-page.ts --with-user-token",

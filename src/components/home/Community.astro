@@ -9,6 +9,8 @@ import commSidewalk from "../../assets/images/community/comm-n2.jpg";
 import badgeFile from "../../assets/images/community/pearland-badge.png";
 import communityMark from "../../assets/icons/community-mark.svg?raw";
 import { getHomePage } from "../../sanity/homePage";
+import ParagraphRun from "../prose/ParagraphRun.astro";
+import CommunityText from "./CommunityText.astro";
 
 const copy = (await getHomePage()).community;
 
@@ -53,7 +55,7 @@ const photos = [
         <h2 class="community__title" id="community-title">
           {copy.headingLead}{" "}{copy.headingAccent && <em>{copy.headingAccent}</em>}
         </h2>
-        {copy.paragraphs.map((text) => <p class="community__text">{text}</p>)}
+        <ParagraphRun value={copy.paragraphs} block={CommunityText} />
         {/* Was /about-us/the-difference/, which folded into /about-us/ and now
             301s there. Pointed at the canonical rather than left to ride the
             redirect — see "Moving or removing a route" in AGENTS.md. The label
@@ -181,7 +183,7 @@ const photos = [
     color: var(--gold-600);
   }
 
-  .community__text {
+  .community__copy :global(.community__text) {
     margin-bottom: 18px;
     color: var(--ink-500);
   }

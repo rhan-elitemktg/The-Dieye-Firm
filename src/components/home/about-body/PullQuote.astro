@@ -1,0 +1,43 @@
+---
+/* Papa's pull-quote, with his headshot.
+ *
+ * Only the sentence is typed in the Studio. The quotation marks are supplied
+ * here, so an editor never has to type them and cannot leave one unclosed -
+ * the same trade home/About.astro already makes for the client review above,
+ * which wraps its own text in &ldquo;/&rdquo;.
+ *
+ * The name and title come from the `attorney` record, NOT from this block.
+ * Retitling Papa moves this line along with the byline on 85 pages, which is
+ * the whole point of that field existing. */
+import { Image } from "astro:assets";
+import headshot from "../../../assets/images/papa-headshot.jpg";
+import { getAttorney } from "../../../sanity/siteWide";
+
+interface Props {
+  node: { quote?: string };
+  index?: number;
+  isInline?: boolean;
+}
+
+const { node } = Astro.props;
+const attorney = await getAttorney();
+---
+
+<figure class="pullquote">
+  <blockquote>"{node.quote}"</blockquote>
+  <figcaption>
+    <Image
+      src={headshot}
+      alt=""
+      width={104}
+      format="webp"
+      quality={82}
+      loading="lazy"
+      decoding="async"
+    />
+    <span>
+      <span class="pullquote__name">{attorney.name}</span>
+      <span class="pullquote__role">{attorney.role}</span>
+    </span>
+  </figcaption>
+</figure>

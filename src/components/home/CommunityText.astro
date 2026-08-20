@@ -1,0 +1,13 @@
+---
+/* One paragraph of community__text's run. Exists only to put the class back on: see the
+   `block` prop note in prose/ParagraphRun.astro. A bare :global(p) would also catch .community__eyebrow, which sits in the same column. */
+interface Props {
+  node?: unknown;
+  index?: number;
+  isInline?: boolean;
+}
+
+const { node, index, isInline, ...attrs } = Astro.props;
+---
+
+<p class="community__text" {...attrs}><slot /></p>

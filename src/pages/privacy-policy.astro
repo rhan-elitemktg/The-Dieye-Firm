@@ -64,7 +64,7 @@ const canonical = new URL("/privacy-policy/", Astro.site ?? Astro.url).href;
 const description =
   "How The Dieye Firm collects, uses, shares and protects the information you provide through dieyelaw.com.";
 
-const { header, intro, sections } = await getPrivacyPolicyPage();
+const { header, body, contactNote } = await getPrivacyPolicyPage();
 
 
 /* WebPage, not Article and not another LegalService. This is not editorial
@@ -101,28 +101,25 @@ const schema = {
         still reaches this div — see the note in InteriorShell about where Astro
         assigns a scope hash. */}
     <div class="prose pp__body">
-      <ProseBody value={intro} />
+      {/* headingIds={false}: the eight h2s never had ids, and nothing links to
+          one. Through ProseHeading each would gain an id that has never been
+          published. The prop is what keeps that decision visible now the
+          headings live inside the rich text. */}
+      <ProseBody value={body} headingIds={false} />
 
-      {
-        sections.map((section) => (
-          <>
-            {/* The heading is a plain string beside the rich text, not a block
-                inside it: a Portable Text heading renders through ProseHeading,
-                which stamps an id, and these eight never had one. */}
-            <h2>{section.heading}</h2>
-            <ProseBody value={section.body} />
-            {section.contactNote && (
-              <p>
-                <strong>
-                  {section.contactNote}{" "}
-                  <a href={firm.phone.href}>{firm.phone.display}</a> or via mail Attn: Privacy
-                  Officer, {firm.address.oneLine}.
-                </strong>
-              </p>
-            )}
-          </>
-        ))
-      }
+      {/* NOT part of the body, deliberately: the number and address come from
+          Firm Details, so this page can never publish a number the rest of the
+          site has stopped using. The editor writes the sentence up to the
+          number; the rest is rendered. */}
+      {contactNote && (
+        <p>
+          <strong>
+            {contactNote}{" "}
+            <a href={firm.phone.href}>{firm.phone.display}</a> or via mail Attn: Privacy
+            Officer, {firm.address.oneLine}.
+          </strong>
+        </p>
+      )}
     </div>
 
     {/* No `areas`: AboutSidebar renders the practice-area menu only when it is

@@ -4,6 +4,7 @@
 
 import Eyebrow from "../Eyebrow.astro";
 import { getAboutPage, tail } from "../../sanity/aboutPage";
+import ParagraphRun from "../prose/ParagraphRun.astro";
 
 const copy = (await getAboutPage()).whoWeAre;
 ---
@@ -18,7 +19,7 @@ const copy = (await getAboutPage()).whoWeAre;
     </header>
 
     <div class="who__body">
-      {copy.paragraphs.map((text) => <p>{text}</p>)}
+      <ParagraphRun value={copy.paragraphs} />
 
       <a class="btn btn--gold who__cta" href="/practice-areas/">{copy.ctaLabel}</a>
     </div>
@@ -63,7 +64,7 @@ const copy = (await getAboutPage()).whoWeAre;
     align-items: flex-start;
   }
 
-  .who__body p {
+  .who__body :global(p) {
     margin-bottom: 22px;
     font-size: 18px;
     line-height: 30px;
@@ -90,7 +91,7 @@ const copy = (await getAboutPage()).whoWeAre;
   }
 
   @media (max-width: 650px) {
-    .who__body p {
+    .who__body :global(p) {
       font-size: 17px;
       line-height: 29px;
     }

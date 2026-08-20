@@ -3,6 +3,8 @@ import { firmDetails } from "./firmDetails";
 import { navLink } from "./navLink";
 import { seo } from "./seo";
 import { blockContent } from "./blockContent";
+import { aboutBody } from "./aboutBody";
+import { paragraphRun } from "./paragraphRun";
 import { homePage } from "./homePage";
 import { aboutPage } from "./aboutPage";
 import { practiceAreasPage } from "./practiceAreasPage";
@@ -73,4 +75,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   seo,
   // Rich text
   blockContent,
+  aboutBody,
+  paragraphRun,
 ];

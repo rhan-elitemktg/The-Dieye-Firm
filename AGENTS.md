@@ -400,9 +400,37 @@ reason; both files carry a comment saying so.
 
 ## Gotchas that have bitten us
 
-- **Astro scoped styles don't reach `set:html` content.** Inlined SVGs and
-  Portable Text never get the scoping attribute. Use `.parent :global(svg)`.
-  Same reason `.prose` lives unscoped in `global.css`.
+- **A field the schema does not declare is DELETED the next time an editor opens
+  and saves that document.** The Studio builds its form from the schema and
+  writes that form back, so an undeclared key inside a declared object is
+  pruned — silently, with no warning and nothing in the diff to see. This is not
+  hypothetical: `homePage.about.pullQuote` was a live reference set by the
+  phase-2 import and never declared, so the homepage's client review vanished
+  mid-session and the next build failed with "pullQuote is not set". If code
+  reads a path, the schema must declare it. `grep -rn '\->' src/sanity/*.ts`
+  lists every reference the site follows; each one needs a `defineField`.
+- **Astro scoped styles don't reach markup rendered by a CHILD component.**
+  Portable Text, `set:html` content and inlined SVGs never get the scoping
+  attribute, so the moment copy moves from a page's template into a renderer,
+  every scoped rule targeting it stops matching. The markup stays correct, the
+  build stays green, and the type silently reverts to browser defaults. Astro
+  stamps the hash on BOTH halves of a descendant selector — `.hero__title em`
+  compiles to `.hero__title[hash] em[hash]` — which is why the child half has to
+  be `:global`. Use `.parent :global(child)`, and keep the `.parent` scoped so
+  the rule stays contained. Same reason `.prose` lives unscoped in `global.css`.
+  **A byte-diff is structurally blind to this**: `scripts/checks/prose-styles.js`
+  asserts computed styles, which is the only thing that catches it. And when the
+  container holds sibling elements of the same tag — `.fa__role` beside the
+  body paragraphs — target a class rather than `:global(p)`, passing a two-line
+  paragraph component through `ParagraphRun`'s `block` prop, because
+  astro-portabletext builds component props as `{node, index, isInline}` and
+  does NOT forward extra props through the components map.
+- **A long-running dev server serves new markup with STALE scoped CSS**, and the
+  signature is that half the rules apply and the rest don't: every rule you did
+  not touch works, every rule you edited does nothing. Read the loaded selectors
+  out of `document.styleSheets` before debugging the CSS itself — if they still
+  show the pre-edit form, the file is fine and the server is not. Restart it
+  (`astro dev stop && astro dev --background`) and hard-reload.
 - **The Blog Post comp's phone number is wrong.** It has `tel:+18322997990`.
   The live site uses `(832) 299-1990` in 54 places and the `firmDetails`
   singleton agrees. Never hardcode a number from a comp — render it from
@@ -512,30 +540,36 @@ be asked.
 
 ## Sanity
 
-**Content modelling is deliberately deferred.** Build the static site first,
-then model everything into Sanity in one pass. Don't add schema types
-opportunistically while building pages — modelling against a fraction of the
-site produces a model that gets rewritten, and changing schema after real
-content exists forces a deprecate → migrate → remove cycle.
+**The content sweep is done.** Every word a reader sees comes from Sanity apart
+from the chrome listed below. Twenty-nine document types — 14 page singletons,
+seven collections, eight Site Settings records — plus five object types
+(`navLink`, `seo`, `blockContent`, `aboutBody`, `paragraphRun`). Read each
+through its helper in `src/sanity/`, all of which take the
+`if (import.meta.env.PROD)` cache form so a dev server sees Studio edits on
+refresh. Project ID `mj6dqs6p`, dataset `production`, both in the gitignored
+`.env`.
 
-**So that the eventual sweep is mechanical:** keep each section's content in
-named arrays at the top of the component's frontmatter (as `stats` in `Hero`
-and `nav` in `MainNav` do), not inline in the markup.
+**Record or page copy: count the pages the FIELDS reach, not the pages the
+component does.** More than one page, it is a record in Site Settings; exactly
+one, it belongs to that page's document. Two documents describing one line
+disagree eventually and the page picks one. This was written down and then
+broken twice in two days, so it is `npm run check:page-copy` now — run it
+BEFORE modelling a page, not after. A DEFAULT PROP hides copy from that check:
+when a shared component carries a default only one caller uses, that default is
+that caller's copy, so make the prop required.
 
-**The two ingested collections are the exception that proves the rule.** Blog
-posts and practice areas live in Astro content collections
-(`src/content.config.ts`, `src/content/blog/*.md`,
-`src/content/practice-areas/**/*.md`) rather than in component arrays, because
-there are 47 of them and they are real editorial content. Both Zod schemas are
-deliberately the shape the matching Sanity document will return, so each
-migration is a query and a map — not a rewrite. `astro-portabletext` and
-`@sanity/image-url` are already installed and unused, waiting for that pass. Do
-**not** add a `post` or `practiceArea` schema type before the sweep.
+**A field that nothing reads must not exist, and a field that exists must reach
+every surface that shows it.** An editor who fills a box and watches the page
+not change has learnt the CMS is broken, and the only way to learn otherwise is
+to read the code. Both halves have bitten: `attorney.photo` was modelled and
+consumed by nothing, and `attorney.role` was wired to the byline while four
+marketing spots kept hardcoded copies of the same string.
 
-The one live document today is the `firmDetails` singleton — phone, address,
-socials, service areas, footer nav. Read it through `getFirmDetails()` in
-`src/sanity/firmDetails.ts`, which memoises so a static build fetches once.
-Project ID `mj6dqs6p`, dataset `production`, both in the gitignored `.env`.
+**The line between editable and chrome.** Editable is what a reader perceives as
+the firm's voice — headings, leads, body copy, pull-quotes, CTA labels, stat
+figures, alt text carrying a factual claim. Chrome stays in code: `Read More`,
+`Load More Posts`, form labels and placeholders, `aria-label`s, the lead-form
+validation strings.
 
 **The office map is keyed on the firm's Google Business Profile CID, not on the
 address.** `address.mapEmbed` builds
@@ -545,6 +579,52 @@ instead of a generic red marker. An address query renders an anonymous pin, so
 don't "simplify" it back to one — the branded card is the point. Still no API
 key either way. The CID is a constant in `firmDetails.ts` alongside the other
 derivations; it should become a real field in the Sanity sweep.
+
+### Modelling copy: string, prose run, or rich text
+
+**Pick by what the copy CAN contain, not by how long it is.**
+
+- **A string** for anything that is one line and carries no markup — a button
+  label, an eyebrow, a stat figure, a heading. A rich-text box holding a button
+  label is worse than a string.
+- **`paragraphRun`** for a run of plain paragraphs. Its toolbar is bold, italic
+  and link, and nothing else: no block styles beyond Normal, no lists. Five
+  sections use it — three on `/about-us/`, two on the homepage.
+- **`blockContent`** for an article body — the site's one full toolbar, on the
+  practice areas, location pages, blog posts, FAQ answers and legal pages.
+- **A narrowed superset** where a section has its own visual vocabulary.
+  `aboutBody` is the only one: it adds a Lead style and a pull-quote object, and
+  re-renders `bullet` as the gold-tick checklist.
+
+**The rule that decides it: flatten a contiguous run of prose; keep structured
+data structured.** The homepage About section became ONE field — paragraphs,
+sub-heads, checklist and pull-quote — because all of it is a single run and its
+whole vocabulary could be mapped onto block styles. MeetPapa's chips, stats and
+milestones stayed fields in the same pass, because they are data with a layout,
+not prose. `global.css` says the same thing at the top of `.prose`.
+
+**A narrowed toolbar is a safety feature, not fussiness.** Offer a section the
+full `blockContent` toolbar and an editor can pick H2 in a section that styles
+no H2 — unstyled text, nothing failing, nobody told. Narrow the styles to
+exactly what the section renders. `blockContent`'s header forbids inventing a
+second rich-text type for one field and names the superset as the exception;
+both of the above are that exception, and each says so in its header.
+
+**Headings stay OUT of the rich text on the two legal-ish pages.** Portable Text
+headings render through `ProseHeading`, which stamps an id on every one — right
+for an article body an anchor might point into, wrong for headings that never
+had ids. Each section keeps its heading as a plain string beside its body.
+
+**Accent headings are `{lead, accent}` strings, never rich text.** All 22 carry
+an inline `<em>` styled by a *scoped* rule; through a renderer the `<em>` loses
+the scope hash and the gold italic silently turns black — on 92 pages for the
+consultation section alone. Where the break in a headline is a design decision,
+the field is one text box and the template splits on newlines (`headingLines()`
+in `src/sanity/aboutPage.ts`), never an array of boxes.
+
+**Moving copy into a renderer is a CSS change as much as a data change**, and
+the byte-diff cannot see the CSS half. See the `:global` gotcha below; do it in
+the same commit or the section renders unstyled.
 
 The Sanity **CLI is authenticated on this machine**, so `sanity documents
 create/query/validate` work directly. The `mcp.sanity.io` server shows as

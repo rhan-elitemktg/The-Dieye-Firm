@@ -9,6 +9,8 @@ import { getAboutPage } from "../../sanity/aboutPage";
 import { responsiveImage } from "../../sanity/image";
 import Eyebrow from "../Eyebrow.astro";
 import headshot from "../../assets/images/papa-headshot-square.jpg";
+import ParagraphRun from "../prose/ParagraphRun.astro";
+import MeetPapaPara from "./MeetPapaPara.astro";
 
 const copy = (await getAboutPage()).meetPapa;
 const { chips, milestones } = copy;
@@ -133,7 +135,7 @@ const attorney = await getAttorney();
           their hardest day."
         </blockquote>
 
-        {copy.paragraphs.map((text) => <p class="meet__para">{text}</p>)}
+        <ParagraphRun value={copy.paragraphs} block={MeetPapaPara} />
 
         <div class="meet__foot">
           <a class="btn btn--gold" href="/contact-us/">Get in Touch</a>
@@ -342,7 +344,7 @@ const attorney = await getAttorney();
     color: var(--navy-700);
   }
 
-  .meet__para {
+  .meet__body :global(.meet__para) {
     margin-top: 18px;
     font-size: 18px;
     line-height: 30px;
@@ -350,7 +352,7 @@ const attorney = await getAttorney();
     text-wrap: pretty;
   }
 
-  .meet__quote + .meet__para {
+  .meet__quote + :global(.meet__para) {
     margin-top: 28px;
   }
 
@@ -491,7 +493,7 @@ const attorney = await getAttorney();
       padding: 14px 18px;
     }
 
-    .meet__para {
+    .meet__body :global(.meet__para) {
       font-size: 17px;
       line-height: 29px;
     }
