@@ -6,8 +6,12 @@
 
 import Eyebrow from "../Eyebrow.astro";
 import { getThankYouPage } from "../../sanity/thankYouPage";
+import { getFirmDetails } from "../../sanity/firmDetails";
 
 const copy = (await getThankYouPage()).head;
+/* The number is rendered, never typed into the copy — one place it can be
+   changed, and it is Firm Details. */
+const { phone } = await getFirmDetails();
 ---
 
 <section class="tyhead">
@@ -15,6 +19,15 @@ const copy = (await getThankYouPage()).head;
     <Eyebrow eager>{copy.eyebrow}</Eyebrow>
 
     <h1 class="tyhead__title">{copy.title}</h1>
+
+    <p class="tyhead__message">{copy.message}</p>
+
+    {/* The one thing a visitor might still need after submitting: a way to
+        reach the firm now rather than waiting. */}
+    <p class="tyhead__call">
+      Need to speak with someone sooner? Call{" "}
+      <a href={phone.href}>{phone.display}</a>.
+    </p>
   </div>
 </section>
 
@@ -48,6 +61,36 @@ const copy = (await getThankYouPage()).head;
     line-height: 1.02;
     letter-spacing: -0.01em;
     color: var(--navy-700);
+  }
+
+  /* Held to two-thirds of the container: a centred paragraph at full width
+     reads as a wall, and this one has to be taken in at a glance. */
+  .tyhead__message {
+    max-width: 620px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 30px;
+    color: var(--ink-500);
+  }
+
+  .tyhead__call {
+    margin: 0;
+    font-size: 17px;
+    color: var(--ink-500);
+  }
+
+  .tyhead__call a {
+    color: var(--navy-700);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 650px) {
+    .tyhead__message {
+      font-size: 17px;
+      line-height: 29px;
+    }
   }
 
   @media (max-width: 1000px) {

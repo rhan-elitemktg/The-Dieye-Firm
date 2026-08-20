@@ -40,6 +40,19 @@ export const thankYouPage = defineType({
           validation: (rule) => capEyebrow(rule.required()),
         }),
         defineField({ name: "title", title: "Title", type: "string", validation: (rule) => rule.required() }),
+        defineField({
+          name: "message",
+          title: "What happens next",
+          type: "text",
+          rows: 3,
+          description:
+            "The line under the heading, telling the visitor the firm will be in touch. This is a COMMITMENT made on the firm's behalf — if it names a response time, the firm has to meet it. The phone number below it is rendered from Firm Details, so don't type one here.",
+          validation: (rule) =>
+            rule
+              .required()
+              .max(240)
+              .warning("Longer than about 240 characters and it stops reading as a confirmation."),
+        }),
       ],
     }),
     defineField({
