@@ -14,17 +14,20 @@ import logoDark from "../assets/images/logo-dark.png";
    source it extracted the emblem from. Don't delete it assuming it's a stray. */
 import eliteLogo from "../assets/logos/elite-white.svg";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getNavigation } from "../sanity/navigation";
 
 const {
   phone,
   email,
   address,
   socials,
-  footerNav,
-  legalLinks,
   firmName,
   tagline,
 } = await getFirmDetails();
+
+/* The link columns and the legal bar are menus, so they live with the other
+   menus — Site Settings → Navigation, not Firm Details. */
+const { footerNav, legalLinks } = await getNavigation();
 
 /* Built at compile time, so the year is right for whenever the site was last
    deployed rather than frozen in the markup. */

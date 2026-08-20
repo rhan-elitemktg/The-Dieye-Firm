@@ -9,6 +9,7 @@ import PracticeAreaFaqs from "../../components/practice-areas/PracticeAreaFaqs.a
 import PracticeAreaSidebar from "../../components/practice-areas/PracticeAreaSidebar.astro";
 import { areaHref, SECTION_ROOT_ID } from "../../components/practice-areas/practiceAreas";
 import { getFirmDetails } from "../../sanity/firmDetails";
+import { getNavigation } from "../../sanity/navigation";
 
 /* The collection id is already the route tail — "divorce",
    "divorce/military-divorce" — because the scraper writes the files in that
@@ -52,6 +53,7 @@ const kicker = parent
   : { label: area.data.navLabel };
 
 const firm = await getFirmDetails();
+const { serviceAreas } = await getNavigation();
 const canonical = new URL(areaHref(area), Astro.site ?? Astro.url).href;
 
 /* The source pages carry LegalService structured data, so dropping it on the
@@ -78,7 +80,7 @@ const schema = {
       addressCountry: "US",
     },
   },
-  areaServed: firm.serviceAreas.map((serviceArea) => ({
+  areaServed: serviceAreas.map((serviceArea) => ({
     "@type": "Place",
     name: serviceArea.label,
   })),

@@ -34,6 +34,7 @@ import { award } from "./award";
 import { faq } from "./faq";
 import { video } from "./video";
 import { globalSeo } from "./globalSeo";
+import { navigation } from "./navigation";
 import { redirect } from "./redirect";
 
 /* Grouped the way the Studio sidebar groups them (see src/sanity/structure.ts),
@@ -64,6 +65,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   testimonialsBand,
   statsBand,
   globalSeo,
+  navigation,
   // Documents
   attorney,
   practiceArea,

@@ -14,6 +14,25 @@ nothing. It was dropped from `firmDetails.legalLinks` on 2026-08-18 at Rhan's
 direction rather than filled with invented legal text. If the firm ever supplies
 real disclaimer copy, the link comes back with the page, not before it.
 
+**Menus live in Site Settings → Navigation, EXCEPT the top-level rows.** The
+seven main-nav rows stay in `MainNav.astro` deliberately: their labels drive a
+MEASURED collapse breakpoint (see below), one is hrefless so it renders as a
+button, and two carry `activeUnder` prefixes deciding which row lights up. That
+is layout that happens to contain words. What goes UNDER them — the practice-area
+shortlist, service areas, About and Resources rows — is editorial and editable.
+The footer columns and legal bar are there too; none of it is in `firmDetails`
+any more.
+
+**The practice-area flyout rows are REFERENCES, not links**, which preserves the
+guarantee the hardcoded list had: a page that moves takes its nav row with it,
+and a deleted page fails the build instead of shipping a menu row that 404s.
+`getNavigation()` throws on an unresolved row rather than dropping it silently.
+
+**`serviceAreas` is doing two jobs and lives with the menus.** It is the Service
+Areas dropdown AND the `areaServed` given to Google on 65+ pages, and
+`[...slug].astro` throws if a location root has no entry. Its schema description
+says so, so an editor pruning "an unused menu row" is warned first.
+
 **The nav array at the top of `src/components/header/MainNav.astro` is not the
 page map.** Both its flyouts are curated shortlists — five practice areas of
 32, four service areas of 32 — and the full sections live in the

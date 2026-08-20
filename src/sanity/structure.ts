@@ -54,6 +54,7 @@ export const SINGLETONS = [
   "testimonialsBand",
   "statsBand",
   "globalSeo",
+  "navigation",
 ];
 
 /* Repeatable types with a curated list below. Kept beside SINGLETONS so the
@@ -184,6 +185,10 @@ export const structure: StructureResolver = (S, context) =>
             .title("Site Settings")
             .items([
               page(S, "firmDetails", "Firm Details", icons.cog),
+              /* Directly under Firm Details, because this used to be a tab
+                 inside it — an editor who goes looking where it was finds it
+                 immediately below. */
+              page(S, "navigation", "Navigation", icons.menu),
               page(S, "attorney", "Attorney", icons.user),
               /* Site-wide sections live here rather than under Pages: they are
                  not a page, they are something every page ends with. */

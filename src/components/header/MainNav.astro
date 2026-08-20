@@ -8,46 +8,16 @@ import { getLocationPages } from "../../sanity/locationPages";
 import { getPracticeAreas } from "../../sanity/practiceAreas";
 import logoLight from "../../assets/images/logo-light.png";
 import { getFirmDetails } from "../../sanity/firmDetails";
-import { areaHref } from "../practice-areas/practiceAreas";
+import { getNavigation } from "../../sanity/navigation";
 
-const { phone, serviceAreas } = await getFirmDetails();
+const { phone } = await getFirmDetails();
 
-/* The Family Law flyout: a curated shortlist of five, in this order, with
-   everything else behind "View All +". Each practice-area page carries the
-   full index of 31 in its sidebar, so the nav does not have to.
-
-   Order is editorial and deliberate — it is not alphabetical like the sidebar,
-   because a menu ranks and an index lists.
-
-   Entries are keyed on collection id rather than hardcoded hrefs, so a page
-   that moves takes its nav link with it, and a typo or a removed page fails
-   the build instead of shipping a dead menu item. `label` overrides the
-   collection's navLabel where the nav wants it shorter. */
-const FAMILY_LAW_NAV: { id: string; label?: string }[] = [
-  { id: "divorce" },
-  { id: "child-custody" },
-  /* /family-law/ is a practice-area page like any other now, not the index —
-     the index is /practice-areas/, which this flyout's parent points at. */
-  { id: "family-law" },
-  { id: "child-support" },
-  { id: "domestic-violence" },
-  /* Shortened from the collection's "Protective & Restraining Orders": the nav
-     row is tight, and the two are the same thing to a visitor. */
-  { id: "protective-restraining-orders", label: "Protective Orders" },
-];
-
-const practiceAreas = await getPracticeAreas();
-
-const familyLawItems = FAMILY_LAW_NAV.map((entry) => {
-  const area = practiceAreas.find((candidate) => candidate.id === entry.id);
-  if (!area) {
-    throw new Error(
-      `MainNav: no practice area "${entry.id}". Either the id is wrong or the ` +
-        `page is gone from the last scrape — fix FAMILY_LAW_NAV in this file.`
-    );
-  }
-  return { label: entry.label ?? area.data.navLabel, href: areaHref(area) };
-});
+/* The rows UNDER each top-level item are editable — Site Settings →
+   Navigation. The top-level rows themselves stay in the `nav` array below:
+   their labels drive a MEASURED collapse breakpoint, one is deliberately
+   hrefless, and two carry activeUnder prefixes. That is layout, not content. */
+const { practiceAreaLinks, serviceAreas, aboutLinks, resourcesLinks } =
+  await getNavigation();
 
 /* Location pages whose path does not sit under their own location root — the
    two Pasadena orphans, /pasadena-child-support-attorney/ and
@@ -105,9 +75,7 @@ const nav: NavItem[] = [
        becomes a plain link rather than a dropdown with a single row. */
     label: "About",
     href: "/about-us/",
-    items: [
-      { label: "Choosing a Family Law Attorney", href: "/about-us/choosing-a-family-law-attorney/" },
-    ],
+    items: aboutLinks,
   },
   {
     /* Points at the section index, /practice-areas/. Not /family-law/ — that
@@ -117,7 +85,7 @@ const nav: NavItem[] = [
     href: "/practice-areas/",
     activeUnder: "/family-law/",
     viewAll: { label: "View All +", href: "/practice-areas/" },
-    items: familyLawItems,
+    items: practiceAreaLinks,
   },
   {
     label: "Service Areas",
@@ -143,10 +111,7 @@ const nav: NavItem[] = [
        out because it exists neither here nor on the live site, and inventing
        a route is worse than a short menu. */
     label: "Resources",
-    items: [
-      { label: "FAQs", href: "/faq/" },
-      { label: "Videos", href: "/video-center/" },
-    ],
+    items: resourcesLinks,
   },
   { label: "Blog", href: "/blog/" },
   /* No "Contact Us" row: the gold "Schedule a Consultation" button already

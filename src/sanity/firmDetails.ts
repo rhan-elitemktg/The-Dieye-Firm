@@ -17,10 +17,7 @@ const FIRM_DETAILS_QUERY = defineQuery(`*[_id == "firmDetails"][0]{
   email,
   address,
   hours,
-  socials[]{ _key, platform, url },
-  serviceAreas[]{ _key, label, navLabel, href },
-  footerNav[]{ _key, heading, links[]{ _key, label, href } },
-  legalLinks[]{ _key, label, href }
+  socials[]{ _key, platform, url }
 }`);
 
 /* Iconography is presentation, so it stays in code rather than in the document.
@@ -74,9 +71,6 @@ export type FirmDetails = {
   };
   hours: { days: string; time: string };
   socials: { _key: string; label: string; href: string; path: string }[];
-  serviceAreas: { _key: string; label: string; navLabel: string; href: string }[];
-  footerNav: { _key: string; heading: string; links: NavLink[] }[];
-  legalLinks: NavLink[];
 };
 
 /* One fetch per build, not one per component. Fifteen call sites read this
@@ -168,11 +162,5 @@ async function fetchFirmDetails(): Promise<FirmDetails> {
         },
       ];
     }),
-    serviceAreas: doc.serviceAreas ?? [],
-    footerNav: (doc.footerNav ?? []).map((column: any) => ({
-      ...column,
-      links: column.links ?? [],
-    })),
-    legalLinks: doc.legalLinks ?? [],
   };
 }

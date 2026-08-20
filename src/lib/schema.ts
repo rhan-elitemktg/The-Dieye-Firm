@@ -17,6 +17,7 @@
  * which point a sitewide emit becomes safe. See HANDOFF.md.
  */
 import type { FirmDetails } from "../sanity/firmDetails";
+import type { ServiceArea } from "../sanity/navigation";
 
 /** The one stable identifier for the firm as an entity, across every page. */
 export const FIRM_ID = (origin: string) => `${origin.replace(/\/+$/, "")}/#firm`;
@@ -29,7 +30,7 @@ export const FIRM_ID = (origin: string) => `${origin.replace(/\/+$/, "")}/#firm`
  */
 export function legalServiceSchema(
   firm: FirmDetails,
-  { origin }: { origin: string },
+  { origin, serviceAreas }: { origin: string; serviceAreas: ServiceArea[] },
 ) {
   const base = origin.replace(/\/+$/, "");
   return {
@@ -48,7 +49,10 @@ export function legalServiceSchema(
       postalCode: firm.address.postalCode,
       addressCountry: "US",
     },
-    areaServed: firm.serviceAreas.map((serviceArea) => ({
+    /* Passed in rather than read off `firm`: the service areas moved to the
+       Navigation singleton, because they are the nav dropdown as much as they
+       are firm data. */
+    areaServed: serviceAreas.map((serviceArea) => ({
       "@type": "Place",
       name: serviceArea.label,
     })),
