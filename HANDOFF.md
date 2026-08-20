@@ -66,6 +66,23 @@ Both are written up in `AGENTS.md`; the reasons matter more than the rules.
    pointed 95 canonicals at URLs that only exist as a redirect. Internal
    redirect destinations get the slash back for the same reason.
 
+### ⚠️ The deploy break this caused, and the rule that came out of it
+
+**`bulkRedirectsPath` is NOT set in `vercel.json`, deliberately.** Setting it
+against an empty redirect list broke every deployment after the merge —
+**production included** — and the failure is disguised: the build completes with
+95 pages and "Build Completed", and then `Deploying outputs…` fails with
+`No redirects found in the provided files: bulk-redirects.json`. Vercel treats
+an empty bulk redirects file as fatal.
+
+**Put the key back in the same change that publishes the first redirect.** It
+cannot be automated — `vercel.json` is read before the build — so the header of
+`src/pages/bulk-redirects.json.ts` shouts about it instead.
+
+The one silver lining: the failure proves `bulkRedirectsPath` RESOLVES. Vercel
+found and read the file; it rejected the contents. That was the open question
+from the build.
+
 ### And one deviation from the command's instructions
 
 **`vercel.json`'s 46 redirects were NOT deleted.** The command says to seed them

@@ -10,6 +10,22 @@
  * specified" — Vercel's vercel.json reference). That is what lets an editor add
  * a 301 without a developer.
  *
+ * ⚠️⚠️ `bulkRedirectsPath` IS CURRENTLY NOT SET IN vercel.json, DELIBERATELY.
+ *
+ * Vercel treats an EMPTY bulk redirects file as a FATAL DEPLOY ERROR — not a
+ * warning, and not a build error either: the build completes, 95 pages and all,
+ * and then "Deploying outputs…" fails with
+ *
+ *     No redirects found in the provided files: bulk-redirects.json
+ *
+ * There are no `redirect` documents yet, so this endpoint emits `[]`, so every
+ * deployment failed — production included — until the key was removed.
+ *
+ * PUT `"bulkRedirectsPath": "dist/bulk-redirects.json"` BACK IN vercel.json IN
+ * THE SAME CHANGE THAT PUBLISHES THE FIRST REDIRECT, and never before. It
+ * cannot be automated: vercel.json is read BEFORE the build, so nothing here
+ * can set it.
+ *
  * Two things bulk redirects cannot do — wildcards and header matching — which
  * is why `vercel.json` keeps its own `redirects` block for those. There are no
  * wildcard rules on this site today, but the seam is where it belongs.

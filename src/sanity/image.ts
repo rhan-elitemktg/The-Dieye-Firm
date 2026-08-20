@@ -1,4 +1,4 @@
-import createImageUrlBuilder from "@sanity/image-url";
+import { createImageUrlBuilder } from "@sanity/image-url";
 import { sanityClient } from "sanity:client";
 import type { SanityImageSource } from "@sanity/image-url";
 
@@ -22,6 +22,9 @@ import type { SanityImageSource } from "@sanity/image-url";
  * The import subpath matters: `@sanity/image-url` exports the type from the
  * package root. The `/lib/types/types` path some examples use is dead and
  * resolves to `any`, which then hides real mistakes.
+ *
+ * The builder comes from the NAMED export. The default one still works but is
+ * deprecated, and printed a line into every Vercel build log until this changed.
  */
 const builder = createImageUrlBuilder(sanityClient);
 
