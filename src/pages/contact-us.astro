@@ -4,6 +4,7 @@ import Header from "../components/header/Header.astro";
 import ContactHero from "../components/contact/ContactHero.astro";
 import FindUs from "../components/contact/FindUs.astro";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getSeo } from "../sanity/globalSeo";
 
 /* The destination of the gold header CTA on every page, plus six in-body
    links from the practice-area copy. The body of this page is the sitewide
@@ -41,9 +42,11 @@ const schema = {
     })),
   },
 };
+
+const seo = await getSeo("contactPage");
 ---
 
-<Layout
+<Layout seo={seo}
   title="Contact a Pearland Family Law Attorney | The Dieye Firm"
   description="Speak with attorney Papa Dieye about your divorce, custody or support matter. Request a free, confidential consultation at our Pearland office."
   canonical={canonical}

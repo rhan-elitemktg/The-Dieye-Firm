@@ -5,6 +5,7 @@ import Header from "../components/header/Header.astro";
 import BlogHeader from "../components/blog/BlogHeader.astro";
 import VideoGrid from "../components/video-center/VideoGrid.astro";
 import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
+import { getSeo } from "../sanity/globalSeo";
 
 const { header } = await getVideoCenterPage();
 
@@ -23,9 +24,11 @@ const schema = {
     "Short videos from attorney Papa Dieye on Texas divorce, child custody and choosing a family law attorney.",
   url: canonical,
 };
+
+const seo = await getSeo("videoCenterPage");
 ---
 
-<Layout
+<Layout seo={seo}
   title="Video Center | The Dieye Firm"
   description="Watch attorney Papa Dieye explain Texas divorce, child custody and how to choose a family law attorney - short videos for Pearland and Houston families."
   canonical={canonical}

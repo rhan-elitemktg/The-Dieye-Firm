@@ -8,6 +8,7 @@ import AllAreas from "../../components/practice-areas/AllAreas.astro";
 import ByTheNumbers from "../../components/about/ByTheNumbers.astro";
 import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
 import { areaHref, byLabel } from "../../components/practice-areas/practiceAreas";
+import { getSeo } from "../../sanity/globalSeo";
 
 /* The index for the family-law section. It deliberately does NOT live at
    /family-law/ — that URL is a practice-area page in its own right ("Pearland
@@ -38,9 +39,11 @@ const schema = {
     })),
   },
 };
+
+const seo = await getSeo("practiceAreasPage");
 ---
 
-<Layout
+<Layout seo={seo}
   title="Texas Family Law Practice Areas | The Dieye Firm"
   description="Every family law matter The Dieye Firm handles for Pearland and Houston families - divorce, custody, support, property division, modifications and more."
   canonical={canonical}

@@ -665,6 +665,78 @@ the live URL added the same way after deploy.
 
 ---
 
+## SEO
+
+**Every SEO field is optional and falls back to what the page already renders.**
+That is not a nicety, it is the acceptance test: a build before this layer and a
+build after it have byte-identical `<title>`, `<meta name="description">`,
+canonical and `og:*` on all 94 pages. If a change here moves one of them, the
+change is wrong. The baseline diff is how you check — snapshot `dist/` first.
+
+**The brand suffix applies to the EDITOR'S title, not to the fallback.** 92 of
+this site's 93 titles are passed to `Layout` with " | The Dieye Firm" already on
+them, and the 93rd (the homepage) opens with it. So `resolveTitle` returns a
+fallback VERBATIM and only appends to a `metaTitle` someone typed — appending
+unconditionally, as the reference build does, would ship the brand twice on 92
+pages. If it already contains the brand, it is not added again.
+
+**`canonicalize()` KEEPS the trailing slash**, the opposite of the reference.
+Every URL this site serves ends in one and every canonical already emitted said
+so, so stripping it would point 95 canonicals at URLs that exist only as a
+redirect. Same reason internal redirect DESTINATIONS get the slash back: without
+it, a redirect lands on a URL that redirects again.
+
+**A page hidden by its own `noIndex` gets no canonical and no `og:url`.** Keyed
+on the page's own flag, never on the sitewide crawl switch — that switch is
+temporary staging state, and letting it strip canonicals off every page would
+make staging differ from production in a way nobody asked for. This is also what
+stops `/404` inventing a canonical for `/404/`, a URL the site does not serve.
+
+**`src/lib/routePaths.ts` must stay free of `sanity:client`.** The `redirect`
+schema imports it, and the Sanity CLI parses schema files during
+`npm run typegen`, where that Vite virtual module does not resolve. Inside a
+validator use `context.getClient({ apiVersion })` instead.
+
+**Route assembly lives in ONE place**, `src/sanity/routes.ts`. The sitemap and
+the redirect generator both need "what URLs exist", and the failure mode of two
+copies drifting is a live page silently disappearing.
+
+**Bulk redirects are evaluated BEFORE the filesystem.** A redirect whose source
+is a live page takes that page off the site. `bulk-redirects.json.ts` therefore
+drops any source in `getLivePaths()` and logs it — never silently. `/admin` is
+in `RESERVED_PATHS` because a redirect there would lock the SEO team out of the
+tool they would use to undo it. The Studio warns about the same thing earlier,
+but a warning can be published past; the build guard is the one that holds.
+
+**Emit both slash forms of every redirect source.** Bulk redirects match the
+path exactly and run before trailing-slash normalisation, and the legacy
+Scorpion URLs are a mix of both — `vercel.json`'s own 46 hand-written rules are
+already 23 such pairs for exactly this reason.
+
+**`vercel.json` is read BEFORE the build**, so nothing generated during a build
+can land in its `redirects` array. `bulkRedirectsPath` is the one redirect
+surface a build may write. Don't try to generate `vercel.json`, and don't reach
+for the Vercel adapter + middleware unless redirects genuinely must apply
+without a rebuild — that trades a static build for a runtime dependency.
+
+**Redirects cannot be verified locally, at all.** They do not fire on
+`astro dev` and bulk redirects do not work under `vercel dev` either. Prove the
+generator instead — stub `getRedirects()` and read `dist/bulk-redirects.json` —
+and leave routing itself to a deployed URL.
+
+**The business schema is NOT emitted sitewide from Layout**, and that is a
+deliberate divergence. 65 of the 93 pages already emit their own `LegalService`
+scoped with a page-specific `areaServed`; a sitewide one would describe the same
+firm twice on every one of them. `lib/schema.ts` builds the entity with a stable
+`@id`, and the homepage emits it. Giving the other emitters that same `@id` is
+the seam that would make a sitewide emit safe later.
+
+**`/sitemap/` is the HTML index for humans; `/sitemap.xml` is the machine one.**
+Two files, confusingly similar names, and the live site's own HTML index is at
+`/site-map/` — a third spelling. Keep them straight.
+
+---
+
 ## Development
 
 Dev server in background mode:

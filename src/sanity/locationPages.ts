@@ -1,6 +1,7 @@
 import { sanityClient } from "sanity:client";
 import { defineQuery } from "groq";
 import type { PortableTextBlock } from "@portabletext/types";
+import type { SeoInput } from "../lib/seo";
 
 /* The 32 location pages, read from Sanity.
  *
@@ -56,6 +57,7 @@ const LOCATION_PAGES_ALL_QUERY = defineQuery(`
       "faqs": coalesce(faqs[]{ _key, question, answer }, [])
     },
     body,
+    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },
     "noIndex": seo.noIndex,
     "canonicalUrl": seo.canonicalUrl,
     _updatedAt
@@ -81,6 +83,7 @@ export type LocationPage = {
     location: string;
   };
   body: PortableTextBlock[];
+  seo?: SeoInput | null;
   noIndex?: boolean;
   canonicalUrl?: string;
   _updatedAt: string;

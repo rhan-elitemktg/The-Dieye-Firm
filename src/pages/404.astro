@@ -31,11 +31,10 @@ const firm = await getFirmDetails();
 const { header, routes, callLead } = await getNotFoundPage();
 ---
 
-<Layout
+<Layout seo={{ noIndex: true }}
   title="Page Not Found | The Dieye Firm"
   description="That page could not be found. Browse our practice areas, service areas or blog, or call The Dieye Firm directly."
 >
-  <meta name="robots" content="noindex, follow" slot="head" />
 
   <Header />
 

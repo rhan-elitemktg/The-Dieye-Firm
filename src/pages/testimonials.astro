@@ -4,6 +4,7 @@ import Header from "../components/header/Header.astro";
 import TestimonialsHero from "../components/testimonials/TestimonialsHero.astro";
 import ReviewWall from "../components/testimonials/ReviewWall.astro";
 import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
+import { getSeo } from "../sanity/globalSeo";
 
 const canonical = new URL("/testimonials/", Astro.site ?? Astro.url).href;
 
@@ -23,9 +24,11 @@ const schema = {
     "Reviews of The Dieye Firm from Pearland and Houston families, in their own words.",
   url: canonical,
 };
+
+const seo = await getSeo("testimonialsPage");
 ---
 
-<Layout
+<Layout seo={seo}
   title="Testimonials from Pearland and Houston Families | The Dieye Firm"
   description="Read Pearland and Houston families' own words about attorney Papa Dieye - client reviews covering divorce, child custody, support and family law."
   canonical={canonical}

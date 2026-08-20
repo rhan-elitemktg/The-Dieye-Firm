@@ -35,6 +35,7 @@ import InteriorHeader from "../components/interior/InteriorHeader.astro";
 import AboutSidebar from "../components/about/AboutSidebar.astro";
 import { getFirmDetails } from "../sanity/firmDetails";
 import { getClientPortalPage } from "../sanity/clientPortalPage";
+import { getSeo } from "../sanity/globalSeo";
 
 const firm = await getFirmDetails();
 
@@ -58,9 +59,11 @@ const schema = {
   publisher: { "@type": "Organization", name: firm.firmName },
   url: canonical,
 };
+
+const seo = await getSeo("clientPortalPage");
 ---
 
-<Layout title="Client Portal | The Dieye Firm" description={description} canonical={canonical}>
+<Layout seo={seo} title="Client Portal | The Dieye Firm" description={description} canonical={canonical}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
 
   <Header />

@@ -13,14 +13,34 @@ import VideoReels from "../components/home/VideoReels.astro";
 import Community from "../components/home/Community.astro";
 import GuideRequest from "../components/home/GuideRequest.astro";
 import Blog from "../components/home/Blog.astro";
+import { getSeo } from "../sanity/globalSeo";
+import { getFirmDetails } from "../sanity/firmDetails";
+import { legalServiceSchema } from "../lib/schema";
 
 /* Self-referencing canonical. The homepage is reachable as / and as the
    destination of nothing, but it is the site's most-linked URL and was one of
    the last two pages without one. */
 const canonical = new URL("/", Astro.site ?? Astro.url).href;
+
+const seo = await getSeo("homePage");
+
+/* The firm as an entity. It belongs on the homepage above all, and the homepage
+   was one of eight pages carrying no business schema at all while 65 others
+   did. Not emitted from Layout: those 65 build their own, scoped with a
+   page-specific areaServed, and a sitewide one would describe the same firm
+   twice on every one of them. See lib/schema.ts. */
+const firm = await getFirmDetails();
+const firmSchema = legalServiceSchema(firm, {
+  origin: (Astro.site ?? Astro.url).origin,
+});
 ---
 
-<Layout title="The Dieye Firm | Pearland & Houston Family Law" canonical={canonical}>
+<Layout seo={seo} title="The Dieye Firm | Pearland & Houston Family Law" canonical={canonical}>
+  <script
+    type="application/ld+json"
+    slot="head"
+    set:html={JSON.stringify(firmSchema).replace(/</g, "\\u003c")}
+  />
   <Header overlay />
   <Hero />
   <Awards />

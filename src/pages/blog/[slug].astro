@@ -81,7 +81,7 @@ const schema = {
 };
 ---
 
-<Layout
+<Layout seo={post.seo}
   title={`${post.data.seoTitle ?? post.data.title} | The Dieye Firm`}
   description={post.data.description}
   canonical={canonical}

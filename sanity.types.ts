@@ -107,6 +107,17 @@ export type NavLink = {
   href: string;
 };
 
+export type Redirect = {
+  _id: string;
+  _type: "redirect";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  source: string;
+  destination: string;
+  permanent?: boolean;
+};
+
 export type Faq = {
   _id: string;
   _type: "faq";
@@ -257,6 +268,22 @@ export type Attorney = {
   name: string;
   role: string;
   photo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+};
+
+export type GlobalSeo = {
+  _id: string;
+  _type: "globalSeo";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  discourageCrawling?: boolean;
+  defaultOgImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
@@ -993,6 +1020,7 @@ export type AllSanitySchemaTypes =
   | SanityImageAssetReference
   | Seo
   | NavLink
+  | Redirect
   | Faq
   | Award
   | SanityImageCrop
@@ -1004,6 +1032,7 @@ export type AllSanitySchemaTypes =
   | PracticeAreaReference
   | PracticeArea
   | Attorney
+  | GlobalSeo
   | StatsBand
   | TestimonialReference
   | TestimonialsBand
@@ -1185,7 +1214,7 @@ export type BLOG_PAGE_QUERY_RESULT =
 
 // Source: src/sanity/blogPosts.ts
 // Variable: BLOG_POSTS_ALL_QUERY
-// Query: *[_type == "blogPost"]{    "id": slug.current,    "data": {      title,      date,      author,      "categories": coalesce(categories, []),      featured,      "keyTakeaways": coalesce(keyTakeaways, []),      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "imageAlt": coalesce(image.alt, ""),      "image": image{        asset,        "dimensions": asset->metadata.dimensions      }    },    body,    "noIndex": seo.noIndex,    _updatedAt  }
+// Query: *[_type == "blogPost"]{    "id": slug.current,    "data": {      title,      date,      author,      "categories": coalesce(categories, []),      featured,      "keyTakeaways": coalesce(keyTakeaways, []),      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "imageAlt": coalesce(image.alt, ""),      "image": image{        asset,        "dimensions": asset->metadata.dimensions      }    },    body,    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },    "noIndex": seo.noIndex,    _updatedAt  }
 export type BLOG_POSTS_ALL_QUERY_RESULT = Array<{
   id: string;
   data: {
@@ -1208,6 +1237,19 @@ export type BLOG_POSTS_ALL_QUERY_RESULT = Array<{
     } | null;
   };
   body: BlockContent;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    canonicalUrl: string | null;
+    noIndex: boolean | null;
+    ogImage: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
   noIndex: boolean | null;
   _updatedAt: string;
 }>;
@@ -1415,6 +1457,59 @@ export type FIRM_DETAILS_QUERY_RESULT =
     }
   | null;
 
+// Source: src/sanity/globalSeo.ts
+// Variable: GLOBAL_SEO_QUERY
+// Query: *[_id == "globalSeo"][0]{ discourageCrawling, defaultOgImage }
+export type GLOBAL_SEO_QUERY_RESULT =
+  | {
+      discourageCrawling: null;
+      defaultOgImage: null;
+    }
+  | {
+      discourageCrawling: boolean | null;
+      defaultOgImage: {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        _type: "image";
+      } | null;
+    }
+  | null;
+
+// Source: src/sanity/globalSeo.ts
+// Variable: PAGE_SEO_QUERY
+// Query: *[_id == $pageId][0].seo{    metaTitle, metaDescription, canonicalUrl, noIndex, ogImage  }
+export type PAGE_SEO_QUERY_RESULT = {
+  metaTitle: string | null;
+  metaDescription: string | null;
+  canonicalUrl: string | null;
+  noIndex: boolean | null;
+  ogImage: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
+} | null;
+
+// Source: src/sanity/globalSeo.ts
+// Variable: STATIC_PAGE_SEO_QUERY
+// Query: *[_id in $ids]{ _id, _updatedAt, "noIndex": seo.noIndex }
+export type STATIC_PAGE_SEO_QUERY_RESULT = Array<
+  | {
+      _id: string;
+      _updatedAt: string;
+      noIndex: null;
+    }
+  | {
+      _id: string;
+      _updatedAt: string;
+      noIndex: boolean | null;
+    }
+>;
+
 // Source: src/sanity/homePage.ts
 // Variable: HOME_PAGE_QUERY
 // Query: *[_id == "homePage"][0]{    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },    about{      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, body, ctaLabel,      video->{ "id": wistiaId, title, poster{ asset, "dimensions": asset->metadata.dimensions } }    },    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },    faq{ eyebrow, headingLead, headingAccent },    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },    blog{ eyebrow, headingLead, headingAccent, ctaLabel }  }
@@ -1577,7 +1672,7 @@ export type HOME_PAGE_QUERY_RESULT =
 
 // Source: src/sanity/locationPages.ts
 // Variable: LOCATION_PAGES_ALL_QUERY
-// Query: *[_type == "locationPage"]{    "id": slug.current,    "data": {      title,      navLabel,      subtitle,      "parent": parent->slug.current,      "location": location->slug.current,      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "faqs": coalesce(faqs[]{ _key, question, answer }, [])    },    body,    "noIndex": seo.noIndex,    "canonicalUrl": seo.canonicalUrl,    _updatedAt  }
+// Query: *[_type == "locationPage"]{    "id": slug.current,    "data": {      title,      navLabel,      subtitle,      "parent": parent->slug.current,      "location": location->slug.current,      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "faqs": coalesce(faqs[]{ _key, question, answer }, [])    },    body,    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },    "noIndex": seo.noIndex,    "canonicalUrl": seo.canonicalUrl,    _updatedAt  }
 export type LOCATION_PAGES_ALL_QUERY_RESULT = Array<{
   id: string;
   data: {
@@ -1597,6 +1692,19 @@ export type LOCATION_PAGES_ALL_QUERY_RESULT = Array<{
       | Array<never>;
   };
   body: BlockContent;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    canonicalUrl: string | null;
+    noIndex: boolean | null;
+    ogImage: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
   noIndex: boolean | null;
   canonicalUrl: string | null;
   _updatedAt: string;
@@ -1604,7 +1712,7 @@ export type LOCATION_PAGES_ALL_QUERY_RESULT = Array<{
 
 // Source: src/sanity/practiceAreas.ts
 // Variable: PRACTICE_AREAS_ALL_QUERY
-// Query: *[_type == "practiceArea"]{    "id": slug.current,    "data": {      title,      navLabel,      subtitle,      "parent": parent->slug.current,      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "faqs": coalesce(faqs[]{ _key, question, answer }, [])    },    body,    "noIndex": seo.noIndex,    "canonicalUrl": seo.canonicalUrl,    _updatedAt  }
+// Query: *[_type == "practiceArea"]{    "id": slug.current,    "data": {      title,      navLabel,      subtitle,      "parent": parent->slug.current,      "description": seo.metaDescription,      "seoTitle": seo.metaTitle,      "faqs": coalesce(faqs[]{ _key, question, answer }, [])    },    body,    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },    "noIndex": seo.noIndex,    "canonicalUrl": seo.canonicalUrl,    _updatedAt  }
 export type PRACTICE_AREAS_ALL_QUERY_RESULT = Array<{
   id: string;
   data: {
@@ -1623,6 +1731,19 @@ export type PRACTICE_AREAS_ALL_QUERY_RESULT = Array<{
       | Array<never>;
   };
   body: BlockContent;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    canonicalUrl: string | null;
+    noIndex: boolean | null;
+    ogImage: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+  } | null;
   noIndex: boolean | null;
   canonicalUrl: string | null;
   _updatedAt: string;
@@ -1709,6 +1830,15 @@ export type PRACTICE_AREAS_PAGE_QUERY_RESULT =
       } | null;
     }
   | null;
+
+// Source: src/sanity/redirects.ts
+// Variable: REDIRECTS_QUERY
+// Query: *[_type == "redirect" && defined(source) && defined(destination)]    | order(source asc){ source, destination, permanent }
+export type REDIRECTS_QUERY_RESULT = Array<{
+  source: string;
+  destination: string;
+  permanent: boolean | null;
+}>;
 
 // Source: src/sanity/siteWide.ts
 // Variable: SITE_WIDE_CASE_EVALUATION_QUERY
@@ -1978,16 +2108,20 @@ declare module "@sanity/client" {
     '\n  *[_id == "aboutPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    whoWeAre{ eyebrow, headingLead, headingAccent, headingTail, paragraphs, ctaLabel },\n    promise{ quoteLead, quoteAccent, quoteTail },\n    meetPapa{ eyebrow, chips[]{ icon, value, label }, paragraphs, milestones[]{ when, title, text } },\n    whyFamilyLaw{ eyebrow, headingLead, headingAccent, headingTail, paragraphs }\n  }\n': ABOUT_PAGE_QUERY_RESULT;
     '{\n  "heading": *[_id == "awardsBand"][0].heading,\n  "badges": *[_type == "award"] | order(orderRank){\n    "id": _id,\n    alt,\n    width,\n    image{ asset, "dimensions": asset->metadata.dimensions }\n  }\n}': AWARDS_QUERY_RESULT;
     '\n  *[_id == "blogPage"][0]{ header{ eyebrow, title, intro } }\n': BLOG_PAGE_QUERY_RESULT;
-    '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
+    '\n  *[_type == "blogPost"]{\n    "id": slug.current,\n    "data": {\n      title,\n      date,\n      author,\n      "categories": coalesce(categories, []),\n      featured,\n      "keyTakeaways": coalesce(keyTakeaways, []),\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "imageAlt": coalesce(image.alt, ""),\n      "image": image{\n        asset,\n        "dimensions": asset->metadata.dimensions\n      }\n    },\n    body,\n    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },\n    "noIndex": seo.noIndex,\n    _updatedAt\n  }\n': BLOG_POSTS_ALL_QUERY_RESULT;
     '\n  *[_id == "clientPortalPage"][0]{\n    header{ kicker, title, deck },\n    groups[]{ heading, blurb, actions[]{ label, note, href, style, external, download } }\n  }\n': QUERY_RESULT;
     '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
     '\n  *[_id == "contactPage"][0]{\n    hero{ eyebrow, title, lead },\n    findUs{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': CONTACT_PAGE_QUERY_RESULT;
     '\n  *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }\n': FAQS_QUERY_RESULT;
     '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
+    '\n  *[_id == "globalSeo"][0]{ discourageCrawling, defaultOgImage }\n': GLOBAL_SEO_QUERY_RESULT;
+    "\n  *[_id == $pageId][0].seo{\n    metaTitle, metaDescription, canonicalUrl, noIndex, ogImage\n  }\n": PAGE_SEO_QUERY_RESULT;
+    '\n  *[_id in $ids]{ _id, _updatedAt, "noIndex": seo.noIndex }\n': STATIC_PAGE_SEO_QUERY_RESULT;
     '\n  *[_id == "homePage"][0]{\n    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },\n    about{\n      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, body, ctaLabel,\n      video->{ "id": wistiaId, title, poster{ asset, "dimensions": asset->metadata.dimensions } }\n    },\n    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },\n    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },\n    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },\n    faq{ eyebrow, headingLead, headingAccent },\n    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },\n    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },\n    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },\n    blog{ eyebrow, headingLead, headingAccent, ctaLabel }\n  }\n': HOME_PAGE_QUERY_RESULT;
-    '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
-    '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
+    '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
+    '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
     '\n  *[_id == "practiceAreasPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    featured{\n      eyebrow, headingLead, headingAccent, headingTail, lead,\n      cards[]{ areaId, label, icon, text }\n    },\n    allAreas{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': PRACTICE_AREAS_PAGE_QUERY_RESULT;
+    '\n  *[_type == "redirect" && defined(source) && defined(destination)]\n    | order(source asc){ source, destination, permanent }\n': REDIRECTS_QUERY_RESULT;
     '\n  *[_id == "caseEvaluationForm"][0]{ heading, intro, submitLabel, privacyNote }\n': SITE_WIDE_CASE_EVALUATION_QUERY_RESULT;
     '\n  *[_id == "attorney"][0]{\n    name,\n    role,\n    photo{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': SITE_WIDE_ATTORNEY_QUERY_RESULT;
     '\n  *[_id == "statsBand"][0]{ stats[]{ value, label } }\n': STATS_BAND_QUERY_RESULT;

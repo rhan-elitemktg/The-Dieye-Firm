@@ -4,14 +4,17 @@ import Header from "../components/header/Header.astro";
 import ThankYouHead from "../components/thank-you/ThankYouHead.astro";
 import MeetTheAttorney from "../components/thank-you/MeetTheAttorney.astro";
 import Awards from "../components/home/Awards.astro";
+import { getSeo } from "../sanity/globalSeo";
 
 const canonical = new URL("/thank-you/", Astro.site ?? Astro.url).href;
+
+const seo = await getSeo("thankYouPage");
 ---
 
 {/* No JSON-LD here, deliberately. A form-confirmation page has nothing a
     search engine should surface, which is the same reason it's noindex - and
     structured data on a page excluded from the index is noise, not markup. */}
-<Layout
+<Layout seo={seo}
   title="Thank You | The Dieye Firm"
   description="Your message has reached The Dieye Firm. We will be in touch within one business day."
   canonical={canonical}
