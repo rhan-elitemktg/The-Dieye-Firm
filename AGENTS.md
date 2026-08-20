@@ -714,15 +714,19 @@ Scorpion URLs are a mix of both — `vercel.json`'s own 46 hand-written rules ar
 already 23 such pairs for exactly this reason.
 
 **An EMPTY bulk redirects file is a FATAL DEPLOY ERROR, and it looks like a
-green build.** This cost a broken production. With `bulkRedirectsPath` set and
-no `redirect` documents in Sanity, the generator emits `[]`, the build completes
-normally — 95 pages, "Build Completed" — and then the deploy step dies with
+green build.** With `bulkRedirectsPath` set and no rules to emit, the build
+completes — 95 pages, "Build Completed" — and then the deploy step dies with
 `No redirects found in the provided files: bulk-redirects.json`. The word
-"build" appears nowhere in the failure, and the last line of a successful-looking
-log reads like an informational note. **Set `bulkRedirectsPath` in the same
-change that publishes the first redirect, never before**, and never leave it set
-against an empty list. It cannot be automated, because `vercel.json` is read
-before the build.
+"build" appears nowhere in the failure. It broke production once.
+
+**The fix is a placeholder, NOT a rule about when to set the key.** The obvious
+response was "only set `bulkRedirectsPath` while at least one redirect exists",
+but that couples a config file to the contents of a Sanity collection, invisibly
+from both ends — someone empties the collection a year later and the site stops
+deploying for reasons nobody remembers. `bulk-redirects.json.ts` instead emits
+one inert placeholder when there are no real rules, pointing an un-routable path
+at the homepage. The key stays set permanently and the collection can be emptied
+freely. **Don't "tidy up" that placeholder.**
 
 **A Vercel log that ends in "Build Completed" has not necessarily deployed.**
 Read past it to `Deploying outputs…` and check the deployment's own status —

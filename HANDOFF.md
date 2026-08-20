@@ -75,9 +75,18 @@ against an empty redirect list broke every deployment after the merge —
 `No redirects found in the provided files: bulk-redirects.json`. Vercel treats
 an empty bulk redirects file as fatal.
 
-**Put the key back in the same change that publishes the first redirect.** It
-cannot be automated — `vercel.json` is read before the build — so the header of
-`src/pages/bulk-redirects.json.ts` shouts about it instead.
+**The redirects are now IN SANITY — 23 documents, seeded from `vercel.json`'s
+46 rules (23 sources × 2 slash forms) by `scripts/import/redirects.ts`.** That
+array is gone from `vercel.json`; the Studio list is the only one. Every rule
+was proved to round-trip exactly — same sources, destinations and status codes —
+before the old list was deleted, and none collides with a live page.
+
+**That is now fixed properly, not documented around.** The first instinct was a
+rule — "only set the key while a redirect exists" — but that ties a config file
+to the contents of a Sanity collection with nothing at either end to say so.
+`bulk-redirects.json.ts` emits one inert placeholder when there are no real
+rules, so the empty case cannot arise; `bulkRedirectsPath` stays set permanently
+and the collection can be emptied freely. Both states are build-tested.
 
 The one silver lining: the failure proves `bulkRedirectsPath` RESOLVES. Vercel
 found and read the file; it rejected the contents. That was the open question
@@ -411,8 +420,10 @@ rule, and the Sanity section). What is here is specific to the current state.
 
 - **The publish webhook** — the only part of phase 7 still open. See Manual
   steps below; it is dashboard work on both halves.
-- **Seed the redirects** and retire `vercel.json`'s 46, once a deploy proves the
-  mechanism.
+- **Wildcards, if any are ever needed.** Bulk redirects support neither
+  wildcards nor header matching, so those go back in a `redirects` array in
+  `vercel.json` and stay developer-owned. The redirect schema blocks `*` in the
+  Old URL field with a message pointing the editor at a developer.
 - **Give the other business-schema emitters the same `@id`** as `lib/schema.ts`
   builds. Seven pages besides the homepage still carry no firm entity, and the
   `@id` is what would let one be emitted sitewide without describing the firm

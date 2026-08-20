@@ -10,19 +10,25 @@
  * specified" — Vercel's vercel.json reference). That is what lets an editor add
  * a 301 without a developer.
  *
- * ⚠️ NEVER SET `bulkRedirectsPath` AGAINST AN EMPTY REDIRECT LIST.
+ * ═══ Why this file is never empty ═══
  *
- * Vercel treats an empty bulk redirects file as a FATAL DEPLOY ERROR — not a
+ * Vercel treats an EMPTY bulk redirects file as a FATAL DEPLOY ERROR — not a
  * warning, and not a build error either: the build completes, 95 pages and all,
  * and then "Deploying outputs…" fails with
  *
  *     No redirects found in the provided files: bulk-redirects.json
  *
- * That broke production once, on 2026-08-20, because the key was set while
- * there were still no `redirect` documents. It is set again now that there is
- * one. If the collection is ever emptied back to zero, take the key OUT of
- * vercel.json in the same change — it cannot be automated, because vercel.json
- * is read BEFORE the build.
+ * That broke production once, on 2026-08-20. The obvious response was a rule —
+ * "only set `bulkRedirectsPath` while at least one redirect exists" — but that
+ * couples a config file to the contents of a Sanity collection, and the coupling
+ * is invisible from either end. Someone deletes the last redirect a year from
+ * now and the site stops deploying for reasons nobody remembers.
+ *
+ * So the empty case is made impossible instead: when there are no real rules,
+ * this emits a single inert placeholder. It points a path that does not exist
+ * and never will at the homepage, so it can never shadow a page, and it
+ * disappears the moment a real redirect is published. `bulkRedirectsPath` can
+ * now stay set permanently, and the collection can be emptied freely.
  *
  * Two things bulk redirects cannot do — wildcards and header matching — which
  * is why `vercel.json` keeps its own `redirects` block for those. There are no
@@ -43,6 +49,20 @@ interface BulkRedirect {
   statusCode: 301 | 302;
   preserveQueryParams: boolean;
 }
+
+/**
+ * Emitted only when there are no real redirects, to keep the file non-empty.
+ *
+ * The source is deliberately un-routable — no page can ever live at it, so this
+ * cannot shadow anything — and it is named to explain itself to whoever opens
+ * dist/bulk-redirects.json wondering what it is.
+ */
+const PLACEHOLDER: BulkRedirect = {
+  source: "/__no-redirects-configured",
+  destination: "/",
+  statusCode: 302,
+  preserveQueryParams: false,
+};
 
 export const GET: APIRoute = async () => {
   const [redirects, livePaths] = await Promise.all([
@@ -116,7 +136,11 @@ export const GET: APIRoute = async () => {
     `[bulk-redirects] wrote ${out.length} rule(s) from ${redirects.length} redirect(s)`,
   );
 
-  return new Response(JSON.stringify(out, null, 2), {
+  /* See the header: Vercel rejects an empty file, so the empty case is made
+     unreachable rather than left as a rule someone has to remember. */
+  const body = out.length ? out : [PLACEHOLDER];
+
+  return new Response(JSON.stringify(body, null, 2), {
     headers: { "Content-Type": "application/json; charset=utf-8" },
   });
 };
