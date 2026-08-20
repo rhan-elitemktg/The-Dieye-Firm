@@ -47,6 +47,7 @@ import InteriorShell from "../../components/interior/InteriorShell.astro";
 import InteriorHeader from "../../components/interior/InteriorHeader.astro";
 import AboutSidebar from "../../components/about/AboutSidebar.astro";
 import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
+import { getSeo } from "../../sanity/globalSeo";
 
 /* The sidebar's practice-area menu. The live page carries the same
    cross-reference — a flat card of twelve areas with labels auto-generated
@@ -93,9 +94,11 @@ const schema = {
   mainEntityOfPage: canonical,
   url: canonical,
 };
+
+const seo = await getSeo("hiringGuidePage");
 ---
 
-<Layout
+<Layout seo={seo}
   title="Choosing a Family Law Attorney | The Dieye Firm"
   description={description}
   canonical={canonical}

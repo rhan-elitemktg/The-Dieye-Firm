@@ -33,6 +33,8 @@ import { statsBand } from "./statsBand";
 import { award } from "./award";
 import { faq } from "./faq";
 import { video } from "./video";
+import { globalSeo } from "./globalSeo";
+import { redirect } from "./redirect";
 
 /* Grouped the way the Studio sidebar groups them (see src/sanity/structure.ts),
    so a new type has an obvious place to go. Anything added here that is NOT
@@ -61,6 +63,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   awardsBand,
   testimonialsBand,
   statsBand,
+  globalSeo,
   // Documents
   attorney,
   practiceArea,
@@ -70,6 +73,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   award,
   faq,
   video,
+  redirect,
   // Objects
   navLink,
   seo,

@@ -30,6 +30,7 @@ import { locationHref, pagesIn, rootOf } from "../components/locations/locations
 import { formatDate } from "../components/blog/blog";
 import { getFirmDetails } from "../sanity/firmDetails";
 import { getSitemapPage } from "../sanity/sitemapPage";
+import { getSeo } from "../sanity/globalSeo";
 
 const firm = await getFirmDetails();
 const { header } = await getSitemapPage();
@@ -97,9 +98,11 @@ const schema = {
   publisher: { "@type": "Organization", name: firm.firmName },
   url: canonical,
 };
+
+const seo = await getSeo("sitemapPage");
 ---
 
-<Layout title="Site Map | The Dieye Firm" description={description} canonical={canonical}>
+<Layout seo={seo} title="Site Map | The Dieye Firm" description={description} canonical={canonical}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
 
   <Header />

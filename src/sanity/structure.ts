@@ -53,11 +53,12 @@ export const SINGLETONS = [
   "awardsBand",
   "testimonialsBand",
   "statsBand",
+  "globalSeo",
 ];
 
 /* Repeatable types with a curated list below. Kept beside SINGLETONS so the
    catch-all knows what has already been placed. */
-const COLLECTIONS = ["blogPost", "practiceArea", "locationPage", "testimonial", "award", "faq", "video"];
+const COLLECTIONS = ["blogPost", "practiceArea", "locationPage", "testimonial", "award", "faq", "video", "redirect"];
 
 /* Everything placed explicitly. Anything NOT here falls through to the
    catch-all. */
@@ -196,10 +197,38 @@ export const structure: StructureResolver = (S, context) =>
                  different things must not look the same. */
               page(S, "testimonialsBand", "Testimonials Band", icons.comment),
               page(S, "statsBand", "By the Numbers Band", icons["bar-chart"]),
-              /* Global SEO Settings lands here as a FOLDER when the SEO layer
-                 does — sitewide defaults alongside the editor-managed redirect
-                 list. Reserved as a folder from the start because adding one
-                 later moves the singleton's Studio URL. */
+              /* A FOLDER, not a single row, and that was decided before it had
+                 a second child: adding a folder later would have moved the
+                 singleton's Studio URL and broken every bookmark to it. */
+              S.listItem()
+                .title("Global SEO Settings")
+                .icon(icons.search)
+                .child(
+                  S.list()
+                    .title("Global SEO Settings")
+                    .items([
+                      page(S, "globalSeo", "Defaults", icons.cog),
+                      /* Ordered by the field an editor searches by. The
+                         `.title("Redirect")` on the document node matters:
+                         without it the open document shouts the same URL three
+                         times over — breadcrumb, heading and the Old URL
+                         field. */
+                      S.listItem()
+                        .title("Redirects")
+                        .icon(icons.transfer)
+                        .child(
+                          S.documentTypeList("redirect")
+                            .title("Redirects")
+                            .defaultOrdering([{ field: "source", direction: "asc" }])
+                            .child((id) =>
+                              S.document()
+                                .documentId(id)
+                                .schemaType("redirect")
+                                .title("Redirect"),
+                            ),
+                        ),
+                    ]),
+                ),
             ]),
         ),
 

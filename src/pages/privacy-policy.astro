@@ -56,6 +56,7 @@ import AboutSidebar from "../components/about/AboutSidebar.astro";
 import { getFirmDetails } from "../sanity/firmDetails";
 import { getPrivacyPolicyPage } from "../sanity/privacyPolicyPage";
 import ProseBody from "../components/prose/ProseBody.astro";
+import { getSeo } from "../sanity/globalSeo";
 
 const firm = await getFirmDetails();
 
@@ -84,9 +85,11 @@ const schema = {
   publisher: { "@type": "Organization", name: firm.firmName },
   url: canonical,
 };
+
+const seo = await getSeo("privacyPolicyPage");
 ---
 
-<Layout title="Privacy Policy | The Dieye Firm" description={description} canonical={canonical}>
+<Layout seo={seo} title="Privacy Policy | The Dieye Firm" description={description} canonical={canonical}>
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(schema)} />
 
   {/* In flow, not overlay: there is no hero here. The page opens directly under

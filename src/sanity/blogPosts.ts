@@ -2,6 +2,7 @@ import { sanityClient } from "sanity:client";
 import { defineQuery } from "groq";
 import type { PortableTextBlock } from "@portabletext/types";
 import type { SanityImage } from "./image";
+import type { SeoInput } from "../lib/seo";
 
 /* The blog posts, read from Sanity.
  *
@@ -46,6 +47,7 @@ const BLOG_POSTS_ALL_QUERY = defineQuery(`
       }
     },
     body,
+    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },
     "noIndex": seo.noIndex,
     _updatedAt
   }
@@ -66,6 +68,7 @@ export type Post = {
     image?: SanityImage;
   };
   body: PortableTextBlock[];
+  seo?: SeoInput | null;
   noIndex?: boolean;
   _updatedAt: string;
 };

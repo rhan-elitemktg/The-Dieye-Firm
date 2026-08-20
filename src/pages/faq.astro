@@ -6,6 +6,7 @@ import BlogHeader from "../components/blog/BlogHeader.astro";
 import Faq from "../components/home/Faq.astro";
 import { getFaqs } from "../sanity/faqs";
 import WhatDrivesUs from "../components/about/WhatDrivesUs.astro";
+import { getSeo } from "../sanity/globalSeo";
 
 /* The nine questions the client publishes at /faq/, in their own words, from
    the `faq` collection. Their prose is left alone - curly apostrophes,
@@ -21,9 +22,11 @@ const faqs = await getFaqs();
 const { header } = await getFaqPage();
 
 const canonical = new URL("/faq/", Astro.site ?? Astro.url).href;
+
+const seo = await getSeo("faqPage");
 ---
 
-<Layout
+<Layout seo={seo}
   title="Frequently Asked Questions | The Dieye Firm"
   description="Answers to common Texas family law questions on divorce, child custody, child support and spousal support, from Pearland attorney Papa Dieye."
   canonical={canonical}

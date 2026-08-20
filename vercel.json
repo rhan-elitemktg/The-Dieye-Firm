@@ -1,4 +1,5 @@
 {
+  "bulkRedirectsPath": "dist/bulk-redirects.json",
   "redirects": [
     {
       "source": "/about-us/papa-dieye",

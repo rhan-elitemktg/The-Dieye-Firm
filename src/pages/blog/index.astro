@@ -10,6 +10,7 @@ import PostGrid from "../../components/blog/PostGrid.astro";
 import FilterBoot from "../../components/blog/FilterBoot.astro";
 import WhatDrivesUs from "../../components/about/WhatDrivesUs.astro";
 import { byNewest, splitFeatured } from "../../components/blog/blog";
+import { getSeo } from "../../sanity/globalSeo";
 
 const { header } = await getBlogPage();
 
@@ -19,9 +20,11 @@ const all = (await getBlogPosts()).sort(byNewest);
 const { featured, rest } = splitFeatured(all);
 
 const canonical = new URL("/blog/", Astro.site ?? Astro.url).href;
+
+const seo = await getSeo("blogPage");
 ---
 
-<Layout
+<Layout seo={seo}
   title={`${header.title} | The Dieye Firm`}
   description="Family law insight from The Dieye Firm - divorce, custody, child support and more, written for Texas families in Pearland and Houston."
   canonical={canonical}

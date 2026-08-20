@@ -6,16 +6,17 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-20, on the `phase_7_retire_content_layer` branch._
+_Last rewritten: 2026-08-20, on the `seo_layer` branch._
 
 ---
 
 ## Start here
 
-**Phases 0–7 of the Sanity migration are done**, apart from one manual step.
-Phases 0–6 are merged to `master` — PRs #31–#39, plus **#40 (`studio_polish`,
-phase 6) merged as `20f66ed`**. **Phase 7 is THIS branch**,
-`phase_7_retire_content_layer`, one commit sitting directly on that merge.
+**The Sanity migration is done (phases 0–7) and the SEO layer is built.**
+Phases 0–6 are merged to `master` — PRs #31–#39, plus #40 (`studio_polish`)
+as `20f66ed`. **Phase 7 is on `phase_7_retire_content_layer`**, pushed,
+awaiting a PR. **The SEO layer is THIS branch**, `seo_layer`, branched off
+phase 7. Merge phase 7 first.
 
 **The one thing phase 7 could not finish is the publish webhook** — see Manual
 steps. Both halves of it are dashboard work: `vercel project` has no
@@ -30,6 +31,92 @@ pre-existing SEO meta-description lengths). That number is the test that this
 branch's new length caps fire on nothing real.
 
 The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`.
+
+---
+
+## What this branch changed — the SEO layer (`/new-seo-setup`)
+
+**The headline result: 94 pages, ZERO differences** in `<title>`,
+`<meta name="description">`, canonical, `og:url`, `og:title` and
+`og:description` against a pre-change build. The whole layer is a no-op until an
+editor fills something in, which is the one guarantee it makes.
+
+### This site was much further along than a fresh one
+
+Four of the thirteen steps were already partly or wholly done, and finding that
+out first is what kept this pass small:
+
+- The `seo` object already had the exact five-field shape, attached to all 17
+  routed types inside Content/SEO tabs — steps 3 and 4, done in phase 5.
+- The three collection queries already fetched `metaTitle`/`metaDescription`.
+- `Layout` already emitted title, description, the full `og:`/`twitter:` set and
+  an optional canonical.
+- **14 files already emitted JSON-LD.** Step 9 was an audit, not a build.
+
+### Two deliberate divergences from the reference build
+
+Both are written up in `AGENTS.md`; the reasons matter more than the rules.
+
+1. **The brand suffix applies to the editor's title, not to the fallback.** 92
+   of 93 titles already arrive at `Layout` carrying " | The Dieye Firm".
+   Appending unconditionally, as the reference does, would have shipped the
+   brand twice on 92 pages.
+2. **`canonicalize()` keeps the trailing slash.** Every URL here ends in one and
+   every existing canonical said so. The reference strips it, which would have
+   pointed 95 canonicals at URLs that only exist as a redirect. Internal
+   redirect destinations get the slash back for the same reason.
+
+### And one deviation from the command's instructions
+
+**`vercel.json`'s 46 redirects were NOT deleted.** The command says to seed them
+into Sanity and then remove them so there is one list. The seeding has not
+happened yet (see below), and removing 46 known-working rules in favour of a
+mechanism that **cannot be verified anywhere but a deployment** would be a bad
+trade. `bulkRedirectsPath` is wired and the generator is proved; the vercel.json
+rules stay as the fallback until a deploy shows bulk redirects firing, and then
+they come out. Duplicates pointing the same way are harmless meanwhile.
+
+### What is new
+
+| File | Does |
+|---|---|
+| `src/lib/routePaths.ts` | the hardcoded paths, `normalizePath`, `slashForms`. **Free of `sanity:client`** — the redirect schema imports it |
+| `src/lib/seo.ts` | `resolveSeo`, `resolveTitle`, `canonicalize`, `SITE_NAME` |
+| `src/lib/schema.ts` | the firm `LegalService` builder, with a stable `@id` |
+| `src/sanity/globalSeo.ts` | `getGlobalSeo`, `getSeo`, `getStaticPageSeo` |
+| `src/sanity/routes.ts` | `getSiteEntries` / `getLivePaths` — the ONE copy of "what URLs exist" |
+| `src/sanity/redirects.ts` | `getRedirects` |
+| `src/sanity/schemaTypes/globalSeo.ts` | the Global SEO Settings singleton |
+| `src/sanity/schemaTypes/redirect.ts` | the redirect document + its validators |
+| `src/pages/sitemap.xml.ts` | 92 URLs, hand-rolled |
+| `src/pages/robots.txt.ts` | dynamic, driven by the crawl switch |
+| `src/pages/bulk-redirects.json.ts` | the edge redirect table |
+| `docs/redirects-for-editors.md` | the SEO team's how-to |
+
+Studio: **Site Settings → Global SEO Settings** is a FOLDER holding *Defaults*
+and *Redirects*. A folder from the start, because adding one later moves the
+singleton's URL. `redirect` is in `COLLECTIONS` but deliberately NOT in the
+create-guard — editors must be able to add one.
+
+### How it was verified
+
+- **Byte-diff against a step-0 baseline** — 94 pages, 0 differences, six head
+  fields each. This is the test that matters.
+- **Override check** — a throwaway page with a filled `seo` object: meta title,
+  description, canonical and robots all won. Deleted afterwards.
+- **Crawl switch** — stubbed `getGlobalSeo()` to `discourageCrawling: true`:
+  `robots.txt` became `Disallow: /` and 93 of 94 pages carried noindex (the 94th
+  is `/admin`, which does not use Layout). **Stub reverted.**
+- **Redirect guard** — stubbed `getRedirects()` with a live-page source, a
+  self-loop, a case-differing duplicate and four valid rules. All four bad ones
+  were dropped with a build-log line naming each, both live pages still built,
+  and the four good ones came out as 8 rules (both slash forms), 301/302
+  correct, external destination untouched. **Stub reverted.** Nothing was
+  written to the production dataset to test this.
+- Sitemap: 92 URLs, `/thank-you/`, `/404` and `/admin` correctly absent.
+- Build 95 pages; `check:page-copy` passes; validate 0 errors / 20 warnings;
+  typegen still exactly 7 pre-existing duplicate-`QUERY` errors.
+- No horizontal overflow at 1920 / 1441 / 1440 / 1439 / 1000 / 768 / 430.
 
 ---
 
@@ -307,10 +394,15 @@ rule, and the Sanity section). What is here is specific to the current state.
 
 - **The publish webhook** — the only part of phase 7 still open. See Manual
   steps below; it is dashboard work on both halves.
-- **`/new-seo-setup`** for sitemap, robots, redirects and the JSON-LD
+- **Seed the redirects** and retire `vercel.json`'s 46, once a deploy proves the
+  mechanism.
+- **Give the other business-schema emitters the same `@id`** as `lib/schema.ts`
+  builds. Seven pages besides the homepage still carry no firm entity, and the
+  `@id` is what would let one be emitted sitewide without describing the firm
+  twice on the 65 pages that already do.
+- ~~`/new-seo-setup`~~ for sitemap, robots, redirects and the JSON-LD
   builders. This is also what makes the SEO tab live — the fields and their tabs
   already exist on all 17 routed types and nothing reads any of them.
-- **`/sitemap/`** — the last footer link that still 404s.
 
 ---
 
@@ -369,8 +461,26 @@ rule, and the Sanity section). What is here is specific to the current state.
    `pageFaq` migration a safe thing to run, and will not be true next time.
 2. **CORS for the production domain.** `http://localhost:4321` and
    `https://the-dieye-firm.vercel.app` are allowed; `www.dieyelaw.com` at launch.
-3. **`robots.txt` and `sitemap.xml` still do not exist.** Deferred to
-   `/new-seo-setup`. It must not ship without them.
+3. **Upload a default social share image** (1200 × 630) — Studio → Site
+   Settings → Global SEO Settings → Defaults. Without it, a shared link renders
+   with no card image. Nothing else in the SEO layer is waiting on content.
+4. **Turn the crawl switch ON now, OFF at launch.** Same document. While the
+   site is on `the-dieye-firm.vercel.app` it should be hidden; the moment DNS
+   cuts over it must be turned off, or the real site never appears in search.
+   This is the single setting that can silently cost every ranking, which is why
+   the Studio row says so and the field description shouts it.
+5. **Submit `https://www.dieyelaw.com/sitemap.xml`** in Google Search Console,
+   after the switch is off.
+6. **Confirm `www` is the PRIMARY host in Vercel**, with the apex redirecting to
+   it. Every canonical says `www`; if Vercel serves the apex as primary instead,
+   all 92 canonicals point at a redirect.
+7. **Confirm the Vercel plan includes Bulk Redirects** (Pro includes 1,000).
+   Without it `bulkRedirectsPath` is simply never read and editor-managed
+   redirects silently do nothing — the 46 rules in `vercel.json` keep working,
+   so the failure is quiet.
+8. **Seed the old site's redirects into the Studio**, then delete the
+   equivalents from `vercel.json` — but only AFTER a deploy proves bulk
+   redirects fire. See the deviation note above.
 
 ---
 

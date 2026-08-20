@@ -1,6 +1,8 @@
 ---
 import { Font } from "astro:assets";
 import Contact from "../components/Contact.astro";
+import { resolveSeo, type SeoInput } from "../lib/seo";
+import { getGlobalSeo } from "../sanity/globalSeo";
 import Footer from "../components/Footer.astro";
 import VideoModal from "../components/VideoModal.astro";
 import "../styles/global.css";
@@ -8,10 +10,10 @@ import "../styles/global.css";
 interface Props {
   title: string;
   description?: string;
-  /* Absolute URL. Blog posts are the first genuinely shareable pages on the
-     site, which is where these earned their keep. The full editable SEO layer
-     (global defaults, sitemap, robots, editor-managed redirects) is a later
-     pass — this is only what a shared page needs to be linked correctly. */
+  /* Absolute URL. Blog posts were the first genuinely shareable pages on the
+     site, which is where these earned their keep. Still accepted, and still
+     WINS over the derived canonical, so no page that was already correct can be
+     changed by the SEO layer landing. */
   canonical?: string;
   ogType?: "website" | "article";
   ogImage?: string;
@@ -27,6 +29,12 @@ interface Props {
      comp omits it there too. Still a Layout prop rather than a page opting out
      by omission, so the default stays "every page closes with the prompt". */
   contactVariant?: "section" | "page" | "none";
+  /* The page's Sanity `seo` block, if it has one. EVERY FIELD IS OPTIONAL and
+     every one falls back to the props above, so passing nothing — or passing a
+     document whose SEO tab was never opened — renders exactly what this page
+     rendered before the tab existed. That is the acceptance test for the whole
+     layer, not a nice property of it. */
+  seo?: SeoInput | null;
 }
 
 const {
@@ -36,7 +44,37 @@ const {
   ogType = "website",
   ogImage,
   contactVariant = "section",
+  seo,
 } = Astro.props;
+
+/* One fetch for the whole build (memoised in PROD), and null is a normal
+   result — the singleton need not exist for the site to build. */
+const globalSeo = await getGlobalSeo();
+
+const meta = resolveSeo(seo, {
+  fallbackTitle: title,
+  fallbackDescription: description,
+  fallbackCanonical: canonical,
+  pageUrl: Astro.url,
+  defaultOgImage: globalSeo?.defaultOgImage,
+});
+
+/* Two ways to end up hidden: this page's own switch, or the sitewide one that
+   exists to keep the staging address out of Google. robots.txt carries the
+   same switch — this is the per-page half of it. */
+const noIndex = meta.noIndex || globalSeo?.discourageCrawling === true;
+
+/* A page hidden by its OWN switch gets no canonical and no og:url. Google
+   ignores a canonical on a noindexed page anyway, and on /404 emitting one
+   would invent "/404/" — a URL this site does not serve.
+
+   Keyed on the page's own flag rather than on `noIndex` above, deliberately:
+   the sitewide crawl switch is temporary staging state, and letting it strip
+   the canonical off all 95 pages would make staging differ from production in
+   a way nobody asked for. */
+const selfReferential = !meta.noIndex;
+
+const socialImage = meta.ogImage ?? ogImage;
 ---
 
 <!doctype html>
@@ -48,21 +86,26 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
 
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    {canonical && <link rel="canonical" href={canonical} />}
+    <title>{meta.title}</title>
+    {meta.description && <meta name="description" content={meta.description} />}
+    {selfReferential && <link rel="canonical" href={meta.canonical} />}
+    {/* "follow", not "nofollow": a hidden page's links still lead to pages that
+        SHOULD be crawled, and that is the whole point on /404, where the nav is
+        the visitor's and the crawler's way back. The sitewide switch's real
+        barrier is robots.txt's Disallow, not this tag. */}
+    {noIndex && <meta name="robots" content="noindex, follow" />}
 
     <meta property="og:type" content={ogType} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={meta.title} />
+    {meta.description && <meta property="og:description" content={meta.description} />}
     <meta property="og:site_name" content="The Dieye Firm" />
-    {canonical && <meta property="og:url" content={canonical} />}
-    {ogImage && <meta property="og:image" content={ogImage} />}
+    {selfReferential && <meta property="og:url" content={meta.canonical} />}
+    {socialImage && <meta property="og:image" content={socialImage} />}
 
-    <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <meta name="twitter:card" content={socialImage ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={meta.title} />
+    {meta.description && <meta name="twitter:description" content={meta.description} />}
+    {socialImage && <meta name="twitter:image" content={socialImage} />}
 
     {/* Fonts: Source Serif 4 (headings) + Geist (body/UI), self-hosted and
         emitted by Astro. These are variable faces, so all weights come from
