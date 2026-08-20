@@ -75,9 +75,12 @@ against an empty redirect list broke every deployment after the merge —
 `No redirects found in the provided files: bulk-redirects.json`. Vercel treats
 an empty bulk redirects file as fatal.
 
-**Put the key back in the same change that publishes the first redirect.** It
-cannot be automated — `vercel.json` is read before the build — so the header of
-`src/pages/bulk-redirects.json.ts` shouts about it instead.
+**That is now fixed properly, not documented around.** The first instinct was a
+rule — "only set the key while a redirect exists" — but that ties a config file
+to the contents of a Sanity collection with nothing at either end to say so.
+`bulk-redirects.json.ts` emits one inert placeholder when there are no real
+rules, so the empty case cannot arise; `bulkRedirectsPath` stays set permanently
+and the collection can be emptied freely. Both states are build-tested.
 
 The one silver lining: the failure proves `bulkRedirectsPath` RESOLVES. Vercel
 found and read the file; it rejected the contents. That was the open question
