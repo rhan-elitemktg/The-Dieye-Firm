@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { DocumentVideoIcon } from "@sanity/icons/DocumentVideo";
+import { capEyebrow } from "./limits";
 
 /* Video Center Page — the page's own opening.
  *
@@ -32,7 +33,7 @@ export const videoCenterPage = defineType({
           title: "Eyebrow",
           type: "string",
           description: "The small gold line above the title.",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
         defineField({
           name: "title",

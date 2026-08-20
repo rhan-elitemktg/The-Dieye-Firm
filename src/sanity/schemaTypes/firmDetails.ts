@@ -1,5 +1,5 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
-import { HomeIcon } from "@sanity/icons/Home";
+import { CogIcon } from "@sanity/icons/Cog";
 
 /* Firm Details — the single source of truth for facts that appear in more than
  * one place: the header info bar, the main nav, the contact section and the
@@ -16,7 +16,7 @@ export const firmDetails = defineType({
   name: "firmDetails",
   title: "Firm Details",
   type: "document",
-  icon: HomeIcon,
+  icon: CogIcon,
   groups: [
     { name: "identity", title: "Identity", default: true },
     { name: "contact", title: "Contact" },
@@ -29,7 +29,8 @@ export const firmDetails = defineType({
       description: "Used in the footer copyright line and logo alt text.",
       type: "string",
       group: "identity",
-      validation: (rule) => rule.required().max(60),
+      validation: (rule) =>
+        rule.required().max(60).warning("Long names wrap in the footer copyright line."),
     }),
     defineField({
       name: "tagline",
@@ -199,7 +200,8 @@ export const firmDetails = defineType({
               title: "Short name",
               description: "Shown in the nav dropdown, where the full name is unwieldy.",
               type: "string",
-              validation: (rule) => rule.required().max(24),
+              validation: (rule) =>
+                rule.required().max(24).warning("The nav dropdown is narrow — keep the short name short."),
             }),
             defineField({
               name: "href",
@@ -231,7 +233,8 @@ export const firmDetails = defineType({
               name: "heading",
               title: "Column heading",
               type: "string",
-              validation: (rule) => rule.required().max(30),
+              validation: (rule) =>
+                rule.required().max(30).warning("Long column headings wrap and unbalance the footer."),
             }),
             defineField({
               name: "links",

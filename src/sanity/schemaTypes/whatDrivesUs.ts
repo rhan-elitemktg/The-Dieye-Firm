@@ -1,6 +1,7 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { HeartIcon } from "@sanity/icons/Heart";
 import { iconList } from "./iconOptions";
+import { capCardTitle, capEyebrow, capHeading, capHeadingAccent } from "./limits";
 
 /* "The standard we hold" — the navy band of three values, on 8 pages.
  *
@@ -35,21 +36,21 @@ export const whatDrivesUs = defineType({
       title: "Eyebrow",
       type: "string",
       description: "The small gold line above the heading.",
-      validation: (rule) =>
-        rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+      validation: (rule) => capEyebrow(rule.required()),
     }),
     defineField({
       name: "headingLead",
       title: "Heading",
       type: "string",
       description: 'The plain first part — e.g. "The standard".',
-      validation: (rule) => rule.required(),
+      validation: (rule) => capHeading(rule.required()),
     }),
     defineField({
       name: "headingAccent",
       title: "Heading — italic part",
       type: "string",
       description: 'Rendered in gold italic — e.g. "we hold." Leave empty for none.',
+      validation: (rule) => capHeadingAccent(rule),
     }),
     defineField({
       name: "values",
@@ -57,7 +58,25 @@ export const whatDrivesUs = defineType({
       type: "array",
       description:
         "Exactly three. The band is a three-column grid on desktop, so a fourth would sit alone on a second row.",
-      validation: (rule) => rule.required().length(3),
+      /* The glyph check is a WARNING, not an error: three cards sharing an icon
+         looks like a mistake but breaks nothing, and the same reasoning that
+         keeps the length caps warning-only applies — publishing fires the
+         deploy hook. Modelled on the socials check in firmDetails.ts. */
+      validation: (rule) => [
+        rule.required().length(3),
+        rule.custom((items) => {
+          if (!Array.isArray(items)) return true;
+          const glyphs = items.map((item) => (item as { icon?: string })?.icon);
+          const repeated = [
+            ...new Set(
+              glyphs.filter((g, i) => g && glyphs.indexOf(g) !== i),
+            ),
+          ];
+          return repeated.length
+            ? `Each value should carry its own glyph. Used twice: ${repeated.join(", ")}.`
+            : true;
+        }).warning(),
+      ],
       of: [
         defineArrayMember({
           type: "object",
@@ -80,7 +99,7 @@ export const whatDrivesUs = defineType({
               type: "string",
               description:
                 'Kept short — "Direct, Personal Attention" is the longest that holds one line on a desktop card.',
-              validation: (rule) => rule.required(),
+              validation: (rule) => capCardTitle(rule.required()),
             }),
             defineField({
               name: "text",

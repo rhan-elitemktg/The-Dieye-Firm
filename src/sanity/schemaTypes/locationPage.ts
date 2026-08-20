@@ -154,7 +154,14 @@ export const locationPage = defineType({
       of: [
         defineArrayMember({
           type: "object",
-          name: "faq",
+          /* `pageFaq`, NOT `faq` — `faq` is a global DOCUMENT type (the nine
+             site-wide FAQs behind /faq/) and an array member sharing that name
+             makes two different shapes compete for one name in the schema
+             registry. Sanity reports it as a configuration warning. The stored
+             `_type` was migrated to match by
+             scripts/import/rename-page-faq-type.ts; the two must move together
+             or the Studio shows every existing item as "Unknown type". */
+          name: "pageFaq",
           fields: [
             defineField({
               name: "question",

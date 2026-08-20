@@ -1,6 +1,7 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { ThLargeIcon } from "@sanity/icons/ThLarge";
 import { iconList } from "./iconOptions";
+import { capButton, capEyebrow, capHeading, capHeadingAccent } from "./limits";
 
 /* /practice-areas/ — the index for the family-law section.
  *
@@ -57,16 +58,17 @@ export const practiceAreasPage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
+        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
+        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string", validation: (rule) => capHeadingAccent(rule) }),
         defineField({
           name: "headingTail",
           title: "Heading — after the italic",
           type: "string",
           description:
             "The rest of the line, if the italic sits mid-sentence. Start it with punctuation to butt it against the italic, or with a word to have a space added.",
+          validation: (rule) => capHeading(rule),
         }),
         defineField({ name: "lead", title: "Lead", type: "text", rows: 3, validation: (rule) => rule.required() }),
         defineField({
@@ -74,7 +76,7 @@ export const practiceAreasPage = defineType({
           title: "Button label",
           type: "string",
           description: "The gold button. It points at /contact-us/.",
-          validation: (rule) => rule.required(),
+          validation: (rule) => capButton(rule.required()),
         }),
       ],
     }),
@@ -89,11 +91,11 @@ export const practiceAreasPage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
-        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string" }),
+        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
+        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string", validation: (rule) => capHeadingAccent(rule) }),
+        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string", validation: (rule) => capHeading(rule) }),
         defineField({ name: "lead", title: "Lead", type: "text", rows: 2, validation: (rule) => rule.required() }),
         defineField({
           name: "cards",
@@ -157,11 +159,11 @@ export const practiceAreasPage = defineType({
           title: "Eyebrow",
           type: "string",
           description: "The list itself is every practice area, A to Z, straight from the collection.",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
-        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string" }),
+        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
+        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string", validation: (rule) => capHeadingAccent(rule) }),
+        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string", validation: (rule) => capHeading(rule) }),
       ],
     }),
     defineField({ name: "seo", title: "SEO", type: "seo", group: "seo" }),

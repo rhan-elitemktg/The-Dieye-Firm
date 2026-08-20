@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { DocumentsIcon } from "@sanity/icons/Documents";
+import { capEyebrow } from "./limits";
 
 /* /blog/ — the index.
  *
@@ -45,7 +46,7 @@ export const blogPage = defineType({
           title: "Eyebrow",
           type: "string",
           description: "The small gold line above the title.",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
         defineField({
           name: "title",

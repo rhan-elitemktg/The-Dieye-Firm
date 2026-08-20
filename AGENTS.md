@@ -610,6 +610,27 @@ exactly what the section renders. `blockContent`'s header forbids inventing a
 second rich-text type for one field and names the superset as the exception;
 both of the above are that exception, and each says so in its header.
 
+**Length caps live in `schemaTypes/limits.ts`, are WARNING-only, and are
+MEASURED.** One helper per kind of short string — `capEyebrow`, `capButton`,
+`capHeading`, `capHeadingAccent`, `capCardTitle`, `capFigure`,
+`capReassurance` — applied as `validation: (rule) => capButton(rule.required())`
+so required-ness stays visible at the call site. Two rules govern them:
+
+- **Never `.error()`.** Publishing fires the Vercel deploy hook, so a blocking
+  error over a 41-character eyebrow stops the whole rebuild. `.error()` is for
+  things that would actually break a page — a two-letter state code, a number
+  range. Note that a bare `.max(N)` **is** an error; it needs `.warning()` to
+  not be one. Six fields were silently error-level until 2026-08-20.
+- **Never guess the number.** A cap that fires on correct copy teaches an editor
+  that the warnings are noise, and then the one that matters gets ignored too.
+  Each number is roughly double the longest value the dataset actually holds;
+  `limits.ts` carries the measurements, the date, and the query to redo them.
+  The test that it worked: `npx sanity documents validate` shows no NEW warnings.
+
+The same "measure, don't guess" applies to a cap's absence. `homePage.headingLines`
+is deliberately uncapped: it is the textarea where the editor's own line breaks
+are the design, so a character count is the wrong instrument.
+
 **Headings stay OUT of the rich text on the two legal-ish pages.** Portable Text
 headings render through `ProseHeading`, which stamps an id on every one — right
 for an article body an anchor might point into, wrong for headings that never

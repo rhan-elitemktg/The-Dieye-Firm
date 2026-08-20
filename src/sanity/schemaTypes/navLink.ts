@@ -12,7 +12,8 @@ export const navLink = defineType({
       name: "label",
       title: "Label",
       type: "string",
-      validation: (rule) => rule.required().max(40),
+      validation: (rule) =>
+        rule.required().max(40).warning("Long labels wrap in the footer columns."),
     }),
     defineField({
       name: "href",

@@ -1,5 +1,6 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { UsersIcon } from "@sanity/icons/Users";
+import { capButton, capEyebrow, capFigure, capHeading, capHeadingAccent } from "./limits";
 
 /* /about-us/ — the firm's story and Papa's bio in one page.
  *
@@ -62,14 +63,15 @@ export const aboutPage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
+        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
         defineField({
           name: "headingAccent",
           title: "Heading — italic part",
           type: "string",
           description: "Rendered in gold italic. Leave empty for none.",
+          validation: (rule) => capHeadingAccent(rule),
         }),
         defineField({
           name: "headingTail",
@@ -77,6 +79,7 @@ export const aboutPage = defineType({
           type: "string",
           description:
             'The rest of the line. Start it with punctuation to butt it against the italic (", not a case number.") or with a word to have a space added.',
+          validation: (rule) => capHeading(rule),
         }),
         defineField({ name: "lead", title: "Lead", type: "text", rows: 3, validation: (rule) => rule.required() }),
         defineField({
@@ -84,7 +87,7 @@ export const aboutPage = defineType({
           title: "Button label",
           type: "string",
           description: "The gold button. It points at /contact-us/.",
-          validation: (rule) => rule.required(),
+          validation: (rule) => capButton(rule.required()),
         }),
       ],
     }),
@@ -99,11 +102,11 @@ export const aboutPage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
-        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string" }),
+        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
+        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string", validation: (rule) => capHeadingAccent(rule) }),
+        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string", validation: (rule) => capHeading(rule) }),
         defineField({
           name: "paragraphs",
           title: "Paragraphs",
@@ -115,7 +118,7 @@ export const aboutPage = defineType({
           title: "Button label",
           type: "string",
           description: "It points at /practice-areas/.",
-          validation: (rule) => rule.required(),
+          validation: (rule) => capButton(rule.required()),
         }),
       ],
     }),
@@ -155,7 +158,7 @@ export const aboutPage = defineType({
           title: "Eyebrow",
           type: "string",
           description: "His name and title are not here — they come from Site Settings → Attorney.",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
         defineField({
           name: "chips",
@@ -185,7 +188,7 @@ export const aboutPage = defineType({
                   },
                   validation: (rule) => rule.required(),
                 }),
-                defineField({ name: "value", title: "Figure", type: "string", validation: (rule) => rule.required() }),
+                defineField({ name: "value", title: "Figure", type: "string", validation: (rule) => capFigure(rule.required()) }),
                 defineField({ name: "label", title: "Label", type: "string", validation: (rule) => rule.required() }),
               ],
               preview: { select: { title: "value", subtitle: "label" } },
@@ -236,11 +239,11 @@ export const aboutPage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
-        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string" }),
+        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
+        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string", validation: (rule) => capHeadingAccent(rule) }),
+        defineField({ name: "headingTail", title: "Heading — after the italic", type: "string", validation: (rule) => capHeading(rule) }),
         defineField({
           name: "paragraphs",
           title: "Paragraphs",
