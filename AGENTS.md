@@ -559,6 +559,19 @@ be asked.
 - Always give images intrinsic dimensions so nothing shifts.
 - Third-party embeds (Wistia, maps) load behind a click-to-load facade, with
   their metadata fetched at build time, never client-side.
+- **Google Tag Manager is the exception to that rule, and must stay one.** It is
+  in `Layout.astro`'s head, loaded eagerly, on **production deployments only** —
+  gated on `process.env.VERCEL_ENV === "production"` so branch previews and local
+  builds don't report build-verification traffic into the firm's container.
+  `import.meta.env.PROD` is the wrong test and was not used: it is true for ANY
+  `astro build`, previews included. `process.env` and not `import.meta.env`
+  because Vite only exposes vars matching its envPrefix (`PUBLIC_`). A facade would
+  defeat it: GTM has to be present before the page does anything for its tags to
+  see it, and it fetches its own container asynchronously anyway. **The script
+  needs `is:inline`** (which `define:vars` implies) — without it Astro bundles
+  the snippet as a module and defers it, which moves it out of the head and
+  breaks the `dataLayer` timing. The container id lives in one const,
+  `GTM_ID`, read by both the script and the noscript iframe.
 - Check whether an image is already in `src/assets/images/` before importing a
   duplicate — several comp assets are byte-identical to files already here
   under different names.
