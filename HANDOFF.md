@@ -6,7 +6,7 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-20, on the `seo_layer` branch._
+_Last rewritten: 2026-08-20, on the `handoff_webhook_live` branch._
 
 ---
 
@@ -18,9 +18,11 @@ as `20f66ed`. **Phase 7 is on `phase_7_retire_content_layer`**, pushed,
 awaiting a PR. **The SEO layer is THIS branch**, `seo_layer`, branched off
 phase 7. Merge phase 7 first.
 
-**The one thing phase 7 could not finish is the publish webhook** — see Manual
-steps. Both halves of it are dashboard work: `vercel project` has no
-deploy-hook subcommand, and `sanity hooks create` is interactive-only.
+**The publish webhook is LIVE.** Publishing in the Studio now triggers a Vercel
+production rebuild, verified end to end. That was the last of phase 7.
+
+**Two launch blockers remain, and neither is code:** the lead form has no
+endpoint, and the crawl switch needs turning ON now / OFF at launch.
 
 Every word a reader sees comes from Sanity apart from the chrome `AGENTS.md`
 lists. Twenty-nine document types, five object types.
@@ -468,25 +470,25 @@ rule, and the Sanity section). What is here is specific to the current state.
 
 ## Manual steps before launch
 
-1. **Sanity → Vercel publish webhook — the last piece of phase 7.** None exists
-   (`sanity hooks list` is empty). **Both halves are dashboard work**, which is
-   why phase 7 could not close it: `vercel project` has no deploy-hook
-   subcommand, and `sanity hooks create` takes no url/dataset/trigger flags —
-   it is interactive only.
+1. ~~**Sanity → Vercel publish webhook.**~~ **DONE.** A Vercel Deploy Hook on
+   `master`, with a Sanity webhook named **"Vercel deploy"** pointed at it:
+   dataset `production`, POST, Create/Update/Delete, API v2021-03-25.
 
-   - **Vercel** → Project Settings → Git → Deploy Hooks → create one on
-     `master`. Copy the URL. (The Vercel CLI is authenticated here as
-     `rhan-1746`, but the project is not linked locally — no
-     `.vercel/project.json` — so `vercel link` comes first if you want to drive
-     it from the terminal.)
-   - **Sanity** → `npx sanity hooks create`, or the sanity.io dashboard.
-     Dataset `production`, URL as above, and the **drafts toggle OFF** — every
-     keystroke in the Studio writes a draft, so leaving it on would rebuild the
-     site continuously.
+   **The Drafts toggle is OFF and must stay off.** With it on, every keystroke
+   in the Studio writes a draft and fires a build — the site would rebuild
+   continuously. The filter `!(_id in path("drafts.**"))` is also set and is
+   redundant while that toggle is off; it is kept as a second lock in case
+   someone ticks the box without thinking. The webhook's own description says
+   so, so the next person is told before they change it.
 
-   Until this exists, publishing changes nothing on the live site, and a dataset
-   migration does not trigger a rebuild — which is what made phase 6's
-   `pageFaq` migration a safe thing to run, and will not be true next time.
+   ⚠️ **There is NO DEBOUNCE.** One publish is one build, so a bulk import fires
+   one build per document — the 23-redirect seed would have queued 23 deploys
+   had it run after this. **Delete the webhook before any future bulk import and
+   recreate it afterwards.**
+
+   This is also what makes the warning-only length caps real rather than
+   theoretical: a blocking validation error now stops the whole site rebuilding.
+
 2. **CORS for the production domain.** `http://localhost:4321` and
    `https://the-dieye-firm.vercel.app` are allowed; `www.dieyelaw.com` at launch.
 3. **Upload a default social share image** (1200 × 630) — Studio → Site
