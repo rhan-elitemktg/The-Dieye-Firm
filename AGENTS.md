@@ -713,6 +713,27 @@ path exactly and run before trailing-slash normalisation, and the legacy
 Scorpion URLs are a mix of both — `vercel.json`'s own 46 hand-written rules are
 already 23 such pairs for exactly this reason.
 
+**An EMPTY bulk redirects file is a FATAL DEPLOY ERROR, and it looks like a
+green build.** This cost a broken production. With `bulkRedirectsPath` set and
+no `redirect` documents in Sanity, the generator emits `[]`, the build completes
+normally — 95 pages, "Build Completed" — and then the deploy step dies with
+`No redirects found in the provided files: bulk-redirects.json`. The word
+"build" appears nowhere in the failure, and the last line of a successful-looking
+log reads like an informational note. **Set `bulkRedirectsPath` in the same
+change that publishes the first redirect, never before**, and never leave it set
+against an empty list. It cannot be automated, because `vercel.json` is read
+before the build.
+
+**A Vercel log that ends in "Build Completed" has not necessarily deployed.**
+Read past it to `Deploying outputs…` and check the deployment's own status —
+`npx vercel ls the-dieye-firm --scope elite-legal-marketing`. The project lives
+under the **elite-legal-marketing** scope, not the personal one.
+
+**Preview deploys sit behind Deployment Protection**, so an unauthenticated
+`curl` returns a Vercel SSO redirect for every path, `/robots.txt` included.
+That reads as a failure and is not one. Routing checks need an authenticated
+session or a production URL.
+
 **`vercel.json` is read BEFORE the build**, so nothing generated during a build
 can land in its `redirects` array. `bulkRedirectsPath` is the one redirect
 surface a build may write. Don't try to generate `vercel.json`, and don't reach
