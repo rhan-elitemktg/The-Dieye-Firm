@@ -1,4 +1,4 @@
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
 import { LockIcon } from "@sanity/icons/Lock";
 
 /* /privacy-policy/ — the firm's published policy.
@@ -8,11 +8,16 @@ import { LockIcon } from "@sanity/icons/Lock";
  * carries bold inside sentences, so a plain string field would hand a lawyer a
  * box with `<strong>` tags in it and a way to break the page by mistyping one.
  *
- * The headings are NOT inside the rich text, deliberately. Portable Text
- * headings go through ProseHeading, which stamps an id on every one — right for
- * an article body an anchor might point into, wrong here, where it would add
- * ids to eight headings that never had them. Each section keeps its heading as
- * a plain string beside its body.
+ * ONE field for the whole policy, headings included. It was an `intro` plus
+ * eight {heading, body} sections until 2026-08-20, split that way because
+ * Portable Text headings go through ProseHeading and would have gained ids
+ * these eight never had. That is handled at the call site now — the page passes
+ * `headingIds={false}` to ProseBody, so the h2s render bare exactly as before.
+ *
+ * `contactNote` stays OUT of the body, and that one is not cosmetic: the phone
+ * number and postal address in that sentence are rendered from `firmDetails`.
+ * As rich text an editor would be typing a number the Studio could never keep
+ * current, which is the drift this whole page's model exists to prevent.
  *
  * ═══ The one interpolated sentence ═══
  *
@@ -43,37 +48,21 @@ export const privacyPolicyPage = defineType({
       ],
     }),
     defineField({
-      name: "intro",
-      title: "Opening",
+      name: "body",
+      title: "Body",
       type: "blockContent",
       group: "content",
-      description: "The paragraphs above the first heading.",
-      validation: (rule) => rule.required(),
+      description:
+        "The whole policy under the header. Use Heading 2 for the section headings. The closing contact sentence is the separate field below, because the phone number and address in it are rendered live from Firm Details.",
+      validation: (rule) => rule.required().min(1),
     }),
     defineField({
-      name: "sections",
-      title: "Sections",
-      type: "array",
+      name: "contactNote",
+      title: "Closing sentence with the firm's contact details",
+      type: "string",
       group: "content",
-      validation: (rule) => rule.required().min(1),
-      of: [
-        defineArrayMember({
-          type: "object",
-          name: "section",
-          fields: [
-            defineField({ name: "heading", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-            defineField({ name: "body", title: "Text", type: "blockContent", validation: (rule) => rule.required() }),
-            defineField({
-              name: "contactNote",
-              title: "Closing sentence with the firm's contact details",
-              type: "string",
-              description:
-                "Only the last section uses this. Write the sentence UP TO the phone number — the number and the postal address are added from Firm Details, so they can never go stale here.",
-            }),
-          ],
-          preview: { select: { title: "heading" } },
-        }),
-      ],
+      description:
+        "Rendered in bold as the last paragraph of the page. Write the sentence UP TO the phone number — the number and the postal address are added from Firm Details, so they can never go stale here. This is NOT part of the body above for exactly that reason: as rich text an editor would be typing a phone number that the Studio could never keep current.",
     }),
     defineField({ name: "seo", title: "SEO", type: "seo", group: "seo" }),
   ],

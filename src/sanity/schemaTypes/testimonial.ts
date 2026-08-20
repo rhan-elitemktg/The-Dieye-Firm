@@ -55,13 +55,34 @@ export const testimonial = defineType({
        comp's three columns, so the sequence is editorial, not alphabetical. */
     orderRankField({ type: "testimonial" }),
     defineField({
+      name: "kind",
+      title: "Type",
+      type: "string",
+      options: {
+        list: [
+          { title: "Written review", value: "text" },
+          { title: "Video", value: "video" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "text",
+      description:
+        "A written review shows as a card. A video shows as a play tile, on the wall and in the homepage band alike.",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "lead",
       title: "Pull quote",
       type: "text",
       rows: 3,
       description:
         "The sentence shown large at the top of the card. Take it from the review itself — don't write a new one.",
-      validation: (rule) => rule.required(),
+      hidden: ({ parent }) => parent?.kind === "video",
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          (context.document as any)?.kind === "video" || value
+            ? true
+            : "A written review needs a pull quote."),
     }),
     defineField({
       name: "body",
@@ -70,7 +91,12 @@ export const testimonial = defineType({
       rows: 8,
       description:
         "The client's review in full, exactly as they wrote it. Typos included — these are their words.",
-      validation: (rule) => rule.required(),
+      hidden: ({ parent }) => parent?.kind === "video",
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          (context.document as any)?.kind === "video" || value
+            ? true
+            : "A written review needs the full text."),
     }),
     defineField({
       name: "name",
@@ -78,7 +104,16 @@ export const testimonial = defineType({
       type: "string",
       description:
         'As the review is signed on the live site — a first name, initials, or "Former Client" where it was published unattributed.',
-      validation: (rule) => rule.required(),
+      /* Optional for a VIDEO, and that is a rule rather than a convenience.
+         The tile on /testimonials/ carries a stock portrait of nobody connected
+         to the firm; putting a client name under it would claim the face is a
+         client, which is the exact thing this type exists to prevent. Give a
+         video a name only once a real client is behind it. */
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          (context.document as any)?.kind === "video" || value
+            ? true
+            : "A written review needs the client's name."),
     }),
     defineField({
       name: "matter",
@@ -90,12 +125,82 @@ export const testimonial = defineType({
          it is a string only because testimonials were migrated first, as the
          pilot. Kept as free text rather than a hardcoded list so the eventual
          swap is a data patch, not a schema argument. */
-      validation: (rule) => rule.required(),
+      hidden: ({ parent }) => parent?.kind === "video",
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          (context.document as any)?.kind === "video" || value
+            ? true
+            : "A written review needs a matter."),
+    }),
+    defineField({
+      name: "wistiaId",
+      title: "Wistia ID",
+      type: "string",
+      description: "The ten-character id from the video's Wistia URL.",
+      hidden: ({ parent }) => parent?.kind !== "video",
+      validation: (rule) =>
+        rule.custom((value, context) => {
+          if ((context.document as any)?.kind !== "video") return true;
+          if (!value) return "A video testimonial needs a Wistia ID.";
+          return /^[a-z0-9]{10}$/.test(value) || "A Wistia ID is ten lowercase letters or digits.";
+        }),
+    }),
+    defineField({
+      name: "poster",
+      title: "Poster",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "The still behind the play button, shown square. A photograph, not Wistia's auto-generated frame.",
+      hidden: ({ parent }) => parent?.kind !== "video",
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          (context.document as any)?.kind !== "video" || value
+            ? true
+            : "A video testimonial needs a poster."),
+    }),
+    defineField({
+      name: "label",
+      title: "Tile label",
+      type: "string",
+      description: 'The small gold line above the caption - "Video Testimonial".',
+      hidden: ({ parent }) => parent?.kind !== "video",
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          (context.document as any)?.kind !== "video" || value
+            ? true
+            : "A video testimonial needs a tile label."),
+    }),
+    defineField({
+      name: "caption",
+      title: "Tile caption",
+      type: "string",
+      description:
+        'The line under the label, set large - "Watch their story". This is also the title the video modal announces.',
+      hidden: ({ parent }) => parent?.kind !== "video",
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          (context.document as any)?.kind !== "video" || value
+            ? true
+            : "A video testimonial needs a tile caption."),
     }),
   ],
   preview: {
-    select: { lead: "lead", name: "name", matter: "matter" },
-    prepare({ lead, name, matter }) {
+    select: {
+      kind: "kind", lead: "lead", name: "name", matter: "matter",
+      caption: "caption", media: "poster",
+    },
+    prepare({ kind, lead, name, matter, caption, media }) {
+      /* A video row shows its poster and says so. Without the media a video and
+         a written review look identical in a 15-row list, which is the whole
+         reason this collection needed a type in the first place. */
+      if (kind === "video") {
+        return {
+          title: caption ?? "Video testimonial",
+          subtitle: ["Video", name].filter(Boolean).join(" · "),
+          media,
+        };
+      }
       return {
         title: lead?.length > 60 ? `${lead.slice(0, 60)}…` : (lead ?? "Untitled"),
         subtitle: [name, matter].filter(Boolean).join(" · "),

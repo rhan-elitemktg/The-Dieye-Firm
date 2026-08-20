@@ -70,7 +70,7 @@ const description =
    Paragraphs carry inline HTML for the one link and render through set:html.
    That is safe here precisely because .prose is unscoped in global.css; a
    scoped rule would never reach set:html output. */
-const { header, sections } = await getHiringGuidePage();
+const { header, body } = await getHiringGuidePage();
 
 
 /* Article, not FAQPage and not another LegalService. The FAQ block on the live
@@ -117,7 +117,7 @@ const schema = {
   <InteriorShell>
     <InteriorHeader
       title={header.title}
-      kicker={{ label: header.kicker, href: header.kickerHref }}
+      kicker={{ label: header.kicker }}
     />
 
     {/* .prose lives unscoped in global.css, which is also why the paragraphs
@@ -125,16 +125,12 @@ const schema = {
         and still reaches this div — see the note in InteriorShell about where
         Astro assigns a scope hash. */}
     <div class="prose cfa__body">
-      {
-        sections.map((section) => (
-          <>
-            {/* Plain <h2>, not a Portable Text heading: through ProseHeading it
-                would gain an id these never had. */}
-            <h2>{section.heading}</h2>
-            <ProseBody value={section.body} />
-          </>
-        ))
-      }
+      {/* headingIds={false}: the five h2s are OURS (deviation 2 above) and the
+          live page has no headings at all, so nothing anywhere links to one.
+          Through ProseHeading they would each gain an id that has never been
+          published. The prop is what keeps that decision visible now the
+          headings live inside the rich text with the paragraphs. */}
+      <ProseBody value={body} headingIds={false} />
     </div>
 
     <AboutSidebar slot="sidebar" areas={areas} label="About this guide" />

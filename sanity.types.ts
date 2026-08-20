@@ -374,14 +374,8 @@ export type PrivacyPolicyPage = {
     kicker: string;
     title: string;
   };
-  intro: BlockContent;
-  sections: Array<{
-    heading: string;
-    body: BlockContent;
-    contactNote?: string;
-    _type: "section";
-    _key: string;
-  }>;
+  body: BlockContent;
+  contactNote?: string;
   seo?: Seo;
 };
 
@@ -393,15 +387,9 @@ export type HiringGuidePage = {
   _rev: string;
   header?: {
     kicker: string;
-    kickerHref?: string;
     title: string;
   };
-  sections: Array<{
-    heading: string;
-    body: BlockContent;
-    _type: "section";
-    _key: string;
-  }>;
+  body: BlockContent;
   seo?: Seo;
 };
 
@@ -807,10 +795,21 @@ export type Testimonial = {
   _updatedAt: string;
   _rev: string;
   orderRank?: string;
-  lead: string;
-  body: string;
-  name: string;
-  matter: string;
+  kind: "text" | "video";
+  lead?: string;
+  body?: string;
+  name?: string;
+  matter?: string;
+  wistiaId?: string;
+  poster?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  label?: string;
+  caption?: string;
 };
 
 export type Video = {
@@ -1717,12 +1716,6 @@ export type PRACTICE_AREAS_PAGE_QUERY_RESULT =
 export type SITE_WIDE_CASE_EVALUATION_QUERY_RESULT =
   | {
       heading: null;
-      intro: BlockContent;
-      submitLabel: null;
-      privacyNote: null;
-    }
-  | {
-      heading: null;
       intro: null;
       submitLabel: null;
       privacyNote: null;
@@ -1752,16 +1745,16 @@ export type SITE_WIDE_ATTORNEY_QUERY_RESULT =
     }
   | {
       name: string;
-      role: null;
-      photo: null;
-    }
-  | {
-      name: string;
       role: string;
       photo: {
         asset: SanityImageAssetReference | null;
         dimensions: SanityImageDimensions | null;
       } | null;
+    }
+  | {
+      name: string | null;
+      role: null;
+      photo: null;
     }
   | null;
 
@@ -1782,13 +1775,21 @@ export type STATS_BAND_QUERY_RESULT =
 
 // Source: src/sanity/testimonials.ts
 // Variable: TESTIMONIALS_ALL_QUERY
-// Query: *[_type == "testimonial"] | order(orderRank) {    _id, lead, body, name, matter  }
+// Query: *[_type == "testimonial"] | order(orderRank) {    _id, kind, lead, body, name, matter,    wistiaId, label, caption,    poster{ asset, "dimensions": asset->metadata.dimensions }  }
 export type TESTIMONIALS_ALL_QUERY_RESULT = Array<{
   _id: string;
-  lead: string;
-  body: string;
-  name: string;
-  matter: string;
+  kind: "text" | "video";
+  lead: string | null;
+  body: string | null;
+  name: string | null;
+  matter: string | null;
+  wistiaId: string | null;
+  label: string | null;
+  caption: string | null;
+  poster: {
+    asset: SanityImageAssetReference | null;
+    dimensions: SanityImageDimensions | null;
+  } | null;
 }>;
 
 // Source: src/sanity/testimonials.ts
@@ -1796,15 +1797,15 @@ export type TESTIMONIALS_ALL_QUERY_RESULT = Array<{
 // Query: *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }
 export type TESTIMONIALS_PULL_QUOTE_QUERY_RESULT = {
   _id: string;
-  lead: string;
-  body: string;
-  name: string;
-  matter: string;
+  lead: string | null;
+  body: string | null;
+  name: string | null;
+  matter: string | null;
 } | null;
 
 // Source: src/sanity/testimonials.ts
 // Variable: TESTIMONIALS_BAND_QUERY
-// Query: *[_id == "testimonialsBand"][0]{    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,    "picks": picks[]->{ _id, lead, body, name, matter }  }
+// Query: *[_id == "testimonialsBand"][0]{    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,    "picks": picks[]->{ _id, kind, lead, body, name, matter,    wistiaId, label, caption,    poster{ asset, "dimensions": asset->metadata.dimensions } }  }
 export type TESTIMONIALS_BAND_QUERY_RESULT =
   | {
       eyebrow: null;
@@ -1819,7 +1820,7 @@ export type TESTIMONIALS_BAND_QUERY_RESULT =
       eyebrow: null;
       headingLead: null;
       headingAccent: null;
-      lead: string;
+      lead: string | null;
       cardKicker: null;
       ctaLabel: null;
       picks: null;
@@ -1842,10 +1843,18 @@ export type TESTIMONIALS_BAND_QUERY_RESULT =
       ctaLabel: string;
       picks: Array<{
         _id: string;
-        lead: string;
-        body: string;
-        name: string;
-        matter: string;
+        kind: "text" | "video";
+        lead: string | null;
+        body: string | null;
+        name: string | null;
+        matter: string | null;
+        wistiaId: string | null;
+        label: string | null;
+        caption: string | null;
+        poster: {
+          asset: SanityImageAssetReference | null;
+          dimensions: SanityImageDimensions | null;
+        } | null;
       }>;
     }
   | null;
@@ -1982,9 +1991,9 @@ declare module "@sanity/client" {
     '\n  *[_id == "caseEvaluationForm"][0]{ heading, intro, submitLabel, privacyNote }\n': SITE_WIDE_CASE_EVALUATION_QUERY_RESULT;
     '\n  *[_id == "attorney"][0]{\n    name,\n    role,\n    photo{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': SITE_WIDE_ATTORNEY_QUERY_RESULT;
     '\n  *[_id == "statsBand"][0]{ stats[]{ value, label } }\n': STATS_BAND_QUERY_RESULT;
-    '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, lead, body, name, matter\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
+    '\n  *[_type == "testimonial"] | order(orderRank) {\n    _id, kind, lead, body, name, matter,\n    wistiaId, label, caption,\n    poster{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': TESTIMONIALS_ALL_QUERY_RESULT;
     '\n  *[_id == "homePage"][0].about.pullQuote->{ _id, lead, body, name, matter }\n': TESTIMONIALS_PULL_QUOTE_QUERY_RESULT;
-    '\n  *[_id == "testimonialsBand"][0]{\n    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,\n    "picks": picks[]->{ _id, lead, body, name, matter }\n  }\n': TESTIMONIALS_BAND_QUERY_RESULT;
+    '\n  *[_id == "testimonialsBand"][0]{\n    eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,\n    "picks": picks[]->{ _id, kind, lead, body, name, matter,\n    wistiaId, label, caption,\n    poster{ asset, "dimensions": asset->metadata.dimensions } }\n  }\n': TESTIMONIALS_BAND_QUERY_RESULT;
     '\n  *[_id == "testimonialsPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    wall{ eyebrow, headingLead, headingAccent, headingTail, lead, cardKicker }\n  }\n': TESTIMONIALS_PAGE_QUERY_RESULT;
     '\n  *[_type == "video"] | order(orderRank){\n    "id": wistiaId,\n    title,\n    label,\n    aspect,\n    poster{ asset, "dimensions": asset->metadata.dimensions },\n    reelPoster{ asset, "dimensions": asset->metadata.dimensions }\n  }\n': VIDEOS_QUERY_RESULT;
     '\n  *[_id == "homePage"][0].videoReels.picks[]->wistiaId\n': REEL_PICKS_QUERY_RESULT;

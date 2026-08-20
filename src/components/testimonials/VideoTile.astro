@@ -1,0 +1,200 @@
+---
+/* A video testimonial's play tile.
+ *
+ * Shared by the wall on /testimonials/ and the homepage band, because a video
+ * testimonial is one thing and should look like one thing in both places. It
+ * was markup inside ReviewWall.astro until video became a `kind` on the
+ * collection; the styles came with it unchanged.
+ *
+ * ── Its own styles, deliberately ────────────────────────────────────────────
+ *
+ * The rules below are scoped to THIS file and reach the markup below, which is
+ * this file's own template — so no `:global` is involved and neither caller can
+ * restyle it by accident. That is the point of the extraction: two callers, one
+ * appearance.
+ *
+ * It sizes from its container (`width: 100%` plus an aspect ratio), so the wall
+ * can hand it a masonry column and the band a carousel slide without either
+ * needing to know the other exists.
+ */
+import { responsiveImage, type SanityImage } from "../../sanity/image";
+
+interface Props {
+  wistiaId: string;
+  label: string;
+  caption: string;
+  poster: SanityImage;
+  /** The wall's columns and the band's slides ask for different widths. */
+  sizes: string;
+}
+
+const { wistiaId, label, caption, poster, sizes } = Astro.props;
+---
+
+<button
+  class="vtile"
+  type="button"
+  data-video-open
+  data-wistia-id={wistiaId}
+  data-video-title={caption}
+  aria-label={`Play video: ${caption}`}
+>
+  <img
+    class="vtile__img"
+    {...responsiveImage(poster, [400, 800])}
+    sizes={sizes}
+    alt=""
+    loading="lazy"
+    decoding="async"
+  />
+  {/* Two layers, not one: a flat navy tint that colours the whole frame, then a
+      bottom gradient that buys the caption its contrast. A single gradient can
+      do one or the other well, not both. */}
+  <span class="vtile__tint" aria-hidden="true"></span>
+  <span class="vtile__scrim" aria-hidden="true"></span>
+
+  <span class="vtile__content">
+    <span class="vtile__text">
+      <span class="vtile__label">{label}</span>
+      <span class="vtile__name">{caption}</span>
+    </span>
+    <span class="vtile__play" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"></path>
+      </svg>
+    </span>
+  </span>
+</button>
+
+<style>
+  .vtile {
+    position: relative;
+    display: block;
+    width: 100%;
+    /* Square, by ratio rather than the comp's fixed 520px, so it holds its
+       shape at every width. The poster is 800x450 landscape, so a square tile
+       crops the sides — the subject is centred, so `object-position: center`
+       is the whole of it. */
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--navy-900);
+    text-align: left;
+    cursor: pointer;
+  }
+  .vtile__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+  .vtile__tint {
+    position: absolute;
+    inset: 0;
+    background: var(--navy-900);
+    opacity: 0.36;
+    mix-blend-mode: multiply;
+  }
+  .vtile__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 36, 56, 0) 0%,
+      rgba(15, 36, 56, 0.28) 48%,
+      rgba(15, 36, 56, 0.86) 100%
+    );
+  }
+  .vtile__content {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 32px 30px 30px;
+  }
+  .vtile__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+  }
+  .vtile__play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: var(--radius-pill);
+    background: var(--gold-500);
+    color: var(--navy-900);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      background var(--dur-base) var(--ease-out);
+  }
+  .vtile__play svg {
+    width: 26px;
+    height: 26px;
+    /* The glyph's mass sits left of its box, so it needs nudging to look
+       centred in a circle. */
+    margin-left: 3px;
+  }
+  .vtile__label {
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-500);
+  }
+  .vtile__name {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #fff;
+  }
+  .vtile:hover .vtile__img {
+    transform: scale(1.04);
+  }
+  .vtile:hover .vtile__play {
+    transform: scale(1.08);
+  }
+  .vtile:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
+    outline-offset: 4px;
+  }
+
+@media (prefers-reduced-motion: reduce) {
+  .vtile__img,
+  .vtile__play {
+    transition: none;
+  }
+
+  .vtile:hover .vtile__img,
+  .vtile:hover .vtile__play {
+    transform: none;
+  }
+}
+
+@media (max-width: 650px) {
+    .vtile {
+      aspect-ratio: 4 / 3;
+    }
+    .vtile__content {
+      padding: 26px 24px 24px;
+    }
+    .vtile__play {
+      width: 50px;
+      height: 50px;
+    }
+}
+</style>

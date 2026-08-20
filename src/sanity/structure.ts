@@ -190,7 +190,7 @@ export const structure: StructureResolver = (S, context) =>
               page(S, "caseEvaluationForm", "Sidebar Enquiry Card", icons.case),
               page(S, "whatDrivesUs", "What Drives Us Band", icons.heart),
               page(S, "awardsBand", "Awards Band", icons.diamond),
-              page(S, "testimonialsBand", "Success Stories Band", icons.blockquote),
+              page(S, "testimonialsBand", "Testimonials Band", icons.blockquote),
               page(S, "statsBand", "By the Numbers Band", icons["bar-chart"]),
               /* Global SEO Settings lands here as a FOLDER when the SEO layer
                  does — sitewide defaults alongside the editor-managed redirect

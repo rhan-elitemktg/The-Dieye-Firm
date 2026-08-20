@@ -1,5 +1,6 @@
 import { sanityClient } from "sanity:client";
 import { defineQuery } from "groq";
+import type { SanityImage } from "./image";
 
 /* The client reviews, read from Sanity.
  *
@@ -9,7 +10,7 @@ import { defineQuery } from "groq";
  * matters most, which is that nothing here may be invented.
  *
  * Three consumers: the wall on /testimonials/ (all fourteen, in drag order), the
- * homepage's Success Stories band (six, chosen on the homePage document) and the
+ * homepage's testimonials band (chosen on the testimonialsBand document) and the
  * homepage About pull quote (one, likewise). The two selections used to be
  * `pick(name, matter)` lookups compiled into the components; they are references
  * now, so an editor can change which reviews appear without a deploy — and
@@ -25,7 +26,9 @@ import { defineQuery } from "groq";
 
 const TESTIMONIALS_ALL_QUERY = defineQuery(`
   *[_type == "testimonial"] | order(orderRank) {
-    _id, lead, body, name, matter
+    _id, kind, lead, body, name, matter,
+    wistiaId, label, caption,
+    poster{ asset, "dimensions": asset->metadata.dimensions }
   }
 `);
 
@@ -39,16 +42,33 @@ const TESTIMONIALS_PULL_QUOTE_QUERY = defineQuery(`
 const TESTIMONIALS_BAND_QUERY = defineQuery(`
   *[_id == "testimonialsBand"][0]{
     eyebrow, headingLead, headingAccent, lead, cardKicker, ctaLabel,
-    "picks": picks[]->{ _id, lead, body, name, matter }
+    "picks": picks[]->{ _id, kind, lead, body, name, matter,
+    wistiaId, label, caption,
+    poster{ asset, "dimensions": asset->metadata.dimensions } }
   }
 `);
 
+/* A written review OR a video, discriminated by `kind`.
+ *
+ * The video fields are optional on the type rather than split into a union,
+ * because the pull-quote helper below returns exactly one testimonial and every
+ * caller of it wants a written review. A union would make that helper's return
+ * type a lie in the other direction. Callers branch on `kind` and the two tiles
+ * are separate components. */
 export type Testimonial = {
   _id: string;
-  lead: string;
-  body: string;
-  name: string;
-  matter: string;
+  kind: "text" | "video";
+  /** Written review. Absent on a video. */
+  lead?: string;
+  body?: string;
+  matter?: string;
+  /** Absent on a video whose face is not a client's — see the schema header. */
+  name?: string;
+  /** Video only. */
+  wistiaId?: string;
+  label?: string;
+  caption?: string;
+  poster?: SanityImage;
 };
 
 /* Promise-cached in PROD only — the same shape as getFirmDetails(), and for the
@@ -118,16 +138,19 @@ async function fetchBand(): Promise<TestimonialsBand> {
         "  npx sanity exec scripts/import/testimonials-band.ts --with-user-token",
     );
   }
-  if (doc.picks?.length !== 6) {
+  /* Mirrors the schema's floor rather than an exact count. The Studio blocks
+     publishing below six, so this catches a write that bypassed it — an import
+     script, or the API. */
+  if ((doc.picks?.length ?? 0) < 6) {
     throw new Error(
-      `testimonialsBand.picks has ${doc.picks?.length ?? 0} reviews, expected 6. ` +
-        "Set them in the Studio under Site Settings → Success Stories Band.",
+      `testimonialsBand.picks has ${doc.picks?.length ?? 0} reviews, and the band needs at least 6. ` +
+        "Set them in the Studio under Site Settings → Testimonials Band.",
     );
   }
   return doc as TestimonialsBand;
 }
 
-/** The Success Stories band — its copy and its six reviews. On 2 pages. */
+/** The testimonials band — its copy and its reviews. On 2 pages. */
 export function getTestimonialsBand(): Promise<TestimonialsBand> {
   if (!import.meta.env.PROD) return fetchBand();
   bandCache ??= fetchBand();

@@ -162,6 +162,12 @@ export const homePage = defineType({
           title: "Video card — which video",
           type: "reference",
           to: [{ type: "video" }],
+          /* No "Create new" in the picker. Every one of these is a curated
+             document with rules of its own, and a blank one made from inside
+             this field bypasses the collection those rules live on — which is
+             what an editor hits first, because Sanity offers it before search
+             has found anything. Create it in the collection, then pick it. */
+          options: { disableNew: true },
           description:
             "The video the tile plays, and the still it shows. Both come from the video's own document, so changing this here swaps the poster with it.",
           validation: (rule) => rule.required(),
@@ -171,6 +177,12 @@ export const homePage = defineType({
           title: "Review to quote",
           type: "reference",
           to: [{ type: "testimonial" }],
+          /* No "Create new" in the picker. Every one of these is a curated
+             document with rules of its own, and a blank one made from inside
+             this field bypasses the collection those rules live on — which is
+             what an editor hits first, because Sanity offers it before search
+             has found anything. Create it in the collection, then pick it. */
+          options: { disableNew: true },
           description:
             "The short review under the video tile. Keep it short — the aside is one column beside two of copy, and a 50-word quote pushes the video tile off the fold. It must not be one of the six in Success Stories, or the same review prints twice on this page.",
           validation: (rule) => rule.required(),
@@ -394,7 +406,7 @@ export const homePage = defineType({
           name: "picks",
           title: "Videos to show",
           type: "array",
-          of: [{ type: "reference", to: [{ type: "video" }] }],
+          of: [{ type: "reference", to: [{ type: "video" }], options: { disableNew: true } }],
           description:
             "The carousel, in the order they should appear. This order is NOT the /video-center/ grid order and is not meant to match it — four portrait posters cover six slides, and both orders exist to keep a repeated photograph from landing twice in one view. Reordering here is a design decision: check the repeats still separate at 1000px and 650px. Every video picked needs a portrait Homepage poster on its own document.",
           validation: (rule) =>

@@ -29,30 +29,11 @@
 
 import { Image } from "astro:assets";
 import Eyebrow from "../Eyebrow.astro";
-import videoPoster from "../../assets/images/ss-video-1.jpg";
-
-/* The video tile. PROVISIONAL on two counts, both Rhan's call and both to be
-   swapped before launch:
-     - The video is the firm's own "About Us" reel (the same Wistia id
-       home/About.astro already plays), standing in until a real client video
-       exists, so the open/play/teardown path can be tested now.
-     - The poster is the comp's `ss-video-1.jpg`, which is a stock portrait of
-       nobody connected to the firm. It is deliberately left un-attributed —
-       no client name under it — so the tile never claims the face is a real
-       client. Give it a name only once a real video and a real client are
-       behind it.
-   No runtime is fetched: the duration pill was dropped, and it was the only
-   thing the Wistia oembed call was for, so the build makes one less request. */
-const VIDEO = {
-  wistiaId: "xnom95l12h",
-  label: "Video Testimonial",
-  name: "Watch their story",
-  poster: videoPoster,
-};
 
 import { getTestimonials } from "../../sanity/testimonials";
 import { getTestimonialsPage } from "../../sanity/testimonialsPage";
 import { tail } from "../../sanity/aboutPage";
+import VideoTile from "./VideoTile.astro";
 
 const reviews = await getTestimonials();
 const copy = (await getTestimonialsPage()).wall;
@@ -81,47 +62,17 @@ const copy = (await getTestimonialsPage()).wall;
         and it keeps the data a flat array, which is what the Sanity sweep
         wants. Reading order stays DOM order for assistive tech. */}
     <ul class="wall__grid">
-      <li class="wall__item">
-        <button
-          class="vtile"
-          type="button"
-          data-video-open
-          data-wistia-id={VIDEO.wistiaId}
-          data-video-title={VIDEO.name}
-          aria-label={`Play video: ${VIDEO.name}`}
-        >
-          <Image
-            class="vtile__img"
-            src={VIDEO.poster}
-            alt=""
-            widths={[400, 800]}
+      {reviews.map((review) => review.kind === "video" ? (
+        <li class="wall__item">
+          <VideoTile
+            wistiaId={review.wistiaId!}
+            label={review.label!}
+            caption={review.caption!}
+            poster={review.poster!}
             sizes="(max-width: 650px) 92vw, (max-width: 1000px) 46vw, 31vw"
-            format="webp"
-            quality={78}
-            loading="lazy"
-            decoding="async"
           />
-          {/* Two layers, not one: a flat navy tint that colours the whole
-              frame, then a bottom gradient that buys the caption its contrast.
-              A single gradient can do one or the other well, not both. */}
-          <span class="vtile__tint" aria-hidden="true"></span>
-          <span class="vtile__scrim" aria-hidden="true"></span>
-
-          <span class="vtile__content">
-            <span class="vtile__text">
-              <span class="vtile__label">{VIDEO.label}</span>
-              <span class="vtile__name">{VIDEO.name}</span>
-            </span>
-            <span class="vtile__play" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"></path>
-              </svg>
-            </span>
-          </span>
-        </button>
-      </li>
-
-      {reviews.map((review) => (
+        </li>
+      ) : (
         <li class="wall__item">
           <figure class="rcard">
             <p class="rcard__kicker">{copy.cardKicker}</p>
@@ -320,141 +271,24 @@ const copy = (await getTestimonialsPage()).wall;
   /* ---- Video tile ---- */
   /* A real <button>: it opens the shared modal, so it is a control rather than
      a link, and it gets keyboard and focus behaviour for free. */
-  .vtile {
-    position: relative;
-    display: block;
-    width: 100%;
-    /* Square, by ratio rather than the comp's fixed 520px, so it holds its
-       shape at every width. The poster is 800x450 landscape, so a square tile
-       crops the sides — the subject is centred, so `object-position: center`
-       is the whole of it. */
-    aspect-ratio: 1 / 1;
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: var(--navy-900);
-    text-align: left;
-    cursor: pointer;
-  }
 
-  .vtile__img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    transition: transform var(--dur-slow) var(--ease-out);
-  }
 
   /* The brand tint. `multiply` keeps the photo's own modelling instead of
      washing it out the way a flat alpha fill does, so the frame reads as navy
      without going muddy. */
-  .vtile__tint {
-    position: absolute;
-    inset: 0;
-    background: var(--navy-900);
-    opacity: 0.36;
-    mix-blend-mode: multiply;
-  }
 
-  .vtile__scrim {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(15, 36, 56, 0) 0%,
-      rgba(15, 36, 56, 0.28) 48%,
-      rgba(15, 36, 56, 0.86) 100%
-    );
-  }
 
   /* A row, not a column: the caption holds the bottom-left and the play button
      the bottom-right, baseline-independent, so a longer title never pushes the
      button off its corner. */
-  .vtile__content {
-    position: absolute;
-    inset: auto 0 0 0;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 32px 30px 30px;
-  }
 
-  .vtile__text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    min-width: 0;
-  }
 
-  .vtile__play {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 58px;
-    height: 58px;
-    border-radius: var(--radius-pill);
-    background: var(--gold-500);
-    color: var(--navy-900);
-    transition:
-      transform var(--dur-base) var(--ease-out),
-      background var(--dur-base) var(--ease-out);
-  }
 
-  .vtile__play svg {
-    width: 26px;
-    height: 26px;
-    /* The glyph's mass sits left of its box, so it needs nudging to look
-       centred in a circle. */
-    margin-left: 3px;
-  }
 
-  .vtile__label {
-    font-family: var(--font-ui);
-    font-size: 11.5px;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold-500);
-  }
 
-  .vtile__name {
-    font-family: var(--font-serif);
-    font-size: 26px;
-    font-weight: 600;
-    line-height: 1.2;
-    color: #fff;
-  }
 
-  .vtile:hover .vtile__img {
-    transform: scale(1.04);
-  }
 
-  .vtile:hover .vtile__play {
-    transform: scale(1.08);
-  }
 
-  .vtile:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--gold-500) 55%, transparent);
-    outline-offset: 4px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .vtile__img,
-    .vtile__play {
-      transition: none;
-    }
-
-    .vtile:hover .vtile__img,
-    .vtile:hover .vtile__play {
-      transform: none;
-    }
-  }
 
   /* Small Desktop */
   @media (max-width: 1439px) {
@@ -503,17 +337,7 @@ const copy = (await getTestimonialsPage()).wall;
     /* Squarer than the source but shallower than the desktop tile: at full
        column width a 1:1 crop would throw away a third of a 16:9 frame either
        side, and the tile would stand a whole phone-height tall. */
-    .vtile {
-      aspect-ratio: 4 / 3;
-    }
 
-    .vtile__content {
-      padding: 26px 24px 24px;
-    }
 
-    .vtile__play {
-      width: 50px;
-      height: 50px;
-    }
   }
 </style>

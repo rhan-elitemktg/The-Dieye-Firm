@@ -16,8 +16,9 @@ import birdGold from "../../assets/images/logo-bird-gold.png";
    problem. The rule that replaced them now lives on the schema type
    (src/sanity/schemaTypes/testimonial.ts), where an editor can see it.
 
-   WHICH SIX IS NOW AN EDITOR'S CHOICE, made on the Home Page document under
-   Pages -> Home Page -> Success Stories. It used to be a `pick(name, matter)`
+   WHICH REVIEWS IS NOW AN EDITOR'S CHOICE, made under Site Settings ->
+   Testimonials Band. Six is the FLOOR, not the count — two full pages at
+   three-per-view — and there is no upper limit. It used to be a `pick(name, matter)`
    lookup here that threw on a miss. The reasoning behind the current six is
    recorded on that field's description and in scripts/import/home-page.ts;
    the short version, in priority order:
@@ -42,9 +43,10 @@ import birdGold from "../../assets/images/logo-bird-gold.png";
    The matter is simply absent rather than filled with something that doesn't
    say it. */
 import { getTestimonialsBand } from "../../sanity/testimonials";
+import VideoTile from "../testimonials/VideoTile.astro";
 
-/* Which six, and their order, is set on the Home Page document
-   (Pages -> Home Page -> Success Stories) rather than chosen here. It used to be
+/* Which reviews, and their order, is set on the testimonialsBand document
+   (Site Settings -> Testimonials Band) rather than chosen here. It used to be
    a `pick(name, matter)` lookup into a compiled-in array that threw on a miss;
    the references replace both the lookup and the throw, and an editor renaming a
    client can no longer fail the build. */
@@ -65,7 +67,19 @@ const testimonials = copy.picks;
     </header>
 
     <ul class="tst__track" tabindex="0" role="region" aria-label="Client testimonials" data-tst-track>
-      {testimonials.map((item) => (
+      {testimonials.map((item) => item.kind === "video" ? (
+        <li class="tst__slide">
+          {/* Sized for a carousel slide rather than a masonry column; the tile
+              itself owns everything else about how it looks. */}
+          <VideoTile
+            wistiaId={item.wistiaId!}
+            label={item.label!}
+            caption={item.caption!}
+            poster={item.poster!}
+            sizes="(max-width: 650px) 84vw, (max-width: 1000px) 44vw, 30vw"
+          />
+        </li>
+      ) : (
         <li class="tst__slide">
           <figure class="tcard">
             <p class="tcard__kicker">{copy.cardKicker}</p>
