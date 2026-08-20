@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
-import { BlockquoteIcon } from "@sanity/icons/Blockquote";
+import { CommentIcon } from "@sanity/icons/Comment";
+import { capButton, capEyebrow, capHeading, capHeadingAccent } from "./limits";
 
 /* The testimonials band — review cards in a carousel, under a heading. A SINGLETON.
  *
@@ -25,21 +26,21 @@ export const testimonialsBand = defineType({
   name: "testimonialsBand",
   title: "Testimonials Band",
   type: "document",
-  icon: BlockquoteIcon,
+  icon: CommentIcon,
   fields: [
     defineField({
       name: "eyebrow",
       title: "Eyebrow",
       type: "string",
-      validation: (rule) =>
-        rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+      validation: (rule) => capEyebrow(rule.required()),
     }),
-    defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
+    defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
     defineField({
       name: "headingAccent",
       title: "Heading — italic part",
       type: "string",
       description: "Rendered in gold italic. Leave empty for none.",
+      validation: (rule) => capHeadingAccent(rule),
     }),
     defineField({ name: "lead", title: "Lead", type: "text", rows: 2, validation: (rule) => rule.required() }),
     defineField({
@@ -47,7 +48,7 @@ export const testimonialsBand = defineType({
       title: "Card kicker",
       type: "string",
       description: "The small line at the top of every card.",
-      validation: (rule) => rule.required(),
+      validation: (rule) => capEyebrow(rule.required()),
     }),
     defineField({
       name: "picks",
@@ -68,7 +69,7 @@ export const testimonialsBand = defineType({
       title: "Button label",
       type: "string",
       description: "Under the cards. It points at /testimonials/.",
-      validation: (rule) => rule.required(),
+      validation: (rule) => capButton(rule.required()),
     }),
   ],
   preview: { prepare: () => ({ title: "Testimonials Band" }) },

@@ -1,5 +1,6 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { EnvelopeIcon } from "@sanity/icons/Envelope";
+import { capButton, capEyebrow, capHeading, capHeadingAccent, capReassurance } from "./limits";
 
 /* The consultation section — "Take the First Step".
  *
@@ -55,21 +56,21 @@ export const consultForm = defineType({
           title: "Eyebrow",
           type: "string",
           description: "The small gold line above the heading.",
-          validation: (rule) =>
-            rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
         defineField({
           name: "headingLead",
           title: "Heading",
           type: "string",
           description: 'The plain first part — e.g. "Take the".',
-          validation: (rule) => rule.required(),
+          validation: (rule) => capHeading(rule.required()),
         }),
         defineField({
           name: "headingAccent",
           title: "Heading — italic part",
           type: "string",
           description: 'Rendered in gold italic — e.g. "First Step". Leave empty for none.',
+          validation: (rule) => capHeadingAccent(rule),
         }),
         defineField({
           name: "leadLines",
@@ -105,15 +106,14 @@ export const consultForm = defineType({
           name: "submitLabel",
           title: "Button",
           type: "string",
-          validation: (rule) =>
-            rule.required().max(30).warning("Button labels read best under about 30 characters."),
+          validation: (rule) => capButton(rule.required()),
         }),
         defineField({
           name: "privacyNote",
           title: "Reassurance line",
           type: "string",
           description: "The line with the padlock under the button.",
-          validation: (rule) => rule.required(),
+          validation: (rule) => capReassurance(rule.required()),
         }),
       ],
     }),

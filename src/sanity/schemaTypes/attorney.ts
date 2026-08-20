@@ -72,7 +72,8 @@ export const attorney = defineType({
       type: "string",
       description:
         'Shown under the name on the article byline. One value, used everywhere: the site previously said "Founding Attorney" in some places and "Principal & Founder" in others.',
-      validation: (rule) => rule.required().max(40),
+      validation: (rule) =>
+        rule.required().max(40).warning("Longer titles wrap under the name on the byline."),
     }),
     defineField({
       name: "photo",

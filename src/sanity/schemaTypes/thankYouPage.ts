@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { CheckmarkCircleIcon } from "@sanity/icons/CheckmarkCircle";
+import { capButton, capEyebrow, capHeading, capHeadingAccent } from "./limits";
 
 /* /thank-you/ — where the consultation form lands.
  *
@@ -36,7 +37,7 @@ export const thankYouPage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
         defineField({ name: "title", title: "Title", type: "string", validation: (rule) => rule.required() }),
       ],
@@ -57,12 +58,13 @@ export const thankYouPage = defineType({
             "Press Enter to break the line. Every line gets a break, and the italic part below opens the line after them — unlike the homepage, where the italic finishes the last line.",
           validation: (rule) => rule.required(),
         }),
-        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
+        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string", validation: (rule) => capHeadingAccent(rule) }),
         defineField({
           name: "headingTail",
           title: "Heading — after the italic",
           type: "string",
           description: "Start with punctuation to butt it against the italic, or with a word to have a space added.",
+          validation: (rule) => capHeading(rule),
         }),
         defineField({ name: "lead", title: "Lead", type: "text", rows: 6, validation: (rule) => rule.required() }),
         defineField({
@@ -70,7 +72,7 @@ export const thankYouPage = defineType({
           title: "Button label",
           type: "string",
           description: "It points at /about-us/.",
-          validation: (rule) => rule.required(),
+          validation: (rule) => capButton(rule.required()),
         }),
       ],
     }),

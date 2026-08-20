@@ -130,7 +130,8 @@ async function run() {
        becomes a data fix later rather than a component change. */
     const faqs = (fm.faqs ?? []).map((f: any, i: number) => ({
       _key: `faq${i}`,
-      _type: "faq",
+      // `pageFaq`, not `faq` — see the note on the schema's array member.
+      _type: "pageFaq",
       question: f.question,
       answer: [
         {

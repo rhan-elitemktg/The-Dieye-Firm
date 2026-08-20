@@ -1,5 +1,6 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { BarChartIcon } from "@sanity/icons/BarChart";
+import { capFigure } from "./limits";
 
 /* The "By the Numbers" strip — four figures on a bone band. A SINGLETON.
  *
@@ -34,7 +35,7 @@ export const statsBand = defineType({
           type: "object",
           name: "stat",
           fields: [
-            defineField({ name: "value", title: "Figure", type: "string", validation: (rule) => rule.required() }),
+            defineField({ name: "value", title: "Figure", type: "string", validation: (rule) => capFigure(rule.required()) }),
             defineField({ name: "label", title: "Label", type: "string", validation: (rule) => rule.required() }),
           ],
           preview: { select: { title: "value", subtitle: "label" } },

@@ -212,7 +212,7 @@ export type LocationPage = {
   faqs?: Array<{
     question: string;
     answer: BlockContent;
-    _type: "faq";
+    _type: "pageFaq";
     _key: string;
   }>;
   legacyPath?: string;
@@ -241,7 +241,7 @@ export type PracticeArea = {
   faqs?: Array<{
     question: string;
     answer: BlockContent;
-    _type: "faq";
+    _type: "pageFaq";
     _key: string;
   }>;
   legacyPath?: string;

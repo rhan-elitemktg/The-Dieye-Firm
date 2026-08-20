@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { MobileDeviceIcon } from "@sanity/icons/MobileDevice";
+import { capEyebrow, capHeading, capHeadingAccent } from "./limits";
 
 /* /contact-us/ — the destination of the gold header CTA on every page.
  *
@@ -41,7 +42,7 @@ export const contactPage = defineType({
           name: "eyebrow",
           title: "Eyebrow",
           type: "string",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
         defineField({
           name: "title",
@@ -65,16 +66,17 @@ export const contactPage = defineType({
           title: "Eyebrow",
           type: "string",
           description: "The address and the map below come from Site Settings → Firm Details.",
-          validation: (rule) => rule.required().max(40).warning("Eyebrows read best under about 40 characters."),
+          validation: (rule) => capEyebrow(rule.required()),
         }),
-        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => rule.required() }),
-        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string" }),
+        defineField({ name: "headingLead", title: "Heading", type: "string", validation: (rule) => capHeading(rule.required()) }),
+        defineField({ name: "headingAccent", title: "Heading — italic part", type: "string", validation: (rule) => capHeadingAccent(rule) }),
         defineField({
           name: "headingTail",
           title: "Heading — after the italic",
           type: "string",
           description:
             "The rest of the line, if the italic sits mid-sentence. Start it with punctuation to butt it against the italic, or with a word to have a space added.",
+          validation: (rule) => capHeading(rule),
         }),
       ],
     }),

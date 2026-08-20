@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { CaseIcon } from "@sanity/icons/Case";
+import { capButton, capReassurance } from "./limits";
 
 /* The sidebar enquiry card — "Get a Case Evaluation".
  *
@@ -54,15 +55,14 @@ export const caseEvaluationForm = defineType({
       name: "submitLabel",
       title: "Button",
       type: "string",
-      validation: (rule) =>
-        rule.required().max(30).warning("Button labels read best under about 30 characters."),
+      validation: (rule) => capButton(rule.required()),
     }),
     defineField({
       name: "privacyNote",
       title: "Reassurance line",
       type: "string",
       description: "The small gold line under the button.",
-      validation: (rule) => rule.required().max(40),
+      validation: (rule) => capReassurance(rule.required()),
     }),
   ],
   preview: {

@@ -190,7 +190,11 @@ export const structure: StructureResolver = (S, context) =>
               page(S, "caseEvaluationForm", "Sidebar Enquiry Card", icons.case),
               page(S, "whatDrivesUs", "What Drives Us Band", icons.heart),
               page(S, "awardsBand", "Awards Band", icons.diamond),
-              page(S, "testimonialsBand", "Testimonials Band", icons.blockquote),
+              /* `comment`, not `blockquote` — the quote mark belongs to the
+                 individual review in Collections. This row is the homepage
+                 section that shows a carousel of them, and two rows meaning
+                 different things must not look the same. */
+              page(S, "testimonialsBand", "Testimonials Band", icons.comment),
               page(S, "statsBand", "By the Numbers Band", icons["bar-chart"]),
               /* Global SEO Settings lands here as a FOLDER when the SEO layer
                  does — sitewide defaults alongside the editor-managed redirect
