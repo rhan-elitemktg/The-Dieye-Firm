@@ -81,6 +81,26 @@ const socialImage = meta.ogImage ?? ogImage;
    because two literal copies of an id like this drift the first time it
    changes and the failure is silent: tags simply stop firing. */
 const GTM_ID = "GTM-TDHLNQ3G";
+
+/* ═══ PRODUCTION ONLY ═══
+ *
+ * Every branch preview would otherwise report into the same container, so the
+ * firm's analytics would carry our build-verification traffic as if it were
+ * visitors.
+ *
+ * `VERCEL_ENV` and not `import.meta.env.PROD`: PROD is true for ANY
+ * `astro build`, preview deploys included, so it cannot tell them apart.
+ * Vercel sets VERCEL_ENV to "production" only on a production deployment,
+ * "preview" on branch deploys, and leaves it unset locally — so a local build
+ * and `astro dev` are both correctly GTM-free.
+ *
+ * `process.env`, not `import.meta.env`: Vite only exposes vars matching its
+ * envPrefix (PUBLIC_ here), so `import.meta.env.VERCEL_ENV` is undefined. This
+ * runs in Node at build time, where the real environment is available.
+ *
+ * To exercise tags on a preview, set VERCEL_ENV=production for that build — or
+ * better, use a GTM environment so the container itself knows the difference. */
+const gtmEnabled = process.env.VERCEL_ENV === "production";
 ---
 
 <!doctype html>
@@ -96,6 +116,7 @@ const GTM_ID = "GTM-TDHLNQ3G";
         timing GTM depends on. Google's snippet verbatim apart from the id,
         which comes from GTM_ID above. Placed as high in the head as the
         document allows, per Google's own instruction. */}
+    {gtmEnabled && (
     <script is:inline define:vars={{ gtmId: GTM_ID }}>
       (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
       new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -103,6 +124,7 @@ const GTM_ID = "GTM-TDHLNQ3G";
       'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
       })(window,document,'script','dataLayer',gtmId);
     </script>
+    )}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
 
@@ -146,9 +168,11 @@ const GTM_ID = "GTM-TDHLNQ3G";
         body, per Google, and must stay a plain iframe — this one is not
         behind a click-to-load facade like the Wistia and map embeds, because
         it renders only for users without JavaScript and is display:none. */}
-    <noscript
-      set:html={`<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`}
-    />
+    {gtmEnabled && (
+      <noscript
+        set:html={`<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`}
+      />
+    )}
 
     <slot />
     {/* Site chrome — every page closes with the consultation prompt and the
