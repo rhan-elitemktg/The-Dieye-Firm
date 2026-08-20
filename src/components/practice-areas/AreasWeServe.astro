@@ -7,7 +7,7 @@
 // wants "Harris County", a sidebar card has room for the real name.
 
 import SidebarCard from "../blog/SidebarCard.astro";
-import { getFirmDetails } from "../../sanity/firmDetails";
+import { getNavigation } from "../../sanity/navigation";
 
 interface Props {
   /* The href of the area being viewed, on the location pages. That row renders
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const { current } = Astro.props;
-const { serviceAreas } = await getFirmDetails();
+const { serviceAreas } = await getNavigation();
 
 /* Trailing slashes are normalised on both sides: the hrefs are free text in
    Sanity, so one saved without its slash would silently never match. */

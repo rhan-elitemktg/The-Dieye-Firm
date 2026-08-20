@@ -20,7 +20,6 @@ export const firmDetails = defineType({
   groups: [
     { name: "identity", title: "Identity", default: true },
     { name: "contact", title: "Contact" },
-    { name: "navigation", title: "Navigation" },
   ],
   fields: [
     defineField({
@@ -177,99 +176,7 @@ export const firmDetails = defineType({
         }),
     }),
 
-    defineField({
-      name: "serviceAreas",
-      title: "Service areas",
-      description:
-        "Feeds the Service Areas dropdown in the main nav. The short name is what the dropdown shows.",
-      type: "array",
-      group: "navigation",
-      of: [
-        defineArrayMember({
-          type: "object",
-          name: "serviceArea",
-          fields: [
-            defineField({
-              name: "label",
-              title: "Full name",
-              type: "string",
-              validation: (rule) => rule.required(),
-            }),
-            defineField({
-              name: "navLabel",
-              title: "Short name",
-              description: "Shown in the nav dropdown, where the full name is unwieldy.",
-              type: "string",
-              validation: (rule) =>
-                rule.required().max(24).warning("The nav dropdown is narrow — keep the short name short."),
-            }),
-            defineField({
-              name: "href",
-              title: "Page path",
-              type: "string",
-              validation: (rule) => rule.required(),
-            }),
-          ],
-          preview: {
-            select: { title: "label", subtitle: "href" },
-          },
-        }),
       ],
-      validation: (rule) => rule.min(1),
-    }),
-    defineField({
-      name: "footerNav",
-      title: "Footer columns",
-      description:
-        "The link columns beside the footer logo. Three columns is what the layout is built for.",
-      type: "array",
-      group: "navigation",
-      of: [
-        defineArrayMember({
-          type: "object",
-          name: "footerColumn",
-          fields: [
-            defineField({
-              name: "heading",
-              title: "Column heading",
-              type: "string",
-              validation: (rule) =>
-                rule.required().max(30).warning("Long column headings wrap and unbalance the footer."),
-            }),
-            defineField({
-              name: "links",
-              title: "Links",
-              type: "array",
-              of: [defineArrayMember({ type: "navLink" })],
-              validation: (rule) => rule.min(1),
-            }),
-          ],
-          preview: {
-            select: { title: "heading", links: "links" },
-            prepare({ title, links }) {
-              const count = Array.isArray(links) ? links.length : 0;
-              return {
-                title,
-                subtitle: `${count} link${count === 1 ? "" : "s"}`,
-              };
-            },
-          },
-        }),
-      ],
-      validation: (rule) =>
-        rule
-          .max(3)
-          .warning("The footer grid is built for three columns."),
-    }),
-    defineField({
-      name: "legalLinks",
-      title: "Legal bar links",
-      description: "The small print beside the copyright line.",
-      type: "array",
-      group: "navigation",
-      of: [defineArrayMember({ type: "navLink" })],
-    }),
-  ],
   preview: {
     select: { title: "firmName" },
     prepare({ title }) {

@@ -230,11 +230,74 @@ export type LocationPage = {
   seo?: Seo;
 };
 
+export type Attorney = {
+  _id: string;
+  _type: "attorney";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  role: string;
+  photo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+};
+
 export type PracticeAreaReference = {
   _ref: string;
   _type: "reference";
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: "practiceArea";
+};
+
+export type Navigation = {
+  _id: string;
+  _type: "navigation";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  practiceAreaLinks?: Array<{
+    area: PracticeAreaReference;
+    label?: string;
+    _type: "practiceAreaLink";
+    _key: string;
+  }>;
+  serviceAreas?: Array<{
+    label: string;
+    navLabel: string;
+    href: string;
+    _type: "serviceArea";
+    _key: string;
+  }>;
+  aboutLinks?: Array<
+    {
+      _key: string;
+    } & NavLink
+  >;
+  resourcesLinks?: Array<
+    {
+      _key: string;
+    } & NavLink
+  >;
+  footerNav?: Array<{
+    heading: string;
+    links?: Array<
+      {
+        _key: string;
+      } & NavLink
+    >;
+    _type: "footerColumn";
+    _key: string;
+  }>;
+  legalLinks?: Array<
+    {
+      _key: string;
+    } & NavLink
+  >;
 };
 
 export type PracticeArea = {
@@ -257,23 +320,6 @@ export type PracticeArea = {
   }>;
   legacyPath?: string;
   seo?: Seo;
-};
-
-export type Attorney = {
-  _id: string;
-  _type: "attorney";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name: string;
-  role: string;
-  photo?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
 };
 
 export type GlobalSeo = {
@@ -892,28 +938,6 @@ export type FirmDetails = {
     _type: "socialProfile";
     _key: string;
   }>;
-  serviceAreas?: Array<{
-    label: string;
-    navLabel: string;
-    href: string;
-    _type: "serviceArea";
-    _key: string;
-  }>;
-  footerNav?: Array<{
-    heading: string;
-    links?: Array<
-      {
-        _key: string;
-      } & NavLink
-    >;
-    _type: "footerColumn";
-    _key: string;
-  }>;
-  legalLinks?: Array<
-    {
-      _key: string;
-    } & NavLink
-  >;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -1029,9 +1053,10 @@ export type AllSanitySchemaTypes =
   | Slug
   | LocationPageReference
   | LocationPage
-  | PracticeAreaReference
-  | PracticeArea
   | Attorney
+  | PracticeAreaReference
+  | Navigation
+  | PracticeArea
   | GlobalSeo
   | StatsBand
   | TestimonialReference
@@ -1400,7 +1425,7 @@ export type FAQS_QUERY_RESULT = Array<{
 
 // Source: src/sanity/firmDetails.ts
 // Variable: FIRM_DETAILS_QUERY
-// Query: *[_id == "firmDetails"][0]{  firmName,  tagline,  phone,  email,  address,  hours,  socials[]{ _key, platform, url },  serviceAreas[]{ _key, label, navLabel, href },  footerNav[]{ _key, heading, links[]{ _key, label, href } },  legalLinks[]{ _key, label, href }}
+// Query: *[_id == "firmDetails"][0]{  firmName,  tagline,  phone,  email,  address,  hours,  socials[]{ _key, platform, url }}
 export type FIRM_DETAILS_QUERY_RESULT =
   | {
       firmName: null;
@@ -1410,9 +1435,6 @@ export type FIRM_DETAILS_QUERY_RESULT =
       address: null;
       hours: null;
       socials: null;
-      serviceAreas: null;
-      footerNav: null;
-      legalLinks: null;
     }
   | {
       firmName: string;
@@ -1433,26 +1455,6 @@ export type FIRM_DETAILS_QUERY_RESULT =
         _key: string;
         platform: "facebook" | "instagram" | "linkedin" | "x" | "youtube";
         url: string;
-      }> | null;
-      serviceAreas: Array<{
-        _key: string;
-        label: string;
-        navLabel: string;
-        href: string;
-      }> | null;
-      footerNav: Array<{
-        _key: string;
-        heading: string;
-        links: Array<{
-          _key: string;
-          label: string;
-          href: string;
-        }> | null;
-      }> | null;
-      legalLinks: Array<{
-        _key: string;
-        label: string;
-        href: string;
       }> | null;
     }
   | null;
@@ -1709,6 +1711,58 @@ export type LOCATION_PAGES_ALL_QUERY_RESULT = Array<{
   canonicalUrl: string | null;
   _updatedAt: string;
 }>;
+
+// Source: src/sanity/navigation.ts
+// Variable: NAVIGATION_QUERY
+// Query: *[_id == "navigation"][0]{    practiceAreaLinks[]{      _key,      label,      "slug": area->slug.current,      "navLabel": area->navLabel    },    serviceAreas[]{ _key, label, navLabel, href },    aboutLinks[]{ _key, label, href },    resourcesLinks[]{ _key, label, href },    footerNav[]{ _key, heading, links[]{ _key, label, href } },    legalLinks[]{ _key, label, href }  }
+export type NAVIGATION_QUERY_RESULT =
+  | {
+      practiceAreaLinks: null;
+      serviceAreas: null;
+      aboutLinks: null;
+      resourcesLinks: null;
+      footerNav: null;
+      legalLinks: null;
+    }
+  | {
+      practiceAreaLinks: Array<{
+        _key: string;
+        label: string | null;
+        slug: string;
+        navLabel: string;
+      }> | null;
+      serviceAreas: Array<{
+        _key: string;
+        label: string;
+        navLabel: string;
+        href: string;
+      }> | null;
+      aboutLinks: Array<{
+        _key: string;
+        label: string;
+        href: string;
+      }> | null;
+      resourcesLinks: Array<{
+        _key: string;
+        label: string;
+        href: string;
+      }> | null;
+      footerNav: Array<{
+        _key: string;
+        heading: string;
+        links: Array<{
+          _key: string;
+          label: string;
+          href: string;
+        }> | null;
+      }> | null;
+      legalLinks: Array<{
+        _key: string;
+        label: string;
+        href: string;
+      }> | null;
+    }
+  | null;
 
 // Source: src/sanity/practiceAreas.ts
 // Variable: PRACTICE_AREAS_ALL_QUERY
@@ -2113,12 +2167,13 @@ declare module "@sanity/client" {
     '\n  *[_id == "consultForm"][0]{\n    header{ eyebrow, headingLead, headingAccent, leadLines },\n    form{ cardTitle, cardIntro, submitLabel, privacyNote }\n  }\n': CONSULT_FORM_QUERY_RESULT;
     '\n  *[_id == "contactPage"][0]{\n    hero{ eyebrow, title, lead },\n    findUs{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': CONTACT_PAGE_QUERY_RESULT;
     '\n  *[_type == "faq"] | order(orderRank){ question, answer, shortAnswer, showOnHomepage }\n': FAQS_QUERY_RESULT;
-    '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url },\n  serviceAreas[]{ _key, label, navLabel, href },\n  footerNav[]{ _key, heading, links[]{ _key, label, href } },\n  legalLinks[]{ _key, label, href }\n}': FIRM_DETAILS_QUERY_RESULT;
+    '*[_id == "firmDetails"][0]{\n  firmName,\n  tagline,\n  phone,\n  email,\n  address,\n  hours,\n  socials[]{ _key, platform, url }\n}': FIRM_DETAILS_QUERY_RESULT;
     '\n  *[_id == "globalSeo"][0]{ discourageCrawling, defaultOgImage }\n': GLOBAL_SEO_QUERY_RESULT;
     "\n  *[_id == $pageId][0].seo{\n    metaTitle, metaDescription, canonicalUrl, noIndex, ogImage\n  }\n": PAGE_SEO_QUERY_RESULT;
     '\n  *[_id in $ids]{ _id, _updatedAt, "noIndex": seo.noIndex }\n': STATIC_PAGE_SEO_QUERY_RESULT;
     '\n  *[_id == "homePage"][0]{\n    hero{ eyebrow, headingLines, headingAccent, lead, ctaLabel, stats[]{ value, label } },\n    about{\n      eyebrow, headingLead, headingAccent, videoLabel, videoCaption, body, ctaLabel,\n      video->{ "id": wistiaId, title, poster{ asset, "dimensions": asset->metadata.dimensions } }\n    },\n    practiceAreas{ eyebrow, headingLead, headingAccent, intro, ctaLabel, areas[]{ icon, title, href, text } },\n    featuredAttorney{ eyebrow, quote, paragraphs, ctaLabel, badgeYears, badgeLabelLines },\n    sellingPoints{ eyebrow, headingLead, headingAccent, points[]{ icon, title, text } },\n    faq{ eyebrow, headingLead, headingAccent },\n    videoReels{ eyebrow, headingLead, headingAccent, ctaLabel },\n    community{ eyebrow, headingLead, headingAccent, paragraphs, ctaLabel, tileTitle, tileText },\n    guideRequest{ eyebrow, headingLead, headingAccent, lead, offer },\n    blog{ eyebrow, headingLead, headingAccent, ctaLabel }\n  }\n': HOME_PAGE_QUERY_RESULT;
     '\n  *[_type == "locationPage"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "location": location->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': LOCATION_PAGES_ALL_QUERY_RESULT;
+    '\n  *[_id == "navigation"][0]{\n    practiceAreaLinks[]{\n      _key,\n      label,\n      "slug": area->slug.current,\n      "navLabel": area->navLabel\n    },\n    serviceAreas[]{ _key, label, navLabel, href },\n    aboutLinks[]{ _key, label, href },\n    resourcesLinks[]{ _key, label, href },\n    footerNav[]{ _key, heading, links[]{ _key, label, href } },\n    legalLinks[]{ _key, label, href }\n  }\n': NAVIGATION_QUERY_RESULT;
     '\n  *[_type == "practiceArea"]{\n    "id": slug.current,\n    "data": {\n      title,\n      navLabel,\n      subtitle,\n      "parent": parent->slug.current,\n      "description": seo.metaDescription,\n      "seoTitle": seo.metaTitle,\n      "faqs": coalesce(faqs[]{ _key, question, answer }, [])\n    },\n    body,\n    "seo": seo{ metaTitle, metaDescription, canonicalUrl, noIndex, ogImage },\n    "noIndex": seo.noIndex,\n    "canonicalUrl": seo.canonicalUrl,\n    _updatedAt\n  }\n': PRACTICE_AREAS_ALL_QUERY_RESULT;
     '\n  *[_id == "practiceAreasPage"][0]{\n    hero{ eyebrow, headingLead, headingAccent, headingTail, lead, ctaLabel },\n    featured{\n      eyebrow, headingLead, headingAccent, headingTail, lead,\n      cards[]{ areaId, label, icon, text }\n    },\n    allAreas{ eyebrow, headingLead, headingAccent, headingTail }\n  }\n': PRACTICE_AREAS_PAGE_QUERY_RESULT;
     '\n  *[_type == "redirect" && defined(source) && defined(destination)]\n    | order(source asc){ source, destination, permanent }\n': REDIRECTS_QUERY_RESULT;

@@ -9,6 +9,7 @@ import PracticeAreaFaqs from "../components/practice-areas/PracticeAreaFaqs.astr
 import LocationSidebar from "../components/locations/LocationSidebar.astro";
 import { locationHref, rootOf } from "../components/locations/locations";
 import { getFirmDetails } from "../sanity/firmDetails";
+import { getNavigation } from "../sanity/navigation";
 
 /* A root-level rest route, because these URLs sit at the site root and two of
    them are orphans that no prefix would catch —
@@ -92,6 +93,7 @@ const kicker = parent
     : { label: root.data.navLabel, href: locationHref(root) };
 
 const firm = await getFirmDetails();
+const { serviceAreas } = await getNavigation();
 const canonical = new URL(locationHref(page), Astro.site ?? Astro.url).href;
 
 /* areaServed is THIS location, not all four. Copying the full list onto a
@@ -102,7 +104,7 @@ const canonical = new URL(locationHref(page), Astro.site ?? Astro.url).href;
  * sidebar card and this markup can never name different territories — and a
  * fifth Sanity area without a page, or the reverse, fails the build here
  * rather than shipping a page that quietly claims nothing. */
-const served = firm.serviceAreas.find(
+const served = serviceAreas.find(
   (area) => area.href.replace(/\/?$/, "/") === locationHref(root)
 );
 if (!served) {

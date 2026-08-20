@@ -31,8 +31,10 @@ import { formatDate } from "../components/blog/blog";
 import { getFirmDetails } from "../sanity/firmDetails";
 import { getSitemapPage } from "../sanity/sitemapPage";
 import { getSeo } from "../sanity/globalSeo";
+import { getNavigation } from "../sanity/navigation";
 
 const firm = await getFirmDetails();
+const { serviceAreas } = await getNavigation();
 const { header } = await getSitemapPage();
 
 const canonical = new URL("/sitemap/", Astro.site ?? Astro.url).href;
@@ -65,7 +67,7 @@ const areaTree = buildTree(areas);
        the sitemap agrees with the Service Areas flyout rather than with
        alphabetical chance. --- */
 const locationPages = await getLocationPages();
-const locationGroups = firm.serviceAreas.map((area) => {
+const locationGroups = serviceAreas.map((area) => {
   /* firmDetails stores the root's href ("/sugar-land-family-law-attorney/");
      the collection is keyed on the bare id. */
   const rootId = area.href.replace(/^\/|\/$/g, "");
