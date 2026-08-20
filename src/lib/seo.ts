@@ -15,7 +15,10 @@
  * and its existing canonicals already say so. `canonicalize()` therefore
  * NORMALIZES TO the slash rather than stripping it — see routePaths.ts.
  */
-import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+/* From the package ROOT. The `/lib/types/types` subpath some examples use is
+   dead and resolves to `any`, which then hides real mistakes — see the note
+   in sanity/image.ts. */
+import type { SanityImageSource } from "@sanity/image-url";
 import { urlFor } from "../sanity/image";
 
 /**
