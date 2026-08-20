@@ -3,13 +3,13 @@ import { defineQuery } from "groq";
 
 const QUERY = defineQuery(`
   *[_id == "thankYouPage"][0]{
-    head{ eyebrow, title },
+    head{ eyebrow, title, message },
     band{ headingLines, headingAccent, headingTail, lead, ctaLabel }
   }
 `);
 
 export type ThankYouPage = {
-  head: { eyebrow: string; title: string };
+  head: { eyebrow: string; title: string; message: string };
   band: {
     headingLines: string;
     headingAccent?: string;
