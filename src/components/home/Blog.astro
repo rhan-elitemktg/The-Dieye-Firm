@@ -11,7 +11,7 @@ import { getHomePage } from "../../sanity/homePage";
 const copy = (await getHomePage()).blog;
 import { byNewest, formatDate, isoDate, postHref } from "../blog/blog";
 
-/* Real posts, ingested from the live archive by `npm run scrape:blog`. This
+/* Real posts, ingested from the live archive and now served from Sanity. This
    used to be a placeholder array shaped like a future Sanity `post`; the
    collection now supplies the same fields, so the eventual Sanity swap is
    still a query change rather than a rewrite. */

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* Prove the markdown -> Portable Text converter loses nothing.
  *
- *   node scripts/checks/md-to-pt.mjs
- *   node scripts/checks/md-to-pt.mjs --verbose      # show every mismatch in full
+ *   node scripts/legacy-scrapers/md-to-pt.mjs
+ *   node scripts/legacy-scrapers/md-to-pt.mjs --verbose      # show every mismatch in full
  *
  * The 80 markdown files are the client's own published prose, scraped from
  * dieyelaw.com, and they are the reason this whole migration needs proving: they

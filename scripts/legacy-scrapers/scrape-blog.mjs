@@ -12,8 +12,8 @@
  * Fetches are cached to .blog-cache/ (gitignored) so re-runs don't re-hit the
  * client's site. Delete that folder to force a refresh.
  *
- *   node scripts/scrape-blog.mjs           # parse (uses cache if present)
- *   node scripts/scrape-blog.mjs --refetch # ignore cache
+ *   node scripts/legacy-scrapers/scrape-blog.mjs           # parse (uses cache if present)
+ *   node scripts/legacy-scrapers/scrape-blog.mjs --refetch # ignore cache
  *
  * Writes: src/content/blog/*.md, scripts/blog-redirects.json,
  *         src/assets/images/blog/*
@@ -35,9 +35,9 @@ import {
   squash,
   stripTags,
   toMarkdown,
-} from "./lib/html.mjs";
+} from "../lib/html.mjs";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const CACHE = path.join(ROOT, ".blog-cache");
 const OUT_CONTENT = path.join(ROOT, "src/content/blog");
 const OUT_IMAGES = path.join(ROOT, "src/assets/images/blog");

@@ -1,5 +1,9 @@
 /* One-time import: src/content/blog/*.md -> `blogPost` documents.
  *
+ * NOTE (phase 7): `src/content/` was DELETED. To run this again, restore it
+ * first — `git checkout becaca2 -- src/content`. See
+ * scripts/legacy-scrapers/README.md.
+ *
  *   npx sanity exec scripts/import/blog.ts --with-user-token
  *
  * Uploads the post artwork as Sanity assets on the way through. That is the
@@ -13,7 +17,7 @@
  *
  * Bodies convert through scripts/lib/md-to-pt.mjs — the same satteri parse
  * Astro renders markdown with — proved lossless against dist/ for all 80 files
- * by `npm run check:md-to-pt`.
+ * by `node scripts/legacy-scrapers/md-to-pt.mjs`.
  */
 
 import { getCliClient } from "sanity/cli";

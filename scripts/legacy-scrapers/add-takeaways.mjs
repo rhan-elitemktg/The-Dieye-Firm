@@ -8,7 +8,7 @@
  * Kept as a script rather than hand-edited files so the wording is reviewable
  * in one place and can be regenerated after a re-scrape.
  *
- *   node scripts/add-takeaways.mjs
+ *   node scripts/legacy-scrapers/add-takeaways.mjs
  */
 
 import { readFile, writeFile } from "node:fs/promises";
@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 
 const DIR = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../src/content/blog"
+  "../../src/content/blog"
 );
 
 const TAKEAWAYS = {

@@ -47,15 +47,21 @@ expecting a detail page.
 practice-area body text come from the comps, which exist to replace the old
 site's voice. Fine to look at the mirror for structure or URL patterns.
 
-**Three bodies of content are ingested from the live site instead**, and all
-three are already in. They are the client's own writing: they carry SEO equity,
-and no comp will ever supply them.
+**Three bodies of content were ingested from the live site instead**, and all
+three now live in SANITY. They are the client's own writing: they carry SEO
+equity, and no comp will ever supply them.
 
-- **Blog posts** — `npm run scrape:blog` → `src/content/blog/` (16).
-- **Practice areas** — `npm run scrape:practice-areas` →
-  `src/content/practice-areas/` (32, ~34,900 words).
-- **Location pages** — `npm run scrape:locations` →
-  `src/content/locations/` (32, ~41,400 source words).
+- **Blog posts** — 16, `blogPost`.
+- **Practice areas** — 32, ~34,900 words, `practiceArea`.
+- **Location pages** — 32, ~41,400 source words, `locationPage`.
+
+**The markdown layer they landed in is GONE.** `src/content/`,
+`src/content.config.ts` and the four npm scripts that fed them were retired in
+phase 7; the scrapers are parked in `scripts/legacy-scrapers/`, which has a
+README saying how to resurrect them and which commit still carries the 80
+markdown files. The ingest rules below still describe how that content got
+here — read them before any re-ingest — but nothing in `src/` reads markdown
+any more, and **`astro:content` is no longer a dependency of this site.**
 
 **Client reviews are a fourth body**, and the exception that isn't in a
 collection. The 14 on `/testimonials/` are the clients' own words, taken from
@@ -95,8 +101,9 @@ Rules that govern all five:
   UI strings) follows the repo rule.
 - **All three scrapers rewrite every file on every run.** Hand edits to
   frontmatter do not survive. Editorial decisions go in the script, keyed by
-  slug. **After any blog re-scrape, run `node scripts/add-takeaways.mjs`** —
-  `keyTakeaways` is written afterwards and the scrape wipes it.
+  slug. **After any blog re-scrape, run
+  `node scripts/legacy-scrapers/add-takeaways.mjs`** — `keyTakeaways` is written
+  afterwards and the scrape wipes it.
 - **Every override table in a scraper is keyed by SLUG, and in the location
   scraper it must be the FULL slug, not the leaf.** `scrape-practice-areas.mjs`
   keys `LABEL_FIXES` on the leaf, which is safe there because that section is
@@ -280,10 +287,11 @@ separate index at `/practice-areas/`.
   own right ("Pearland Family Lawyer") and sits in the collection like any
   other. Nav, the sidebar card title and every top-level page's kicker point at
   the index.
-- **The content file path IS the route**, with exactly one exception.
-  `src/content/practice-areas/divorce/military-divorce.md` →
-  `/family-law/divorce/military-divorce/`. The glob loader's id is already the
-  nested slug, so `[...slug].astro` consumes it whole. The exception is the
+- **The document's slug IS the route**, with exactly one exception. A slug of
+  `divorce/military-divorce` → `/family-law/divorce/military-divorce/`. The slug
+  is already the nested path, so `[...slug].astro` consumes it whole. (This was
+  the markdown file path before phase 7; the shape survived the move to Sanity
+  deliberately, so the routes never had to change.) The exception is the
   section root: its id is `family-law` but it renders at `/family-law/`,
   because stripping the section prefix leaves it with an empty slug. Both
   `areaHref` and `getStaticPaths` special-case that id — `getStaticPaths` gives
@@ -321,8 +329,8 @@ separate index at `/practice-areas/`.
 
 32 pages across four service areas, at the SITE ROOT, built from one route
 (`src/pages/[...slug].astro`) and the same interior template as the practice
-areas. `locations` collection, `src/content/locations/`, file path IS the route
-— no prefix, and no section-root exception.
+areas. `locationPage` documents, slug IS the route — no prefix, and no
+section-root exception.
 
 - **`locations` is the 32 pages. `firmDetails.serviceAreas` is the four nav
   entries.** Same trap as `/family-law/` versus `/practice-areas/`; keep the

@@ -1,5 +1,9 @@
 /* One-time import: src/content/practice-areas/**.md -> `practiceArea` documents.
  *
+ * NOTE (phase 7): `src/content/` was DELETED. To run this again, restore it
+ * first — `git checkout becaca2 -- src/content`. See
+ * scripts/legacy-scrapers/README.md.
+ *
  *   npx sanity exec scripts/import/practice-areas.ts --with-user-token
  *
  * Reads the committed markdown, which is the reviewed artifact: the scraper's
@@ -10,7 +14,7 @@
  * Bodies convert through scripts/lib/md-to-pt.mjs, which parses with satteri —
  * the same parser Astro renders markdown with — so the Portable Text is built
  * from exactly the tree the pre-migration build came from. That conversion is
- * proved lossless against dist/ for all 80 files by `npm run check:md-to-pt`.
+ * proved lossless against dist/ for all 80 files by `node scripts/legacy-scrapers/md-to-pt.mjs`.
  *
  * ── ids ──────────────────────────────────────────────────────────────────────
  *

@@ -6,15 +6,20 @@ present. A stale line here is a wrong line — delete it rather than leaving it.
 Rules and conventions live in `AGENTS.md` and don't belong here. This file is
 only what's true right now.
 
-_Last rewritten: 2026-08-20, on the `studio_polish` branch._
+_Last rewritten: 2026-08-20, on the `phase_7_retire_content_layer` branch._
 
 ---
 
 ## Start here
 
-**Phases 0–6 of the Sanity migration are done.** Phases 0–5 are merged to
-`master` (PRs #31–#39); **phase 6 — Studio polish — is this branch**,
-`studio_polish`, one commit, pushed and open as a PR.
+**Phases 0–7 of the Sanity migration are done**, apart from one manual step.
+Phases 0–6 are merged to `master` — PRs #31–#39, plus **#40 (`studio_polish`,
+phase 6) merged as `20f66ed`**. **Phase 7 is THIS branch**,
+`phase_7_retire_content_layer`, one commit sitting directly on that merge.
+
+**The one thing phase 7 could not finish is the publish webhook** — see Manual
+steps. Both halves of it are dashboard work: `vercel project` has no
+deploy-hook subcommand, and `sanity hooks create` is interactive-only.
 
 Every word a reader sees comes from Sanity apart from the chrome `AGENTS.md`
 lists. Twenty-nine document types, five object types.
@@ -28,7 +33,41 @@ The plan is at `~/.claude/plans/the-time-has-come-linear-emerson.md`.
 
 ---
 
-## What this branch changed
+## What this branch changed — phase 7, retiring the old layer
+
+**`src/content/` and `src/content.config.ts` are DELETED**, and `astro:content`
+is no longer a dependency of this site. 95 pages still build, unchanged.
+
+- The three scrapers, `add-takeaways.mjs`, `blog-redirects.json` and the
+  `md-to-pt` proof moved to **`scripts/legacy-scrapers/`**, which has a README
+  covering what each did and how to bring them back. Only 7 lines changed inside
+  them, all relative paths — `git diff -M --stat` shows it.
+- The four npm scripts that fed them (`scrape:blog`, `scrape:practice-areas`,
+  `scrape:locations`, `check:md-to-pt`) are **gone from `package.json`**. Run
+  them by path if ever needed.
+- **`becaca2` is the restore point.** It is the last commit carrying all 80
+  markdown files: `git checkout becaca2 -- src/content`. The three importers
+  that read them (`import/blog.ts`, `import/locations.ts`,
+  `import/practice-areas.ts`) each say so in their header now.
+
+**`blog-redirects.json` was safe to park** because all 16 of its redirects are
+already live in `vercel.json` — that was checked, not assumed. The file is only
+ever read by `scrape-practice-areas.mjs` to rewrite links.
+
+**Stale paths were swept, including two that would have misled at BUILD FAILURE
+time.** `src/pages/[...slug].astro` threw errors naming
+`src/content/locations/…md`; they now name the `locationPage` slug and tell you
+to change it in the Studio. `AGENTS.md`, `Blog.astro`, `ProseBody.astro` and
+`lib/html.mjs` were updated too. A stale path in a comment is a wrong answer to
+the next person who greps for it.
+
+**What did NOT move:** `lib/html.mjs` and `lib/md-to-pt.mjs` stay in
+`scripts/lib/` — the latter is still used in production by the three importers.
+`scripts/import/` stayed put; most of those never touched `src/content/`.
+
+---
+
+## What phase 6 changed (merged in #40 — kept here because it is recent)
 
 Run as `/studio-polish all`. The brand half was already applied at scaffold, so
 this is almost entirely the editor-UX half.
@@ -136,7 +175,14 @@ Unchanged from the last branch — none of the three has been answered.
   real copy would show up here as a new warning, and none did. It is also the
   ONLY thing that sees a draft; the build never does.
 - **`npm run build`** — 95 pages, unchanged count.
-- **`npm run check:page-copy`** and **`npm run check:md-to-pt`** both pass.
+- **`npm run check:page-copy`** passes. `check:md-to-pt` retired with the
+  content it read (its 80/80 proof stands in git history).
+- **`npm run check:prose-styles` must be given a `--url`.** Run bare it probes
+  `/`, where the practice-area FAQ selectors do not exist, and reports
+  `notApplicable` with `passed: 0` — which reads like a failure and is not.
+  Against `/family-law/mediation-vs-litigation/` and
+  `/harris-county-family-law-attorney/` it is 6/6, which is the run that
+  exercises the FAQ prose path phase 6's `pageFaq` migration touched.
 - **The `/admin` login card, screenshotted pre-auth.** The whole brand layer —
   theme, workspace icon, title, login-card layout — renders before sign-in, so
   it is verifiable without ever logging in or publishing test content. Emblem
@@ -259,11 +305,9 @@ rule, and the Sanity section). What is here is specific to the current state.
 
 ## What is left
 
-- **Phase 7** — retire the old layer. Delete `src/content/` and
-  `src/content.config.ts`, move the three scrapers to `scripts/legacy-scrapers/`,
-  add the Sanity publish webhook → Vercel deploy hook. Nothing under `src/`
-  imports `astro:content`, so this is a deletion and a webhook.
-- Then **`/new-seo-setup`** for sitemap, robots, redirects and the JSON-LD
+- **The publish webhook** — the only part of phase 7 still open. See Manual
+  steps below; it is dashboard work on both halves.
+- **`/new-seo-setup`** for sitemap, robots, redirects and the JSON-LD
   builders. This is also what makes the SEO tab live — the fields and their tabs
   already exist on all 17 routed types and nothing reads any of them.
 - **`/sitemap/`** — the last footer link that still 404s.
@@ -304,11 +348,25 @@ rule, and the Sanity section). What is here is specific to the current state.
 
 ## Manual steps before launch
 
-1. **Sanity → Vercel publish webhook.** None exists (`sanity hook list` is
-   empty). Needs a Vercel Deploy Hook, then a Sanity webhook pointed at it with
-   the drafts toggle **off**. Note that until this exists, a dataset migration
-   like this branch's does not trigger a rebuild — which made it a safe moment
-   to run one, and will not be next time.
+1. **Sanity → Vercel publish webhook — the last piece of phase 7.** None exists
+   (`sanity hooks list` is empty). **Both halves are dashboard work**, which is
+   why phase 7 could not close it: `vercel project` has no deploy-hook
+   subcommand, and `sanity hooks create` takes no url/dataset/trigger flags —
+   it is interactive only.
+
+   - **Vercel** → Project Settings → Git → Deploy Hooks → create one on
+     `master`. Copy the URL. (The Vercel CLI is authenticated here as
+     `rhan-1746`, but the project is not linked locally — no
+     `.vercel/project.json` — so `vercel link` comes first if you want to drive
+     it from the terminal.)
+   - **Sanity** → `npx sanity hooks create`, or the sanity.io dashboard.
+     Dataset `production`, URL as above, and the **drafts toggle OFF** — every
+     keystroke in the Studio writes a draft, so leaving it on would rebuild the
+     site continuously.
+
+   Until this exists, publishing changes nothing on the live site, and a dataset
+   migration does not trigger a rebuild — which is what made phase 6's
+   `pageFaq` migration a safe thing to run, and will not be true next time.
 2. **CORS for the production domain.** `http://localhost:4321` and
    `https://the-dieye-firm.vercel.app` are allowed; `www.dieyelaw.com` at launch.
 3. **`robots.txt` and `sitemap.xml` still do not exist.** Deferred to

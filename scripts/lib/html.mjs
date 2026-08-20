@@ -25,7 +25,8 @@
  *               byte-identical to the blog's.
  *
  * Proven by re-running both existing scrapers against their caches after the
- * extraction and requiring `git diff src/content/` to be empty.
+ * extraction and requiring `git diff src/content/` to be empty (that directory retired in
+ * phase 7 — see scripts/legacy-scrapers/README.md).
  */
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
