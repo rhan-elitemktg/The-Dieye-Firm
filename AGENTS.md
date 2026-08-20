@@ -728,6 +728,16 @@ one inert placeholder when there are no real rules, pointing an un-routable path
 at the homepage. The key stays set permanently and the collection can be emptied
 freely. **Don't "tidy up" that placeholder.**
 
+**Publishing in the Studio now triggers a production build**, via a Sanity
+webhook → Vercel Deploy Hook. Two consequences worth holding in mind:
+
+- **There is no debounce — one publish is one build.** A bulk import fires one
+  build per document. Delete the webhook before seeding anything and recreate it
+  after; `scripts/import/redirects.ts` would have queued 23 deploys.
+- **The Drafts toggle on that webhook must stay OFF.** With it on, every
+  keystroke writes a draft and fires a build. This is also what makes the
+  warning-only length caps load-bearing rather than theoretical.
+
 **A Vercel log that ends in "Build Completed" has not necessarily deployed.**
 Read past it to `Deploying outputs…` and check the deployment's own status —
 `npx vercel ls the-dieye-firm --scope elite-legal-marketing`. The project lives
