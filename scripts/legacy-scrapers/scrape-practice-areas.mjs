@@ -30,8 +30,8 @@
  *
  * Fetches are cached to .pa-cache/ (gitignored). Delete it to force a refresh.
  *
- *   node scripts/scrape-practice-areas.mjs           # parse (uses cache)
- *   node scripts/scrape-practice-areas.mjs --refetch # ignore cache
+ *   node scripts/legacy-scrapers/scrape-practice-areas.mjs           # parse (uses cache)
+ *   node scripts/legacy-scrapers/scrape-practice-areas.mjs --refetch # ignore cache
  *
  * Writes: src/content/practice-areas/**\/*.md
  */
@@ -54,9 +54,9 @@ import {
   titleCase,
   toMarkdown,
   wordCount,
-} from "./lib/html.mjs";
+} from "../lib/html.mjs";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const CACHE = path.join(ROOT, ".pa-cache");
 const OUT_CONTENT = path.join(ROOT, "src/content/practice-areas");
 

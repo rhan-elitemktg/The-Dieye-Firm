@@ -45,13 +45,14 @@ export async function getStaticPaths() {
        the root is "/", colliding with index.astro. The glob loader cannot
        produce an empty id today; this states the invariant where it would
        break rather than where it would be noticed. */
-    if (!page.id) throw new Error("A locations entry has an empty id, which would render at /.");
+    if (!page.id) throw new Error("A locationPage has an empty slug, which would render at /.");
 
     const segment = page.id.split("/")[0];
     if (RESERVED.has(segment)) {
       throw new Error(
-        `src/content/locations/${page.id}.md would render under /${segment}/, which is ` +
-          `already a route. Its index.html would silently overwrite the existing page.`
+        `The locationPage with slug "${page.id}" would render under /${segment}/, ` +
+          `which is already a route. Its index.html would silently overwrite the ` +
+          `existing page. Change the slug in the Studio.`
       );
     }
   }
@@ -106,8 +107,9 @@ const served = firm.serviceAreas.find(
 );
 if (!served) {
   throw new Error(
-    `No firmDetails serviceArea has href ${locationHref(root)}. Either the Sanity ` +
-      `singleton or src/content/locations/ has an area the other doesn't.`
+    `No firmDetails serviceArea has href ${locationHref(root)}. Either the ` +
+      `firmDetails singleton or the locationPage collection has an area the ` +
+      `other doesn't.`
   );
 }
 

@@ -35,8 +35,8 @@
  *
  * Fetches are cached to .loc-cache/ (gitignored). Delete it to force a refresh.
  *
- *   node scripts/scrape-locations.mjs           # parse (uses cache)
- *   node scripts/scrape-locations.mjs --refetch # ignore cache
+ *   node scripts/legacy-scrapers/scrape-locations.mjs           # parse (uses cache)
+ *   node scripts/legacy-scrapers/scrape-locations.mjs --refetch # ignore cache
  *
  * Writes: src/content/locations/**\/*.md
  */
@@ -57,9 +57,9 @@ import {
   titleCase,
   toMarkdown,
   wordCount,
-} from "./lib/html.mjs";
+} from "../lib/html.mjs";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const CACHE = path.join(ROOT, ".loc-cache");
 const OUT_CONTENT = path.join(ROOT, "src/content/locations");
 const PA_CONTENT = path.join(ROOT, "src/content/practice-areas");

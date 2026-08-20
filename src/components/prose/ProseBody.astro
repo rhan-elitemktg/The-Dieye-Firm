@@ -31,7 +31,7 @@
  * it groups adjacent spans that share a decorator, which is what makes
  * `**[a](/x/) and [b](/y/)**` render as one <strong> rather than three. All of
  * that is verified against the pre-migration build by
- * `npm run check:md-to-pt`, which renders the same blocks independently and
+ * `scripts/legacy-scrapers/md-to-pt.mjs`, which renders the same blocks independently and
  * diffs them against dist/.
  */
 import { PortableText } from "astro-portabletext";
